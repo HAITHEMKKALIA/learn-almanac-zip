@@ -1,0 +1,1 @@
+UPDATE public.assignments SET available_until = now() + interval '30 days', available_from = LEAST(available_from, now() - interval '1 hour') WHERE id = '16380bf0-ffc8-44ce-8858-92f23ea9b7a5';
