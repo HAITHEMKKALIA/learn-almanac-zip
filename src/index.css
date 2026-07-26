@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Deutsch Meister — Academic Warm Design System
+   Navy (institutional) + Terracotta (warm accent) + Sage
+   Bilingual FR / AR — RTL safe
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* Surfaces — sand cream */
+    --background: 36 33% 97%;
+    --foreground: 222 35% 14%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 35% 14%;
+    --card-hover: 36 30% 95%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 35% 14%;
+
+    /* Primary — institutional navy */
+    --primary: 226 56% 26%;
+    --primary-foreground: 36 50% 97%;
+    --primary-light: 226 50% 38%;
+    --primary-dark: 226 60% 18%;
+
+    /* Secondary — warm terracotta */
+    --secondary: 12 56% 52%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent — soft gold */
+    --accent: 38 70% 56%;
+    --accent-foreground: 222 40% 14%;
+
+    --muted: 36 25% 92%;
+    --muted-foreground: 222 15% 38%;
+
+    --destructive: 0 70% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 145 30% 38%;
+    --success-light: 145 28% 50%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 35 92% 50%;
+    --warning-light: 38 96% 60%;
+    --warning-foreground: 222 40% 14%;
+
+    --purple: 270 50% 45%;
+    --gold: 38 78% 52%;
+
+    --border: 36 18% 86%;
+    --input: 36 18% 86%;
+    --ring: 226 56% 26%;
+
+    --radius: 0.75rem;
+    --text-dim: 222 12% 50%;
+
+    /* Gradients & shadows */
+    --gradient-primary: linear-gradient(135deg, hsl(226 60% 22%), hsl(226 50% 38%));
+    --gradient-warm: linear-gradient(135deg, hsl(12 56% 52%), hsl(38 70% 56%));
+    --gradient-hero: linear-gradient(135deg, hsl(226 60% 22%) 0%, hsl(226 50% 30%) 50%, hsl(12 50% 42%) 100%);
+    --shadow-soft: 0 1px 2px hsl(222 30% 14% / 0.04), 0 4px 12px hsl(222 30% 14% / 0.05);
+    --shadow-elev: 0 4px 24px -8px hsl(226 56% 26% / 0.18);
+    --shadow-card: 0 1px 0 hsl(36 18% 86%), 0 8px 28px -16px hsl(222 30% 14% / 0.12);
+
+    /* Sidebar — deep navy rail */
+    --sidebar-background: 226 60% 16%;
+    --sidebar-foreground: 36 30% 92%;
+    --sidebar-primary: 38 70% 56%;
+    --sidebar-primary-foreground: 226 60% 14%;
+    --sidebar-accent: 226 50% 22%;
+    --sidebar-accent-foreground: 36 40% 96%;
+    --sidebar-border: 226 40% 24%;
+    --sidebar-ring: 38 70% 56%;
+
+    /* ============================================================
+       Deutsch Meister — Cinematic Academy UI (2026)
+       Dark navy + royal blue + cyan IA + soft German yellow
+       Tokens additifs : utilisés par la nouvelle landing et le
+       design system Academy*. N'écrasent pas les tokens shadcn.
+       ============================================================ */
+    --academy-bg:        222 47% 8%;     /* deep navy #0B1220 */
+    --academy-surface:   222 40% 12%;
+    --academy-elevated:  222 36% 16%;
+    --academy-primary:   221 83% 53%;    /* royal blue #2563EB */
+    --academy-accent:    199 89% 60%;    /* cyan IA #38BDF8 */
+    --academy-warning:   45 96% 53%;     /* german yellow #FACC15 */
+    --academy-success:   142 71% 45%;    /* #22C55E */
+    --academy-danger:    0 84% 60%;      /* #EF4444 */
+    --academy-text:      210 40% 98%;    /* #F8FAFC */
+    --academy-muted:     215 25% 65%;
+    --academy-border:    222 30% 22%;
+    --academy-glow:      199 89% 60%;
+
+    --academy-gradient-hero:   radial-gradient(ellipse at top, hsl(221 83% 30% / 0.45), transparent 60%), linear-gradient(180deg, hsl(222 47% 8%), hsl(222 47% 5%));
+    --academy-gradient-glow:   linear-gradient(135deg, hsl(221 83% 53%), hsl(199 89% 60%));
+    --academy-gradient-card:   linear-gradient(180deg, hsl(222 40% 14% / 0.8), hsl(222 40% 10% / 0.8));
+    --academy-shadow-glow:     0 0 40px -8px hsl(199 89% 60% / 0.35);
+    --academy-shadow-card:     0 24px 60px -24px hsl(222 60% 4% / 0.6), 0 0 0 1px hsl(222 30% 22% / 0.6) inset;
+  }
+
+  .dark {
+    --background: 222 35% 8%;
+    --foreground: 36 30% 92%;
+    --card: 222 30% 12%;
+    --card-foreground: 36 30% 92%;
+    --card-hover: 222 30% 16%;
+    --popover: 222 30% 12%;
+    --popover-foreground: 36 30% 92%;
+    --primary: 38 70% 56%;
+    --primary-foreground: 222 60% 12%;
+    --primary-light: 38 80% 66%;
+    --primary-dark: 38 70% 46%;
+    --secondary: 12 56% 52%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 38 70% 56%;
+    --accent-foreground: 222 60% 12%;
+    --muted: 222 25% 16%;
+    --muted-foreground: 36 14% 65%;
+    --border: 222 25% 20%;
+    --input: 222 25% 20%;
+    --ring: 38 70% 56%;
+    --sidebar-background: 222 40% 6%;
+    --sidebar-foreground: 36 30% 92%;
+    --sidebar-accent: 222 30% 14%;
+    --sidebar-border: 222 30% 18%;
+  }
+}
+
+@layer base {
+  * { @apply border-border box-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', 'DM Sans', system-ui, sans-serif;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+  [dir="rtl"] body, [dir="rtl"] * {
+    font-family: 'Inter', 'Tajawal', sans-serif;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
+}
+
+@layer utilities {
+  .bg-gradient-primary { background: var(--gradient-primary); }
+  .bg-gradient-warm    { background: var(--gradient-warm); }
+  .bg-gradient-hero    { background: var(--gradient-hero); }
+  .shadow-soft         { box-shadow: var(--shadow-soft); }
+  .shadow-elev         { box-shadow: var(--shadow-elev); }
+  .shadow-card         { box-shadow: var(--shadow-card); }
+  .text-balance        { text-wrap: balance; }
+
+  @keyframes float    { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+  @keyframes slideUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes glow     { 0%,100% { box-shadow: 0 0 10px hsl(var(--primary)/0.3); } 50% { box-shadow: 0 0 25px hsl(var(--primary)/0.5); } }
+  @keyframes micPulse { 0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(239,68,68,0); } }
+  @keyframes pulse-opacity { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .animate-float        { animation: float 2.5s infinite; }
+  .animate-slide-up     { animation: slideUp 0.3s ease; }
+  .animate-fade-in      { animation: fadeIn 0.4s ease; }
+  .animate-glow         { animation: glow 3s infinite; }
+  .animate-mic-pulse    { animation: micPulse 1s infinite; }
+  .animate-pulse-opacity{ animation: pulse-opacity 1.2s infinite; }
+
+  /* Academy utilities */
+  .academy-bg              { background-color: hsl(var(--academy-bg)); }
+  .academy-surface         { background-color: hsl(var(--academy-surface)); }
+  .academy-text-primary    { color: hsl(var(--academy-text)); }
+  .academy-text-muted      { color: hsl(var(--academy-muted)); }
+  .bg-academy-hero         { background: var(--academy-gradient-hero); }
+  .bg-academy-glow         { background: var(--academy-gradient-glow); }
+  .bg-academy-card         { background: var(--academy-gradient-card); }
+  .shadow-academy-glow     { box-shadow: var(--academy-shadow-glow); }
+  .shadow-academy-card     { box-shadow: var(--academy-shadow-card); }
+  .academy-border          { border-color: hsl(var(--academy-border)); }
+  .academy-glass           { background: hsl(var(--academy-surface) / 0.55); backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%); border: 1px solid hsl(var(--academy-border) / 0.6); }
+  .academy-ring-glow       { box-shadow: 0 0 0 1px hsl(var(--academy-accent) / 0.35), 0 0 24px -6px hsl(var(--academy-accent) / 0.45); }
+
+  @keyframes academy-grid-pan { 0% { background-position: 0 0; } 100% { background-position: 60px 60px; } }
+  .academy-grid {
+    background-image:
+      linear-gradient(hsl(var(--academy-border) / 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--academy-border) / 0.35) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: academy-grid-pan 24s linear infinite;
+  }
+  @keyframes academy-glow-pulse { 0%,100% { opacity: 0.45; transform: scale(1); } 50% { opacity: 0.75; transform: scale(1.04); } }
+  .academy-glow-blob { animation: academy-glow-pulse 6s ease-in-out infinite; }
+
+  /* ============================================================
+     Identités par rôle — chaque interface a sa couleur dominante,
+     son dégradé, son sidebar et son ambiance.
+     Appliquées via data-role-theme="..." sur le root du layout.
+     ============================================================ */
+  [data-role-theme="school-admin"] {
+    --primary: 222 76% 32%; --primary-light: 215 90% 50%; --primary-dark: 222 70% 22%;
+    --accent: 199 89% 55%; --ring: 215 90% 50%;
+    --sidebar-background: 222 60% 12%; --sidebar-foreground: 210 40% 96%;
+    --sidebar-accent: 215 70% 22%; --sidebar-primary: 199 89% 60%;
+    --gradient-primary: linear-gradient(135deg, hsl(222 76% 22%), hsl(199 89% 50%));
+    --role-tint: 215 90% 55%; --role-tint-2: 199 89% 60%;
+  }
+  [data-role-theme="teacher"] {
+    --primary: 158 64% 28%; --primary-light: 158 58% 42%; --primary-dark: 158 70% 18%;
+    --accent: 38 92% 55%; --ring: 158 64% 35%;
+    --sidebar-background: 158 50% 10%; --sidebar-foreground: 150 40% 94%;
+    --sidebar-accent: 158 45% 18%; --sidebar-primary: 38 92% 60%;
+    --gradient-primary: linear-gradient(135deg, hsl(158 64% 22%), hsl(168 60% 38%));
+    --role-tint: 158 64% 45%; --role-tint-2: 38 92% 55%;
+  }
+  [data-role-theme="student"] {
+    --primary: 262 70% 50%; --primary-light: 262 75% 62%; --primary-dark: 262 75% 38%;
+    --accent: 190 95% 55%; --ring: 262 70% 55%;
+    --sidebar-background: 252 50% 12%; --sidebar-foreground: 250 40% 96%;
+    --sidebar-accent: 262 50% 22%; --sidebar-primary: 190 95% 60%;
+    --gradient-primary: linear-gradient(135deg, hsl(262 70% 42%), hsl(190 95% 50%));
+    --role-tint: 262 70% 60%; --role-tint-2: 190 95% 60%;
+  }
+  [data-role-theme="parent"] {
+    --primary: 18 58% 42%; --primary-light: 22 70% 58%; --primary-dark: 18 65% 30%;
+    --accent: 38 82% 58%; --ring: 22 70% 50%;
+    --sidebar-background: 25 35% 14%; --sidebar-foreground: 36 40% 94%;
+    --sidebar-accent: 22 40% 22%; --sidebar-primary: 38 82% 62%;
+    --gradient-primary: linear-gradient(135deg, hsl(18 58% 36%), hsl(38 82% 54%));
+    --role-tint: 22 70% 58%; --role-tint-2: 38 82% 62%;
+  }
+  [data-role-theme="academic"] {
+    --primary: 245 60% 38%; --primary-light: 250 70% 56%; --primary-dark: 245 70% 26%;
+    --accent: 320 75% 58%; --ring: 250 70% 50%;
+    --sidebar-background: 245 50% 14%; --sidebar-foreground: 250 40% 96%;
+    --sidebar-accent: 245 45% 24%; --sidebar-primary: 320 75% 62%;
+    --gradient-primary: linear-gradient(135deg, hsl(245 60% 30%), hsl(320 75% 50%));
+    --role-tint: 250 70% 62%; --role-tint-2: 320 75% 62%;
+  }
+
+  /* Ambiance — glow corner subtil par rôle */
+  .role-ambient { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .role-ambient::before, .role-ambient::after {
+    content: ""; position: absolute; width: 520px; height: 520px; border-radius: 9999px;
+    filter: blur(120px); opacity: 0.35; animation: academy-glow-pulse 9s ease-in-out infinite;
+  }
+  .role-ambient::before { top: -180px; inset-inline-end: -160px;
+    background: radial-gradient(circle, hsl(var(--role-tint) / 0.55), transparent 65%); }
+  .role-ambient::after { bottom: -200px; inset-inline-start: -180px;
+    background: radial-gradient(circle, hsl(var(--role-tint-2) / 0.45), transparent 65%); animation-delay: 3s; }
+
+  /* Motion modéré — entrée page + stagger nav */
+  @keyframes role-page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes role-nav-in  { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: translateX(0); } }
+  .role-page-in { animation: role-page-in 0.45s cubic-bezier(.22,.61,.36,1) both; }
+  [data-role-theme] [data-sidebar="menu"] > * { animation: role-nav-in 0.35s ease-out both; }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(1){ animation-delay: .02s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(2){ animation-delay: .05s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(3){ animation-delay: .08s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(4){ animation-delay: .11s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(5){ animation-delay: .14s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(6){ animation-delay: .17s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(7){ animation-delay: .20s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(8){ animation-delay: .23s }
+  [data-role-theme] [data-sidebar="menu"] > *:nth-child(n+9){ animation-delay: .26s }
+
+  /* Bandeau d'en-tête teinté par rôle */
+  .role-header-tint {
+    background:
+      linear-gradient(180deg, hsl(var(--role-tint) / 0.08), transparent 80%),
+      hsl(var(--background) / 0.6);
+    border-bottom: 1px solid hsl(var(--role-tint) / 0.18);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .academy-grid, .academy-glow-blob, .animate-float, .animate-glow, .animate-mic-pulse, .animate-pulse-opacity,
+    .role-page-in, [data-role-theme] [data-sidebar="menu"] > *, .role-ambient::before, .role-ambient::after {
+      animation: none !important;
+    }
+  }
+}
