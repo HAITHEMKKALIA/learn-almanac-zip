@@ -65,7 +65,21 @@ export default function ClassesGlobal() {
       })));
       setLoading(false);
     })();
-  }, []);
+  }, [tick]);
+
+  const setStatus = async (id: string, status: string) => {
+    const { error } = await (supabase as any).rpc("admin_set_class_status", { _class_id: id, _status: status });
+    if (error) return toast.error(error.message);
+    toast.success(tt({ fr: "Statut mis à jour", de: "Status aktualisiert", ar: "تم تحديث الحالة" }));
+    setTick(t => t + 1);
+  };
+  const del = async (id: string, name: string) => {
+    if (!confirm(tt({ fr: `Supprimer la classe « ${name} » ?`, de: `Klasse „${name}" löschen?`, ar: `حذف الفصل "${name}"؟` }))) return;
+    const { error } = await (supabase as any).rpc("admin_delete_class", { _class_id: id });
+    if (error) return toast.error(error.message);
+    toast.success(tt({ fr: "Classe supprimée", de: "Klasse gelöscht", ar: "تم حذف الفصل" }));
+    setTick(t => t + 1);
+  };
 
   const filtered = useMemo(() => rows.filter((r) =>
     !q || `${r.name} ${r.school_name} ${r.teacher_name} ${r.level}`.toLowerCase().includes(q.toLowerCase())
