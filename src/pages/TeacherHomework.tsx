@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   Plus, Pencil, Trash2, Eye, Calendar as CalIcon, Sparkles, Loader2,
-  Upload, FileText, Music, ListChecks, ArrowUp, ArrowDown, X, CheckCircle2, XCircle,
+  Upload, FileText, Music, ListChecks, ArrowUp, ArrowDown, X, CheckCircle2, XCircle, Bell,
 } from "lucide-react";
 import { toast } from "sonner";
 import { notify } from "@/lib/notify";
