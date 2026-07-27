@@ -5,6 +5,7 @@ import { UNITS_A2 } from "@/data/curriculumA2";
 import { UNITS_B1 } from "@/data/curriculumB1";
 import { UNITS_B2 } from "@/data/curriculumB2";
 import "@/data/curriculumExtra";
+import "@/data/curriculumA1Extra";
 
 type LevelKey = "A1" | "A2" | "B1" | "B2";
 const LEVEL_UNITS: Record<LevelKey, typeof UNITS> = { A1: UNITS, A2: UNITS_A2 as any, B1: UNITS_B1 as any, B2: UNITS_B2 as any };
