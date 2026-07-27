@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Search, BookOpenCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, BookOpenCheck, PauseCircle, PlayCircle, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { toast } from "sonner";
 
 type Row = {
   id: string;
