@@ -101,6 +101,41 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: true, score, feedback: fb }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    if (kind === "homework_questions") {
+      const { data: sub } = await admin.from("homework_submissions")
+        .select("*, homework(title, max_points, level, category, teacher_id)")
+        .eq("id", submission_id).single();
+      if (!sub) throw new Error("not found");
+      if (sub.homework.teacher_id !== u.user.id) throw new Error("forbidden");
+      const { data: qs } = await admin.from("homework_questions").select("*").eq("homework_id", sub.homework_id).order("position");
+      const { data: ans } = await admin.from("homework_question_answers").select("*").eq("submission_id", submission_id);
+      const ansMap = new Map((ans || []).map((a: any) => [a.question_id, a]));
+      let total = 0;
+      for (const q of (qs || []) as any[]) {
+        const pts = q.points || 1;
+        total += pts;
+        const a: any = ansMap.get(q.id);
+        if (!a || !a.answer) {
+          if (a) await admin.from("homework_question_answers").update({ awarded_points: 0, is_correct: false, teacher_comment: "Aucune réponse" }).eq("id", a.id);
+          continue;
+        }
+        const sys = `Du bist DaF-Korrektor (Niveau ${sub.homework.level || "A1"}). Bewerte die Antwort. Tool: grade_open_answer.`;
+        const usr = `Frage: ${q.prompt}\nErwartete Antwort: ${q.expected_answer || "(keine Referenz)"}\nSchüler-Antwort: ${a.answer}\nMax. Punkte: ${pts}`;
+        try {
+          const r = await aiCall(GRADE_OPEN_SCHEMA, sys, usr);
+          const ratio = Math.max(0, Math.min(1, Number(r.score_ratio) || 0));
+          const awarded = Math.round(ratio * pts * 100) / 100;
+          const comment = `${r.feedback_fr || ""}${r.correction ? `\n\nCorrection: ${r.correction}` : ""}`;
+          await admin.from("homework_question_answers").update({
+            awarded_points: awarded, is_correct: ratio >= 0.5, teacher_comment: comment,
+          }).eq("id", a.id);
+        } catch (e) { console.error("grade fail", q.id, e); }
+      }
+      const { data: fresh } = await admin.from("homework_question_answers").select("awarded_points").eq("submission_id", submission_id);
+      const score = Math.round((fresh || []).reduce((s: number, r: any) => s + (Number(r.awarded_points) || 0), 0));
+      return new Response(JSON.stringify({ ok: true, score, total }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     // EXAM
     const { data: sub } = await admin.from("submissions").select("*, assignments(teacher_id, level)").eq("id", submission_id).single();
     if (!sub) throw new Error("not found");

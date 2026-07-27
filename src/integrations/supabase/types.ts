@@ -1431,14 +1431,17 @@ export type Database = {
         Row: {
           attachment_name: string | null
           attachment_url: string | null
+          audio_url: string | null
           category: string
           class_id: string
           created_at: string
           due_at: string | null
           id: string
           instructions: string | null
+          kind: string
           level: string | null
           max_points: number
+          pdf_url: string | null
           status: string
           teacher_id: string
           title: string
@@ -1447,14 +1450,17 @@ export type Database = {
         Insert: {
           attachment_name?: string | null
           attachment_url?: string | null
+          audio_url?: string | null
           category?: string
           class_id: string
           created_at?: string
           due_at?: string | null
           id?: string
           instructions?: string | null
+          kind?: string
           level?: string | null
           max_points?: number
+          pdf_url?: string | null
           status?: string
           teacher_id: string
           title: string
@@ -1463,14 +1469,17 @@ export type Database = {
         Update: {
           attachment_name?: string | null
           attachment_url?: string | null
+          audio_url?: string | null
           category?: string
           class_id?: string
           created_at?: string
           due_at?: string | null
           id?: string
           instructions?: string | null
+          kind?: string
           level?: string | null
           max_points?: number
+          pdf_url?: string | null
           status?: string
           teacher_id?: string
           title?: string
@@ -1490,6 +1499,98 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      homework_question_answers: {
+        Row: {
+          answer: string | null
+          awarded_points: number | null
+          created_at: string
+          id: string
+          is_correct: boolean | null
+          question_id: string
+          submission_id: string
+          teacher_comment: string | null
+          updated_at: string
+        }
+        Insert: {
+          answer?: string | null
+          awarded_points?: number | null
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          question_id: string
+          submission_id: string
+          teacher_comment?: string | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: string | null
+          awarded_points?: number | null
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          question_id?: string
+          submission_id?: string
+          teacher_comment?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homework_question_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "homework_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "homework_question_answers_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "homework_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      homework_questions: {
+        Row: {
+          created_at: string
+          expected_answer: string | null
+          homework_id: string
+          id: string
+          points: number
+          position: number
+          prompt: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expected_answer?: string | null
+          homework_id: string
+          id?: string
+          points?: number
+          position: number
+          prompt: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expected_answer?: string | null
+          homework_id?: string
+          id?: string
+          points?: number
+          position?: number
+          prompt?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "homework_questions_homework_id_fkey"
+            columns: ["homework_id"]
+            isOneToOne: false
+            referencedRelation: "homework"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1927,6 +2028,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          metadata: Json
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          metadata?: Json
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          metadata?: Json
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       placement_tests: {
         Row: {
