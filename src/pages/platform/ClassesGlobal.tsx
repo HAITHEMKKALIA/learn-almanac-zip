@@ -105,11 +105,12 @@ export default function ClassesGlobal() {
               <th className="text-left px-4 py-3">{tt({ fr: "Niveau", de: "Stufe", ar: "المستوى" })}</th>
               <th className="text-left px-4 py-3">{tt({ fr: "Élèves", de: "Schüler", ar: "الطلاب" })}</th>
               <th className="text-left px-4 py-3">{tt({ fr: "Statut", de: "Status", ar: "الحالة" })}</th>
+              <th className="text-right px-4 py-3">{tt({ fr: "Actions", de: "Aktionen", ar: "إجراءات" })}</th>
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={6} className="text-center py-10 text-muted-foreground">{tt({ fr: "Chargement…", de: "Wird geladen…", ar: "جارٍ التحميل…" })}</td></tr>}
-            {!loading && filtered.length === 0 && <tr><td colSpan={6} className="text-center py-10 text-muted-foreground">{tt({ fr: "Aucune classe.", de: "Keine Klassen.", ar: "لا توجد فصول." })}</td></tr>}
+            {loading && <tr><td colSpan={7} className="text-center py-10 text-muted-foreground">{tt({ fr: "Chargement…", de: "Wird geladen…", ar: "جارٍ التحميل…" })}</td></tr>}
+            {!loading && filtered.length === 0 && <tr><td colSpan={7} className="text-center py-10 text-muted-foreground">{tt({ fr: "Aucune classe.", de: "Keine Klassen.", ar: "لا توجد فصول." })}</td></tr>}
             {filtered.map((r) => (
               <tr key={r.id} className="border-t hover:bg-muted/20">
                 <td className="px-4 py-3 font-medium">{r.name}</td>
@@ -118,6 +119,16 @@ export default function ClassesGlobal() {
                 <td className="px-4 py-3"><span className="text-xs px-2 py-0.5 rounded bg-slate-500/15">{r.level || "—"}</span></td>
                 <td className="px-4 py-3">{r.students}</td>
                 <td className="px-4 py-3 text-xs">{r.status || "—"}</td>
+                <td className="px-4 py-3 text-right">
+                  <div className="flex gap-1 justify-end">
+                    {r.status === "suspended" ? (
+                      <Button size="sm" variant="ghost" className="text-emerald-600" onClick={() => setStatus(r.id, "active")} title={tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}><PlayCircle className="h-4 w-4" /></Button>
+                    ) : (
+                      <Button size="sm" variant="ghost" className="text-amber-600" onClick={() => setStatus(r.id, "suspended")} title={tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}><PauseCircle className="h-4 w-4" /></Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => del(r.id, r.name)} title={tt({ fr: "Supprimer", de: "Löschen", ar: "حذف" })}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
