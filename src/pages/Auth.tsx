@@ -259,6 +259,97 @@ export default function AuthPage() {
                 <div><Label>{tt(T.name)}</Label><Input value={name} onChange={e=>setName(e.target.value)} className="text-foreground" /></div>
                 <div><Label>{tt(T.email)}</Label><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)} className="text-foreground" /></div>
                 <div><Label>{tt(T.passwordHint)}</Label><Input type="password" required minLength={8} value={password} onChange={e=>setPassword(e.target.value)} className="text-foreground" /></div>
+
+                <div className="rounded-md border border-white/15 bg-white/5 p-3 space-y-3">
+                  <Label className="text-white/90">{tt({ fr: "Type de compte", de: "Kontotyp", ar: "نوع الحساب" })}</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["student","teacher","school"] as const).map((t) => (
+                      <button
+                        type="button"
+                        key={t}
+                        onClick={() => setAccountType(t)}
+                        className={`text-xs rounded-md border px-2 py-2 transition ${accountType === t ? "bg-white text-black border-white" : "border-white/20 text-white/80 hover:bg-white/10"}`}
+                      >
+                        {t === "student" ? tt({ fr: "Élève", de: "Schüler", ar: "طالب" })
+                          : t === "teacher" ? tt({ fr: "Professeur", de: "Lehrer", ar: "معلم" })
+                          : tt({ fr: "École / Institut", de: "Schule / Institut", ar: "مدرسة / معهد" })}
+                      </button>
+                    ))}
+                  </div>
+
+                  {(accountType === "student" || accountType === "teacher") && (
+                    <>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button type="button" onClick={() => setAttachment("existing")}
+                          className={`text-xs rounded-md border px-2 py-2 transition ${attachment === "existing" ? "bg-white text-black border-white" : "border-white/20 text-white/80 hover:bg-white/10"}`}>
+                          {tt({ fr: "Rejoindre une école", de: "Schule beitreten", ar: "الانضمام إلى مدرسة" })}
+                        </button>
+                        <button type="button" onClick={() => setAttachment("independent")}
+                          className={`text-xs rounded-md border px-2 py-2 transition ${attachment === "independent" ? "bg-white text-black border-white" : "border-white/20 text-white/80 hover:bg-white/10"}`}>
+                          {tt({ fr: "Indépendant", de: "Unabhängig", ar: "مستقل" })}
+                        </button>
+                      </div>
+
+                      {attachment === "existing" && (
+                        <div>
+                          <Label>{tt({ fr: "École", de: "Schule", ar: "المدرسة" })}</Label>
+                          <Select value={selectedSchoolId} onValueChange={setSelectedSchoolId}>
+                            <SelectTrigger className="text-foreground"><SelectValue placeholder={tt({ fr: "Choisir une école…", de: "Schule wählen…", ar: "اختر مدرسة…" })} /></SelectTrigger>
+                            <SelectContent>
+                              {schools.length === 0 && (
+                                <div className="px-3 py-2 text-xs text-muted-foreground">
+                                  {tt({ fr: "Aucune école active", de: "Keine aktive Schule", ar: "لا توجد مدرسة نشطة" })}
+                                </div>
+                              )}
+                              {schools.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      {attachment === "independent" && accountType === "student" && (
+                        <div>
+                          <Label>{tt({ fr: "Niveau de départ", de: "Startniveau", ar: "المستوى الابتدائي" })}</Label>
+                          <select value={startLevel} onChange={(e) => setStartLevel(e.target.value)} className="w-full h-10 rounded-md border bg-background text-foreground px-3">
+                            {["A1.1","A1.2","A2.1","A2.2","B1.1","B1.2","B2.1","B2.2"].map((l) => <option key={l}>{l}</option>)}
+                          </select>
+                        </div>
+                      )}
+
+                      {attachment === "independent" && accountType === "teacher" && (
+                        <div>
+                          <Label>{tt({ fr: "Nom du studio", de: "Studio-Name", ar: "اسم الاستوديو" })}</Label>
+                          <Input value={studioName} onChange={(e) => setStudioName(e.target.value)} placeholder="Studio Deutsch" className="text-foreground" />
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {accountType === "school" && (
+                    <>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button type="button" onClick={() => setSchoolKind("school")}
+                          className={`text-xs rounded-md border px-2 py-2 transition ${schoolKind === "school" ? "bg-white text-black border-white" : "border-white/20 text-white/80 hover:bg-white/10"}`}>
+                          {tt({ fr: "École", de: "Schule", ar: "مدرسة" })}
+                        </button>
+                        <button type="button" onClick={() => setSchoolKind("institute")}
+                          className={`text-xs rounded-md border px-2 py-2 transition ${schoolKind === "institute" ? "bg-white text-black border-white" : "border-white/20 text-white/80 hover:bg-white/10"}`}>
+                          {tt({ fr: "Institut", de: "Institut", ar: "معهد" })}
+                        </button>
+                      </div>
+                      <div>
+                        <Label>{tt({ fr: "Nom", de: "Name", ar: "الاسم" })}</Label>
+                        <Input value={schoolName} onChange={(e) => setSchoolName(e.target.value)} placeholder={schoolKind === "institute" ? "Institut Deutsch Tunis" : "École Allemande"} className="text-foreground" />
+                      </div>
+                      <p className="text-[11px] text-white/60">
+                        {tt({ fr: "La demande est validée par le propriétaire de la plateforme.", de: "Der Antrag wird vom Plattforminhaber geprüft.", ar: "تخضع الطلبات لموافقة مالك المنصة." })}
+                      </p>
+                    </>
+                  )}
+                </div>
+
                 <div>
                   <Label>{tt({ fr: "Année de naissance", de: "Geburtsjahr", ar: "سنة الميلاد" })}</Label>
                   <Input type="number" min={1920} max={currentYear} placeholder="2010" value={birthYear} onChange={e=>setBirthYear(e.target.value)} className="text-foreground" />
