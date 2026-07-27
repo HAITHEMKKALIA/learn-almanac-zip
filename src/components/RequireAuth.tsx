@@ -66,7 +66,13 @@ export function RequireAuth({
 
   if (role) {
     const need = Array.isArray(role) ? role : [role];
-    if (!need.some(r => roles.includes(r))) {
+    // Strict tenant isolation: the ONLY role that matters for page access is the
+    // role of the currently active learning space. Global roles are ignored so a
+    // user who is student in school A and teacher in school B cannot mix menus
+    // or pages within the same session. Super-admin remains a platform override.
+    const activeRole = activeSchool?.role === "owner" ? "school_admin" : activeSchool?.role;
+    const allowed = isSuperAdmin || (activeRole ? need.includes(activeRole as AppRole) : false);
+    if (!allowed) {
       if (loc.pathname !== "/app") return <Navigate to="/app" replace />;
       const noneLabel = tt({ fr: "aucun", de: "keine", ar: "لا شيء" });
       return (
