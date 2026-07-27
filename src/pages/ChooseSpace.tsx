@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useActiveSchool } from "@/contexts/ActiveSchoolContext";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, ArrowLeft, Sparkles,
+  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, ArrowLeft, Sparkles, LogOut, Mail,
 } from "lucide-react";
 
 const STORAGE_DEFAULT = "default_space_id";
