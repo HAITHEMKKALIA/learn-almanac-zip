@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, Sparkles,
+  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, ArrowLeft, Sparkles,
 } from "lucide-react";
 
 const STORAGE_DEFAULT = "default_space_id";
@@ -81,6 +81,11 @@ export default function ChooseSpace() {
       </div>
 
       <div className="max-w-5xl mx-auto">
+        <div className="mb-4">
+          <Button variant="ghost" size="sm" onClick={() => (window.history.length > 1 ? nav(-1) : nav("/app"))} className="gap-1.5">
+            <ArrowLeft className="h-4 w-4" /> Retour
+          </Button>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
