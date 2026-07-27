@@ -3799,6 +3799,21 @@ export type Database = {
           user_id: string
         }[]
       }
+      school_remove_member: {
+        Args: { _school_id: string; _user_id: string }
+        Returns: undefined
+      }
+      school_review_membership: {
+        Args: {
+          _class_id?: string
+          _decision: string
+          _reason?: string
+          _school_id: string
+          _space_role?: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       student_can_access_questions: {
         Args: { _assignment_id: string; _user_id: string }
         Returns: boolean
