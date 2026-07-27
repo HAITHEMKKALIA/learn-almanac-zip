@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import {
   Plus, Pencil, Trash2, Eye, Calendar as CalIcon, Sparkles, Loader2,
-  Upload, FileText, Music, ListChecks, ArrowUp, ArrowDown, X, CheckCircle2, XCircle,
+  Upload, FileText, Music, ListChecks, ArrowUp, ArrowDown, X, CheckCircle2, XCircle, Bell,
 } from "lucide-react";
 import { toast } from "sonner";
 import { notify } from "@/lib/notify";
@@ -562,6 +562,32 @@ function SubmissionGrader({ sub, homework, tt, onReload }: any) {
           <Button size="sm" onClick={finish} disabled={finishing}>
             {finishing && <Loader2 className="h-3 w-3 me-1 animate-spin" />}
             <CheckCircle2 className="h-3 w-3 me-1" />{tt({ fr: "Appliquer & terminer", de: "Anwenden & abschließen", ar: "تطبيق وإنهاء" })}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={async () => {
+              try {
+                const graded = sub.status === "graded";
+                await notify({
+                  user_id: sub.student_id,
+                  type: graded ? "homework.reminder_graded" : "homework.reminder",
+                  title: graded
+                    ? tt({ fr: "Rappel : correction disponible", de: "Erinnerung: Korrektur verfügbar", ar: "تذكير: التصحيح متاح" })
+                    : tt({ fr: "Rappel de devoir", de: "Hausaufgaben-Erinnerung", ar: "تذكير بالواجب" }),
+                  body: graded
+                    ? `${homework.title} — ${sub.score ?? 0}/${homework.max_points}`
+                    : `${homework.title}${homework.due_at ? ` · ${new Date(homework.due_at).toLocaleDateString()}` : ""}`,
+                  link: "/student/homework",
+                });
+                toast.success(tt({ fr: "🔔 Notification envoyée", de: "🔔 Benachrichtigung gesendet", ar: "🔔 تم إرسال الإشعار" }));
+              } catch (e: any) {
+                toast.error(e.message || "Error");
+              }
+            }}
+          >
+            <Bell className="h-3 w-3 me-1" />
+            {tt({ fr: "Renotifier l'élève", de: "Schüler erneut benachrichtigen", ar: "إعادة إشعار الطالب" })}
           </Button>
         </div>
       </CardContent>
