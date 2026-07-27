@@ -260,6 +260,7 @@ export default function AuthPage() {
               <form onSubmit={onSignUp} className="space-y-3">
                 <div><Label>{tt(T.name)}</Label><Input value={name} onChange={e=>setName(e.target.value)} className="text-foreground" /></div>
                 <div><Label>{tt(T.email)}</Label><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)} className="text-foreground" /></div>
+                <div><Label>{tt({ fr: "Confirmer l'email", de: "E-Mail bestätigen", ar: "تأكيد البريد الإلكتروني" })}</Label><Input type="email" required value={emailConfirm} onChange={e=>setEmailConfirm(e.target.value)} onPaste={(e)=>e.preventDefault()} className="text-foreground" /></div>
                 <div><Label>{tt(T.passwordHint)}</Label><Input type="password" required minLength={8} value={password} onChange={e=>setPassword(e.target.value)} className="text-foreground" /></div>
 
                 <div className="rounded-md border border-white/15 bg-white/5 p-3 space-y-3">
