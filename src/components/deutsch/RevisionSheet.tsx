@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { getAllStats, type LessonStats } from "@/lib/lessonStats";
 import { UNITS } from "@/data/curriculum";
+import { UNITS_A2 } from "@/data/curriculumA2";
+import { UNITS_B1 } from "@/data/curriculumB1";
+import { UNITS_B2 } from "@/data/curriculumB2";
+import { getActiveUnits } from "@/data/activeUnits";
+const ALL_UNITS = [...UNITS, ...UNITS_A2, ...UNITS_B1, ...UNITS_B2];
 import { ExerciseEngine } from "./ExerciseEngine";
 import { SpeakBtn } from "./SpeakBtn";
 import { AnalogClock } from "./AnalogClock";
@@ -41,7 +46,7 @@ function aggregate(): AggregatedDifficulty {
 
 /** Retrouve un VocabItem (de/fr) dans tout le programme à partir du DE. */
 function findVocab(de: string): VocabItem | null {
-  for (const u of UNITS) {
+  for (const u of ALL_UNITS) {
     for (const l of u.lessons) {
       const m = l.vocab.find(v => v.de.toLowerCase() === de.toLowerCase());
       if (m) return m;
@@ -54,7 +59,7 @@ function buildTargetedExercises(agg: AggregatedDifficulty): Exercise[] {
   const exos: Exercise[] = [];
 
   // 1) Exercices ciblés sur les mots faibles (QCM FR→DE)
-  const allDe = UNITS.flatMap(u => u.lessons.flatMap(l => l.vocab.map(v => v.de)));
+  const allDe = getActiveUnits().flatMap(u => u.lessons.flatMap(l => l.vocab.map(v => v.de)));
   const seenWords = new Set<string>();
   for (const { word } of agg.weakWords) {
     if (seenWords.has(word.toLowerCase())) continue;

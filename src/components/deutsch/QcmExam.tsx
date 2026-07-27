@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { UNITS, type VocabItem } from "@/data/curriculum";
+import { type VocabItem } from "@/data/curriculum";
+import { getActiveUnits } from "@/data/activeUnits";
 import { SpeakBtn } from "./SpeakBtn";
 import { FlashcardDeck } from "./FlashcardDeck";
 import { useI18n, translateFrToAr } from "@/lib/i18n";
@@ -41,7 +42,7 @@ function normalize(s: string): string {
 
 function buildExam(): ExamQ[] {
   // Pool global : tout le vocabulaire de toutes les unités
-  const allVocab: VocabItem[] = UNITS.flatMap(u => u.lessons.flatMap(l => l.vocab));
+  const allVocab: VocabItem[] = getActiveUnits().flatMap(u => u.lessons.flatMap(l => l.vocab));
   // Dédup par .de
   const seen = new Set<string>();
   const unique = allVocab.filter(v => {

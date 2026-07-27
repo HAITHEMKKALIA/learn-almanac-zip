@@ -5,7 +5,7 @@
 //    (HTML rendu par le navigateur → polices arabes natives, contrairement à jsPDF)
 
 import { useMemo, useState } from "react";
-import { UNITS } from "@/data/curriculum";
+import { getActiveUnits } from "@/data/activeUnits";
 import { translateFrToAr, isArTranslationComplete, useI18n } from "@/lib/i18n";
 import type { Lesson } from "@/data/curriculum";
 import type { EnrichedLesson } from "@/data/lessonEnrichment";
@@ -26,8 +26,9 @@ const UNIT_AR: Record<string, { title: string; desc: string }> = {
 
 /* ============ 1. Glossaire AR par chapitre ============ */
 export function ArGlossary({ onBack }: { onBack: () => void }) {
+  const UNITS = useMemo(() => getActiveUnits(), []);
   const [uId, setUId] = useState<string>(UNITS[0].id);
-  const unit = UNITS.find(u => u.id === uId)!;
+  const unit = UNITS.find(u => u.id === uId) || UNITS[0];
   const ar = UNIT_AR[unit.id];
 
   const rows = useMemo(() => {
@@ -90,6 +91,7 @@ export function ArGlossary({ onBack }: { onBack: () => void }) {
 /* ============ 2. Mode test AR (santé i18n) ============ */
 export function ArHealthCheck({ onBack }: { onBack: () => void }) {
   const report = useMemo(() => {
+    const UNITS = getActiveUnits();
     const items: { unitId: string; label: string; fr: string; ar: string; ok: boolean }[] = [];
     UNITS.forEach(u => {
       const ua = UNIT_AR[u.id];
