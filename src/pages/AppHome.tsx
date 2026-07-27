@@ -41,21 +41,16 @@ export default function AppHome() {
       return;
     }
 
-    // Espace par défaut s'il existe et est encore accessible
+    // Priorité : espace par défaut > dernier espace actif > premier espace disponible
     const defaultId = typeof window !== "undefined" ? localStorage.getItem(STORAGE_DEFAULT) : null;
     const defaultSpace = defaultId ? schools.find((s) => s.id === defaultId) : null;
-    if (defaultSpace && activeSchool?.id !== defaultSpace.id) {
-      setActiveSchoolId(defaultSpace.id);
+    const selectedSpace = defaultSpace ?? activeSchool ?? schools[0];
+
+    if (selectedSpace && activeSchool?.id !== selectedSpace.id) {
+      setActiveSchoolId(selectedSpace.id);
       return; // re-run after context updates
     }
 
-    // Plusieurs espaces et pas de défaut : laisser choisir
-    if (schools.length > 1 && !defaultSpace) {
-      navigate("/choose-space", { replace: true });
-      return;
-    }
-
-    const selectedSpace = defaultSpace ?? activeSchool;
     if (selectedSpace) navigate(homeForSpace(selectedSpace), { replace: true });
   }, [roles, loading, user, schools, pendingRequests, activeSchool, spaceLoading, navigate, setActiveSchoolId]);
 
