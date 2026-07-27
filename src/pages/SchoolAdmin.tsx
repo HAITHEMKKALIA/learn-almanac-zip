@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { GraduationCap, Plus, Trash2, Users, ShieldCheck, Building2, Loader2, Clock } from "lucide-react";
+import { GraduationCap, Plus, Trash2, Users, ShieldCheck, Building2, Loader2, Clock, Check, X, PauseCircle, PlayCircle, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { AcademyMotionPage, AcademyStatGrid, AcademyStatItem, AcademyMetricCard } from "@/components/academy/AcademyUI";
 import { AIQuotaWidget } from "@/components/school/AIQuotaWidget";
