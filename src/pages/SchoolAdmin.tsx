@@ -170,6 +170,38 @@ export default function SchoolAdminPage() {
     if (error) toast.error(error.message); else { toast.success(tt({ fr: "Retiré de la classe", de: "Aus der Klasse entfernt", ar: "تمت إزالته من الصف" })); load(); }
   };
 
+  const reviewMembership = async (
+    userId: string,
+    decision: "approve" | "suspend" | "reactivate" | "reject",
+    opts: { space_role?: string; class_id?: string; reason?: string } = {},
+  ) => {
+    if (!schoolId) return;
+    const { error } = await supabase.rpc("school_review_membership", {
+      _school_id: schoolId,
+      _user_id: userId,
+      _decision: decision,
+      _space_role: opts.space_role ?? null,
+      _class_id: opts.class_id ?? null,
+      _reason: opts.reason ?? null,
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success(tt({
+      approve: { fr: "Compte approuvé", de: "Konto genehmigt", ar: "تمت الموافقة" },
+      suspend: { fr: "Compte suspendu", de: "Konto gesperrt", ar: "تم التعليق" },
+      reactivate: { fr: "Compte réactivé", de: "Konto reaktiviert", ar: "تمت إعادة التفعيل" },
+      reject: { fr: "Demande rejetée", de: "Antrag abgelehnt", ar: "تم الرفض" },
+    }[decision]));
+    load();
+  };
+
+  const removeMember = async (userId: string, name?: string | null) => {
+    if (!schoolId) return;
+    if (!confirm(tt({ fr: `Retirer ${name || "ce membre"} de l'école ?`, de: `${name || "Mitglied"} aus der Schule entfernen?`, ar: `إزالة ${name || "العضو"} من المدرسة؟` }))) return;
+    const { error } = await supabase.rpc("school_remove_member", { _school_id: schoolId, _user_id: userId });
+    if (error) toast.error(error.message);
+    else { toast.success(tt({ fr: "Membre retiré", de: "Mitglied entfernt", ar: "تمت الإزالة" })); load(); }
+  };
+
   const createClass = async () => {
     if (!schoolId || !newClassName.trim() || !newClassTeacher) {
       toast.error(tt({ fr: "Nom, niveau et professeur requis", de: "Name, Stufe und Lehrkraft erforderlich", ar: "الاسم والمستوى والمعلم مطلوبون" })); return;
