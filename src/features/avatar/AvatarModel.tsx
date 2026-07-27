@@ -9,6 +9,7 @@ import { useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import {
   type AvatarCalibration,
   type DetectedStandard,
@@ -127,7 +128,8 @@ export const AvatarModel = forwardRef<AvatarController, Props>(function AvatarMo
   forwardedRef,
 ) {
   const gltf = useGLTF(url) as GLTF;
-  const model = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  // Keep every skinned mesh connected to its cloned bone hierarchy.
+  const model = useMemo(() => cloneSkeleton(gltf.scene), [gltf.scene]);
   const groupRef = useRef<THREE.Group>(null);
   const registryRef = useRef<MorphRegistry>(new Map());
   const oculusValues = useRef<Record<string, number>>({});
@@ -142,11 +144,19 @@ export const AvatarModel = forwardRef<AvatarController, Props>(function AvatarMo
     const size = bounds.getSize(new THREE.Vector3());
     const center = bounds.getCenter(new THREE.Vector3());
     const height = Math.max(size.y, 0.1);
+    const isPortraitAvatar =
+      gltf.scene.userData.avatarPresentation === "portrait" ||
+      gltf.scene.name.includes("Doctor_Modern_Realistic");
+    const visibleHeight = isPortraitAvatar ? height * 0.5 : height;
+    const focusY = isPortraitAvatar
+      ? bounds.max.y - visibleHeight * 0.48
+      : center.y;
+
     return {
-      center,
-      normalizationScale: 2.65 / height,
+      center: new THREE.Vector3(center.x, focusY, center.z),
+      normalizationScale: 2.65 / visibleHeight,
     };
-  }, [model]);
+  }, [gltf.scene, model]);
 
   useEffect(() => {
     const { registry, meshCount, morphCount } = createRegistry(model);
@@ -280,4 +290,3 @@ export const AvatarModel = forwardRef<AvatarController, Props>(function AvatarMo
     </group>
   );
 });
-
