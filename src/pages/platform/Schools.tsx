@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Building2 } from "lucide-react";
+import { Plus, Search, Building2, PauseCircle, PlayCircle, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { toast } from "sonner";
 
 type School = {
   id: string;
@@ -40,6 +41,20 @@ export default function PlatformSchools() {
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
+
+  const setStatus = async (id: string, status: string) => {
+    const { error } = await (supabase as any).rpc("admin_set_school_status", { _school_id: id, _status: status });
+    if (error) return toast.error(error.message);
+    toast.success(tt({ fr: "Statut mis à jour", de: "Status aktualisiert", ar: "تم تحديث الحالة" }));
+    load();
+  };
+  const del = async (id: string, name: string) => {
+    if (!confirm(tt({ fr: `Supprimer définitivement « ${name} » ?`, de: `„${name}" endgültig löschen?`, ar: `حذف "${name}" نهائياً؟` }))) return;
+    const { error } = await (supabase as any).rpc("admin_delete_school", { _school_id: id });
+    if (error) return toast.error(error.message);
+    toast.success(tt({ fr: "École supprimée", de: "Schule gelöscht", ar: "تم حذف المدرسة" }));
+    load();
+  };
 
   const filtered = rows.filter((r) => {
     if (filter !== "all" && r.status !== filter) return false;
@@ -118,7 +133,15 @@ export default function PlatformSchools() {
                 <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${statusClass(s.status)}`}>{s.status}</span></td>
                 <td className="px-4 py-3 text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-right">
-                  <Button asChild size="sm" variant="ghost"><Link to={`/platform-admin/schools/${s.id}`}>{tt({ fr: "Ouvrir", de: "Öffnen", ar: "فتح" })}</Link></Button>
+                  <div className="flex gap-1 justify-end">
+                    <Button asChild size="sm" variant="ghost"><Link to={`/platform-admin/schools/${s.id}`}>{tt({ fr: "Ouvrir", de: "Öffnen", ar: "فتح" })}</Link></Button>
+                    {s.status === "suspended" ? (
+                      <Button size="sm" variant="ghost" className="text-emerald-600" onClick={() => setStatus(s.id, "active")} title={tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}><PlayCircle className="h-4 w-4" /></Button>
+                    ) : (
+                      <Button size="sm" variant="ghost" className="text-amber-600" onClick={() => setStatus(s.id, "suspended")} title={tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}><PauseCircle className="h-4 w-4" /></Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => del(s.id, s.name)} title={tt({ fr: "Supprimer", de: "Löschen", ar: "حذف" })}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </td>
               </tr>
             ))}
