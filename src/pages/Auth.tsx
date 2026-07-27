@@ -21,6 +21,7 @@ export default function AuthPage() {
   const { tt, lang, setLang } = useI18n();
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [birthYear, setBirthYear] = useState("");
@@ -103,6 +104,7 @@ export default function AuthPage() {
   const onSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptTerms) { toast.error(tt({ fr: "Veuillez accepter les CGU et la politique de confidentialité.", de: "Bitte akzeptieren Sie AGB und Datenschutz.", ar: "يرجى قبول الشروط وسياسة الخصوصية." })); return; }
+    if (email.trim().toLowerCase() !== emailConfirm.trim().toLowerCase()) { toast.error(tt({ fr: "Les emails ne correspondent pas.", de: "Die E-Mails stimmen nicht überein.", ar: "البريدان غير متطابقين." })); return; }
     if (isMinor && (!guardianConsent || !guardianEmail)) { toast.error(tt({ fr: "Consentement parental requis (email du parent).", de: "Elterliche Einwilligung erforderlich.", ar: "موافقة الوالدين مطلوبة." })); return; }
 
     // Validate account-type specific fields
@@ -258,6 +260,7 @@ export default function AuthPage() {
               <form onSubmit={onSignUp} className="space-y-3">
                 <div><Label>{tt(T.name)}</Label><Input value={name} onChange={e=>setName(e.target.value)} className="text-foreground" /></div>
                 <div><Label>{tt(T.email)}</Label><Input type="email" required value={email} onChange={e=>setEmail(e.target.value)} className="text-foreground" /></div>
+                <div><Label>{tt({ fr: "Confirmer l'email", de: "E-Mail bestätigen", ar: "تأكيد البريد الإلكتروني" })}</Label><Input type="email" required value={emailConfirm} onChange={e=>setEmailConfirm(e.target.value)} onPaste={(e)=>e.preventDefault()} className="text-foreground" /></div>
                 <div><Label>{tt(T.passwordHint)}</Label><Input type="password" required minLength={8} value={password} onChange={e=>setPassword(e.target.value)} className="text-foreground" /></div>
 
                 <div className="rounded-md border border-white/15 bg-white/5 p-3 space-y-3">
