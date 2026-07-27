@@ -170,6 +170,22 @@ export default function AuthPage() {
           <CardDescription className="text-white/70">{tt(T.sub)}</CardDescription>
         </CardHeader>
         <CardContent>
+          {user && (
+            <div className="mb-4 rounded-md border border-white/15 bg-white/5 p-3 text-sm space-y-2">
+              <p className="text-white/90">
+                {tt({ fr: "Déjà connecté en tant que", de: "Bereits angemeldet als", ar: "متصل بالفعل باسم" })}{" "}
+                <span className="font-semibold">{user.email}</span>
+              </p>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => navigate("/app")} className="flex-1">
+                  {tt({ fr: "Continuer vers mon espace", de: "Zu meinem Bereich", ar: "متابعة إلى مساحتي" })}
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleSignOut} className="text-foreground">
+                  {tt({ fr: "Changer de compte", de: "Konto wechseln", ar: "تغيير الحساب" })}
+                </Button>
+              </div>
+            </div>
+          )}
           <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">{tt(T.signIn)}</TabsTrigger>
