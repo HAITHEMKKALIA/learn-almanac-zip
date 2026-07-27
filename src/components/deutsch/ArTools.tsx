@@ -26,8 +26,9 @@ const UNIT_AR: Record<string, { title: string; desc: string }> = {
 
 /* ============ 1. Glossaire AR par chapitre ============ */
 export function ArGlossary({ onBack }: { onBack: () => void }) {
+  const UNITS = useMemo(() => getActiveUnits(), []);
   const [uId, setUId] = useState<string>(UNITS[0].id);
-  const unit = UNITS.find(u => u.id === uId)!;
+  const unit = UNITS.find(u => u.id === uId) || UNITS[0];
   const ar = UNIT_AR[unit.id];
 
   const rows = useMemo(() => {
