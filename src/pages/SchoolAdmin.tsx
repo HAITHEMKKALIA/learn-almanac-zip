@@ -351,20 +351,31 @@ export default function SchoolAdminPage() {
 
         <TabsContent value="pending">
           <Card>
-            <CardHeader><CardTitle className="text-lg">{tt({ fr: "Demandes en attente de validation centrale", de: "Anträge warten auf zentrale Freigabe", ar: "طلبات بانتظار الموافقة المركزية" })}</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-lg">{tt({ fr: "Demandes d'inscription à approuver", de: "Anmeldeanträge zum Genehmigen", ar: "طلبات التسجيل للموافقة" })}</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-2">
               {pending.length === 0 && <p className="text-sm text-muted-foreground">{tt({ fr: "Aucune inscription en attente.", de: "Keine ausstehenden Registrierungen.", ar: "لا توجد تسجيلات معلقة." })}</p>}
               {pending.map(p => (
-                <div key={p.user_id} className="border rounded-lg p-3 flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="font-medium">{p.display_name || <i>{tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" })}</i>}</div>
-                    <div className="text-sm text-muted-foreground">{p.email}</div>
-                  </div>
-                  <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {tt({ fr: "Chez le propriétaire", de: "Beim Plattform-Inhaber", ar: "لدى مالك المنصة" })}
-                  </Badge>
-                </div>
+                <PendingRow
+                  key={p.user_id}
+                  p={p}
+                  classes={classes}
+                  onApprove={(role, classId) => reviewMembership(p.user_id, "approve", { space_role: role, class_id: classId })}
+                  onReject={() => reviewMembership(p.user_id, "reject")}
+                  onRemove={() => removeMember(p.user_id, p.display_name)}
+                  labels={{
+                    approve: tt({ fr: "Approuver", de: "Genehmigen", ar: "موافقة" }),
+                    reject: tt({ fr: "Rejeter", de: "Ablehnen", ar: "رفض" }),
+                    remove: tt({ fr: "Supprimer", de: "Löschen", ar: "حذف" }),
+                    role: tt({ fr: "Rôle", de: "Rolle", ar: "الدور" }),
+                    student: tt({ fr: "Élève", de: "Schüler", ar: "طالب" }),
+                    teacher: tt({ fr: "Professeur", de: "Lehrkraft", ar: "معلم" }),
+                    classPh: tt({ fr: "Classe (optionnel)", de: "Klasse (optional)", ar: "الصف (اختياري)" }),
+                    noClass: tt({ fr: "Aucune", de: "Keine", ar: "لا شيء" }),
+                    noName: tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" }),
+                  }}
+                />
               ))}
             </CardContent>
           </Card>
