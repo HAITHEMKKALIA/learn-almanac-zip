@@ -104,6 +104,21 @@ export default function AuthPage() {
     e.preventDefault();
     if (!acceptTerms) { toast.error(tt({ fr: "Veuillez accepter les CGU et la politique de confidentialité.", de: "Bitte akzeptieren Sie AGB und Datenschutz.", ar: "يرجى قبول الشروط وسياسة الخصوصية." })); return; }
     if (isMinor && (!guardianConsent || !guardianEmail)) { toast.error(tt({ fr: "Consentement parental requis (email du parent).", de: "Elterliche Einwilligung erforderlich.", ar: "موافقة الوالدين مطلوبة." })); return; }
+
+    // Validate account-type specific fields
+    if ((accountType === "student" || accountType === "teacher") && attachment === "existing" && !selectedSchoolId) {
+      toast.error(tt({ fr: "Sélectionnez une école dans la liste.", de: "Bitte eine Schule aus der Liste wählen.", ar: "اختر مدرسة من القائمة." }));
+      return;
+    }
+    if (accountType === "teacher" && attachment === "independent" && !studioName.trim()) {
+      toast.error(tt({ fr: "Nom du studio requis.", de: "Studio-Name erforderlich.", ar: "اسم الاستوديو مطلوب." }));
+      return;
+    }
+    if (accountType === "school" && schoolName.trim().length < 3) {
+      toast.error(tt({ fr: "Nom d'école/institut requis.", de: "Name der Schule/Institut erforderlich.", ar: "اسم المدرسة/المعهد مطلوب." }));
+      return;
+    }
+
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email, password,
@@ -117,10 +132,31 @@ export default function AuthPage() {
           guardian_consent: isMinor ? guardianConsent : false,
           terms_version: TERMS_VERSION,
           privacy_version: PRIVACY_VERSION,
+          account_type: accountType,
+          attachment,
         },
       },
     });
+
+    // Provision the requested space while the just-created session is still active.
     if (!error && data.user) {
+      try {
+        if (accountType === "student" && attachment === "existing") {
+          await supabase.rpc("request_join_school" as any, { _school_id: selectedSchoolId, _role: "student" });
+        } else if (accountType === "teacher" && attachment === "existing") {
+          await supabase.rpc("request_join_school" as any, { _school_id: selectedSchoolId, _role: "teacher" });
+        } else if (accountType === "student" && attachment === "independent") {
+          await supabase.rpc("create_independent_student_space", { _current_level: startLevel });
+        } else if (accountType === "teacher" && attachment === "independent") {
+          await supabase.rpc("create_independent_teacher_space", { _studio_name: studioName.trim(), _display_name: name || null });
+        } else if (accountType === "school") {
+          const label = schoolKind === "institute" ? `Institut ${schoolName.trim()}` : schoolName.trim();
+          await supabase.rpc("request_school_space", { _school_name: label });
+        }
+      } catch (err: any) {
+        // Non-fatal: the account exists; owner can retry provisioning later.
+        console.warn("provisioning failed", err?.message || err);
+      }
       await supabase.auth.signOut();
     }
     setBusy(false);
