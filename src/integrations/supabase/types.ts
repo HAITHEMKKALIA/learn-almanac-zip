@@ -3471,6 +3471,8 @@ export type Database = {
         }
         Returns: string
       }
+      admin_delete_class: { Args: { _class_id: string }; Returns: undefined }
+      admin_delete_school: { Args: { _school_id: string }; Returns: undefined }
       admin_delete_user: { Args: { _target: string }; Returns: undefined }
       admin_deletion_requests: {
         Args: never
@@ -3523,6 +3525,14 @@ export type Database = {
       }
       admin_set_approved: {
         Args: { _approved: boolean; _target: string }
+        Returns: undefined
+      }
+      admin_set_class_status: {
+        Args: { _class_id: string; _status: string }
+        Returns: undefined
+      }
+      admin_set_school_status: {
+        Args: { _school_id: string; _status: string }
         Returns: undefined
       }
       admin_update_profile: {
