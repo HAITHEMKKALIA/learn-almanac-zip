@@ -353,8 +353,8 @@ export default function Avatar() {
     setCalibration(getProfile("default"));
   };
 
-  const speak = async () => {
-    const message = text.trim();
+  const speak = async (override?: string) => {
+    const message = (override ?? text).trim();
     if (!message) {
       toast.error("Ajoutez une phrase à faire prononcer.");
       return;
