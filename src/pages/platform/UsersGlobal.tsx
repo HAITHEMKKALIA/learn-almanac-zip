@@ -119,6 +119,7 @@ export default function UsersGlobal({ role }: { role: "teacher" | "student"; tit
               <th className="text-left px-4 py-3">{tt({ fr: "Email", de: "E-Mail", ar: "البريد" })}</th>
               <th className="text-left px-4 py-3">{tt({ fr: "Écoles", de: "Schulen", ar: "المدارس" })}</th>
               <th className="text-left px-4 py-3">{tt({ fr: "Statut", de: "Status", ar: "الحالة" })}</th>
+              <th className="text-right px-4 py-3">{tt({ fr: "Actions", de: "Aktionen", ar: "إجراءات" })}</th>
             </tr>
           </thead>
           <tbody>
@@ -128,10 +129,11 @@ export default function UsersGlobal({ role }: { role: "teacher" | "student"; tit
                 <td className="px-4 py-3"><div className="h-4 w-48 bg-muted rounded" /></td>
                 <td className="px-4 py-3"><div className="h-4 w-24 bg-muted rounded" /></td>
                 <td className="px-4 py-3"><div className="h-4 w-16 bg-muted rounded" /></td>
+                <td className="px-4 py-3"><div className="h-4 w-16 bg-muted rounded ml-auto" /></td>
               </tr>
             ))}
             {!loading && rows.length === 0 && (
-              <tr><td colSpan={4} className="text-center py-10 text-muted-foreground">{tt({ fr: "Aucun résultat.", de: "Keine Ergebnisse.", ar: "لا توجد نتائج." })}</td></tr>
+              <tr><td colSpan={5} className="text-center py-10 text-muted-foreground">{tt({ fr: "Aucun résultat.", de: "Keine Ergebnisse.", ar: "لا توجد نتائج." })}</td></tr>
             )}
             {!loading && rows.map((r) => (
               <tr key={r.user_id} className="border-t hover:bg-muted/20">
@@ -139,9 +141,19 @@ export default function UsersGlobal({ role }: { role: "teacher" | "student"; tit
                 <td className="px-4 py-3 text-muted-foreground">{r.email || "—"}</td>
                 <td className="px-4 py-3 text-muted-foreground">{r.schools.length ? r.schools.join(", ") : <span className="italic">{tt({ fr: "aucune", de: "keine", ar: "لا شيء" })}</span>}</td>
                 <td className="px-4 py-3">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${r.approved ? "bg-emerald-500/15 text-emerald-700" : "bg-amber-500/15 text-amber-700"}`}>
-                    {r.approved ? tt({ fr: "approuvé", de: "genehmigt", ar: "موافق عليه" }) : tt({ fr: "en attente", de: "ausstehend", ar: "قيد الانتظار" })}
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${r.approved ? "bg-emerald-500/15 text-emerald-700" : "bg-rose-500/15 text-rose-700"}`}>
+                    {r.approved ? tt({ fr: "actif", de: "aktiv", ar: "نشط" }) : tt({ fr: "suspendu", de: "gesperrt", ar: "معلق" })}
                   </span>
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <div className="flex gap-1 justify-end">
+                    {r.approved ? (
+                      <Button size="sm" variant="ghost" className="text-amber-600" onClick={() => setApproved(r.user_id, false)} title={tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}><PauseCircle className="h-4 w-4" /></Button>
+                    ) : (
+                      <Button size="sm" variant="ghost" className="text-emerald-600" onClick={() => setApproved(r.user_id, true)} title={tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}><PlayCircle className="h-4 w-4" /></Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => del(r.user_id, r.display_name)} title={tt({ fr: "Supprimer", de: "Löschen", ar: "حذف" })}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </td>
               </tr>
             ))}
