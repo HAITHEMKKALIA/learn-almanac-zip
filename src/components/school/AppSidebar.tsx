@@ -27,13 +27,15 @@ const studentItems: Item[] = [
   { label: { fr: "Apprendre", de: "Lernen", ar: "تعلّم" }, url: "/learn", icon: BookOpen },
   { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
   { label: { fr: "Mes devoirs", de: "Meine Aufgaben", ar: "واجباتي" }, url: "/student/homework", icon: NotebookPen },
+  { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
   { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
 const teacherItems: Item[] = [
   { label: { fr: "Tableau de bord", de: "Übersicht", ar: "لوحة التحكم" }, url: "/teacher", icon: LayoutDashboard },
   { label: { fr: "Mes classes", de: "Meine Klassen", ar: "صفوفي" }, url: "/teacher/classes", icon: Users },
-  { label: { fr: "Devoirs & Examens", de: "Aufgaben & Prüfungen", ar: "الواجبات والامتحانات" }, url: "/teacher/assignments", icon: ClipboardList },
+  { label: { fr: "Devoirs (maison)", de: "Hausaufgaben", ar: "الواجبات المنزلية" }, url: "/teacher/homework", icon: NotebookPen },
+  { label: { fr: "Examens", de: "Prüfungen", ar: "الامتحانات" }, url: "/teacher/assignments", icon: ClipboardList },
   { label: { fr: "Banque de questions", de: "Fragenbank", ar: "بنك الأسئلة" }, url: "/teacher/bank", icon: Library },
   { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/messages", icon: MessageSquare },
 ];
