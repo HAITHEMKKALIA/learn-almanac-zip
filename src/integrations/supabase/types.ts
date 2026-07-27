@@ -3768,6 +3768,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      request_join_school: {
+        Args: { _role: string; _school_id: string }
+        Returns: string
+      }
       request_school_space: { Args: { _school_name: string }; Returns: string }
       school_assign_student_to_class: {
         Args: { _class_id: string; _school_id: string; _target: string }
