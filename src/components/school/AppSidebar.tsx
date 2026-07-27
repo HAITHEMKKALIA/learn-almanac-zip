@@ -147,7 +147,8 @@ export function AppSidebar() {
     </SidebarGroup>
   );
 
-  // Choose primary persona — active learning space takes precedence over the user's global role.
+  // Strict tenant isolation: menus are driven ONLY by the active learning space
+  // role. Global roles never leak into the sidebar (except platform super-admin).
   const membershipRole = activeSchool?.role === "owner"
     ? "school_admin"
     : activeSchool?.role;
@@ -155,7 +156,7 @@ export function AppSidebar() {
     ? "super_admin"
     : (membershipRole && membershipRole in ROLE_LABELS
       ? membershipRole as keyof typeof ROLE_LABELS
-      : highestRole(roles));
+      : null);
   let primary: "admin" | "teacher" | "student" | "parent" | "examiner" | "academic" | "studio" | "solo" = "student";
   if (activeSpaceType === "independent_teacher") {
     primary = "studio";
