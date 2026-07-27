@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { GraduationCap, Plus, Trash2, Users, ShieldCheck, Building2, Loader2, Clock } from "lucide-react";
+import { GraduationCap, Plus, Trash2, Users, ShieldCheck, Building2, Loader2, Clock, Check, X, PauseCircle, PlayCircle, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { AcademyMotionPage, AcademyStatGrid, AcademyStatItem, AcademyMetricCard } from "@/components/academy/AcademyUI";
 import { AIQuotaWidget } from "@/components/school/AIQuotaWidget";
@@ -26,7 +26,14 @@ type Member = {
   classes: string[];
 };
 type ClassRow = { id: string; name: string; level: string; teacher_id: string; invite_code: string };
-type Pending = { user_id: string; display_name: string | null; email: string | null };
+type Pending = {
+  user_id: string;
+  display_name: string | null;
+  email: string | null;
+  space_role: string | null;
+  requested_class_id: string | null;
+  joined_at: string;
+};
 
 export default function SchoolAdminPage() {
   const { tt } = useI18n();
@@ -105,20 +112,31 @@ export default function SchoolAdminPage() {
   const load = useCallback(async () => {
     if (!schoolId) { setLoading(false); return; }
     setLoading(true);
-    const [{ data: sch }, { data: mem }, { data: cls }] = await Promise.all([
+    const [{ data: sch }, { data: mem }, { data: cls }, { data: pendRows }] = await Promise.all([
       supabase.from("schools").select("name").eq("id", schoolId).maybeSingle(),
       supabase.rpc("school_members_full", { _school_id: schoolId }),
       supabase.from("classes").select("id,name,level,teacher_id,invite_code").eq("school_id", schoolId).order("name"),
+      supabase
+        .from("school_members")
+        .select("user_id, space_role, requested_class_id, joined_at, status")
+        .eq("school_id", schoolId)
+        .eq("status", "pending")
+        .order("joined_at", { ascending: false }),
     ]);
     setSchoolName(sch?.name || "École");
     const memList = (mem as Member[]) || [];
     setMembers(memList);
     setClasses((cls as ClassRow[]) || []);
-    // Pending = membres de cette école non encore approuvés
+    const profMap = new Map(memList.map(m => [m.user_id, m]));
     setPending(
-      memList
-        .filter(m => !m.approved)
-        .map(m => ({ user_id: m.user_id, display_name: m.display_name, email: m.email }))
+      ((pendRows as any[]) || []).map(r => ({
+        user_id: r.user_id,
+        display_name: profMap.get(r.user_id)?.display_name ?? null,
+        email: profMap.get(r.user_id)?.email ?? null,
+        space_role: r.space_role,
+        requested_class_id: r.requested_class_id,
+        joined_at: r.joined_at,
+      }))
     );
     setLoading(false);
   }, [schoolId]);
@@ -150,6 +168,38 @@ export default function SchoolAdminPage() {
   const removeFromClass = async (uid: string, classId: string) => {
     const { error } = await supabase.rpc("admin_remove_from_class", { _target: uid, _class_id: classId });
     if (error) toast.error(error.message); else { toast.success(tt({ fr: "Retiré de la classe", de: "Aus der Klasse entfernt", ar: "تمت إزالته من الصف" })); load(); }
+  };
+
+  const reviewMembership = async (
+    userId: string,
+    decision: "approve" | "suspend" | "reactivate" | "reject",
+    opts: { space_role?: string; class_id?: string; reason?: string } = {},
+  ) => {
+    if (!schoolId) return;
+    const { error } = await supabase.rpc("school_review_membership", {
+      _school_id: schoolId,
+      _user_id: userId,
+      _decision: decision,
+      _space_role: opts.space_role ?? null,
+      _class_id: opts.class_id ?? null,
+      _reason: opts.reason ?? null,
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success(tt({
+      approve: { fr: "Compte approuvé", de: "Konto genehmigt", ar: "تمت الموافقة" },
+      suspend: { fr: "Compte suspendu", de: "Konto gesperrt", ar: "تم التعليق" },
+      reactivate: { fr: "Compte réactivé", de: "Konto reaktiviert", ar: "تمت إعادة التفعيل" },
+      reject: { fr: "Demande rejetée", de: "Antrag abgelehnt", ar: "تم الرفض" },
+    }[decision]));
+    load();
+  };
+
+  const removeMember = async (userId: string, name?: string | null) => {
+    if (!schoolId) return;
+    if (!confirm(tt({ fr: `Retirer ${name || "ce membre"} de l'école ?`, de: `${name || "Mitglied"} aus der Schule entfernen?`, ar: `إزالة ${name || "العضو"} من المدرسة؟` }))) return;
+    const { error } = await supabase.rpc("school_remove_member", { _school_id: schoolId, _user_id: userId });
+    if (error) toast.error(error.message);
+    else { toast.success(tt({ fr: "Membre retiré", de: "Mitglied entfernt", ar: "تمت الإزالة" })); load(); }
   };
 
   const createClass = async () => {
@@ -301,20 +351,31 @@ export default function SchoolAdminPage() {
 
         <TabsContent value="pending">
           <Card>
-            <CardHeader><CardTitle className="text-lg">{tt({ fr: "Demandes en attente de validation centrale", de: "Anträge warten auf zentrale Freigabe", ar: "طلبات بانتظار الموافقة المركزية" })}</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-lg">{tt({ fr: "Demandes d'inscription à approuver", de: "Anmeldeanträge zum Genehmigen", ar: "طلبات التسجيل للموافقة" })}</CardTitle>
+            </CardHeader>
             <CardContent className="space-y-2">
               {pending.length === 0 && <p className="text-sm text-muted-foreground">{tt({ fr: "Aucune inscription en attente.", de: "Keine ausstehenden Registrierungen.", ar: "لا توجد تسجيلات معلقة." })}</p>}
               {pending.map(p => (
-                <div key={p.user_id} className="border rounded-lg p-3 flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="font-medium">{p.display_name || <i>{tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" })}</i>}</div>
-                    <div className="text-sm text-muted-foreground">{p.email}</div>
-                  </div>
-                  <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {tt({ fr: "Chez le propriétaire", de: "Beim Plattform-Inhaber", ar: "لدى مالك المنصة" })}
-                  </Badge>
-                </div>
+                <PendingRow
+                  key={p.user_id}
+                  p={p}
+                  classes={classes}
+                  onApprove={(role, classId) => reviewMembership(p.user_id, "approve", { space_role: role, class_id: classId })}
+                  onReject={() => reviewMembership(p.user_id, "reject")}
+                  onRemove={() => removeMember(p.user_id, p.display_name)}
+                  labels={{
+                    approve: tt({ fr: "Approuver", de: "Genehmigen", ar: "موافقة" }),
+                    reject: tt({ fr: "Rejeter", de: "Ablehnen", ar: "رفض" }),
+                    remove: tt({ fr: "Supprimer", de: "Löschen", ar: "حذف" }),
+                    role: tt({ fr: "Rôle", de: "Rolle", ar: "الدور" }),
+                    student: tt({ fr: "Élève", de: "Schüler", ar: "طالب" }),
+                    teacher: tt({ fr: "Professeur", de: "Lehrkraft", ar: "معلم" }),
+                    classPh: tt({ fr: "Classe (optionnel)", de: "Klasse (optional)", ar: "الصف (اختياري)" }),
+                    noClass: tt({ fr: "Aucune", de: "Keine", ar: "لا شيء" }),
+                    noName: tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" }),
+                  }}
+                />
               ))}
             </CardContent>
           </Card>
@@ -330,16 +391,25 @@ export default function SchoolAdminPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               {filteredMembers.filter(m => teachers.includes(m)).map(t => (
-                <div key={t.user_id} className="border rounded-lg p-3 flex items-center justify-between gap-2">
-                  <div>
+                <div key={t.user_id} className="border rounded-lg p-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
                     <div className="font-medium">{t.display_name || <i>{tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" })}</i>} <Badge variant="outline" className="ml-2 text-xs">{t.school_role}</Badge></div>
                     <div className="text-sm text-muted-foreground">{t.email}</div>
                   </div>
-                  {!t.approved && (
-                    <Badge variant="outline" className="border-amber-500/30 text-amber-700 dark:text-amber-300">
-                      {tt({ fr: "Validation centrale", de: "Zentrale Freigabe", ar: "موافقة مركزية" })}
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {t.approved ? (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(t.user_id, "suspend")}>
+                        <PauseCircle className="h-4 w-4 mr-1" />{tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(t.user_id, "reactivate", { space_role: "teacher" })}>
+                        <PlayCircle className="h-4 w-4 mr-1" />{tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" onClick={() => removeMember(t.user_id, t.display_name)} className="text-destructive hover:text-destructive">
+                      <UserMinus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
               {teachers.length === 0 && <p className="text-sm text-muted-foreground">{tt({ fr: "Aucun professeur. Approuvez un compte en attente avec le rôle Professeur.", de: "Keine Lehrkräfte. Genehmigen Sie ein ausstehendes Konto als Lehrkraft.", ar: "لا يوجد معلمون. اعتمد حسابًا بانتظار الموافقة كمعلم." })}</p>}
@@ -384,6 +454,18 @@ export default function SchoolAdminPage() {
                         </SelectContent>
                       </Select>
                     )}
+                    {s.approved ? (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(s.user_id, "suspend")}>
+                        <PauseCircle className="h-4 w-4 mr-1" />{tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(s.user_id, "reactivate", { space_role: "student" })}>
+                        <PlayCircle className="h-4 w-4 mr-1" />{tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" onClick={() => removeMember(s.user_id, s.display_name)} className="text-destructive hover:text-destructive">
+                      <UserMinus className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -457,5 +539,54 @@ export default function SchoolAdminPage() {
       </Tabs>
       </AcademyMotionPage>
     </SchoolLayout>
+  );
+}
+
+function PendingRow({
+  p, classes, onApprove, onReject, onRemove, labels,
+}: {
+  p: Pending;
+  classes: ClassRow[];
+  onApprove: (role: string, classId?: string) => void;
+  onReject: () => void;
+  onRemove: () => void;
+  labels: Record<string, string>;
+}) {
+  const [role, setRole] = useState<string>(p.space_role || "student");
+  const [classId, setClassId] = useState<string>(p.requested_class_id || "");
+  return (
+    <div className="border rounded-lg p-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="min-w-0">
+        <div className="font-medium">{p.display_name || <i>{labels.noName}</i>}</div>
+        <div className="text-sm text-muted-foreground">{p.email}</div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select value={role} onValueChange={setRole}>
+          <SelectTrigger className="h-9 w-[140px]"><SelectValue placeholder={labels.role} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="student">{labels.student}</SelectItem>
+            <SelectItem value="teacher">{labels.teacher}</SelectItem>
+          </SelectContent>
+        </Select>
+        {role === "student" && (
+          <Select value={classId || "__none"} onValueChange={(v) => setClassId(v === "__none" ? "" : v)}>
+            <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder={labels.classPh} /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none">{labels.noClass}</SelectItem>
+              {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.level})</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
+        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => onApprove(role, classId || undefined)}>
+          <Check className="h-4 w-4 mr-1" />{labels.approve}
+        </Button>
+        <Button size="sm" variant="outline" onClick={onReject}>
+          <X className="h-4 w-4 mr-1" />{labels.reject}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onRemove} className="text-destructive hover:text-destructive">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   );
 }
