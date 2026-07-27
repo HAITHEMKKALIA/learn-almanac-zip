@@ -63,6 +63,30 @@ const EXAM_SCHEMA = {
   },
 };
 
+const HOMEWORK_QUESTIONS_SCHEMA = {
+  name: "homework_questions",
+  description: "Return a list of homework questions with expected answers.",
+  parameters: {
+    type: "object",
+    properties: {
+      title: { type: "string" },
+      questions: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            prompt: { type: "string", description: "Question text in German." },
+            expected_answer: { type: "string", description: "Expected/model answer in German." },
+            points: { type: "integer", minimum: 1, maximum: 10 },
+          },
+          required: ["prompt", "expected_answer"],
+        },
+      },
+    },
+    required: ["questions"],
+  },
+};
+
 Deno.serve(async (req) => {
   const reqId = crypto.randomUUID().slice(0, 8);
   const log = (...a: unknown[]) => console.log(`[ai-pedagogy ${reqId}]`, ...a);
@@ -175,6 +199,35 @@ Deno.serve(async (req) => {
       if (insErr) { errlog("insert failed", insErr); return new Response(JSON.stringify({ error: insErr.message }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
 
       return new Response(JSON.stringify({ ok: true, count: inserted?.length || 0, question_ids: (inserted || []).map((r: any) => r.id), questions }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    if (mode === "homework_questions") {
+      const sys = `Du bist ein erfahrener DaF-Lehrer. Erstelle ${count} Hausaufgaben-Fragen für Niveau ${level} (GER), Kompetenz ${category}. Jede Frage hat eine erwartete Musterantwort. Antworte ausschließlich über das Tool homework_questions.`;
+      const usr = `Titel-Idee: ${title || "(keine)"}\nHinweis: ${hint || "(keiner)"}\n${sourceText ? `\nQuelltext:\n${sourceText}\n` : ""}\nErstelle ${count} Fragen mit erwarteten Antworten.`;
+      const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [{ role: "system", content: sys }, { role: "user", content: usr }],
+          tools: [{ type: "function", function: HOMEWORK_QUESTIONS_SCHEMA }],
+          tool_choice: { type: "function", function: { name: "homework_questions" } },
+        }),
+      });
+      if (!r.ok) {
+        if (r.status === 429) return new Response(JSON.stringify({ error: "Rate limited" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        if (r.status === 402) return new Response(JSON.stringify({ error: "Credits exhausted" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({ error: "AI failed" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const j = await r.json();
+      const args = j?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+      const parsed = args ? JSON.parse(args) : { questions: [] };
+      const questions = (parsed.questions || []).map((q: any) => ({
+        prompt: String(q.prompt || "").slice(0, 1000),
+        expected_answer: String(q.expected_answer || "").slice(0, 1000),
+        points: Math.max(1, Math.min(10, Number(q.points) || 1)),
+      }));
+      return new Response(JSON.stringify({ ok: true, title: parsed.title || title, questions }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(JSON.stringify({ error: "Unknown mode" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
