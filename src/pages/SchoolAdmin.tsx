@@ -26,7 +26,14 @@ type Member = {
   classes: string[];
 };
 type ClassRow = { id: string; name: string; level: string; teacher_id: string; invite_code: string };
-type Pending = { user_id: string; display_name: string | null; email: string | null };
+type Pending = {
+  user_id: string;
+  display_name: string | null;
+  email: string | null;
+  space_role: string | null;
+  requested_class_id: string | null;
+  joined_at: string;
+};
 
 export default function SchoolAdminPage() {
   const { tt } = useI18n();
