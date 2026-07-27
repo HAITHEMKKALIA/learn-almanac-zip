@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data: rolesRows } = await admin.from("user_roles").select("role").eq("user_id", caller.id);
     const roles = (rolesRows || []).map((r: any) => r.role);
-    if (!roles.includes("super_admin") && !roles.includes("admin")) {
+    if (!roles.includes("super_admin")) {
       return json({ error: "not_authorized" }, 403);
     }
 
@@ -86,7 +86,10 @@ Deno.serve(async (req) => {
 
     await admin.from("school_members").insert({
       school_id: school.id, user_id: owner_id, role: "owner",
-      status: "approved", approved_at: new Date().toISOString(),
+      space_role: "school_admin",
+      status: "approved",
+      approved_by: caller.id,
+      approved_at: new Date().toISOString(),
     }).then(() => {}, () => {});
 
     await admin.from("school_settings").insert({ school_id: school.id }).then(() => {}, () => {});

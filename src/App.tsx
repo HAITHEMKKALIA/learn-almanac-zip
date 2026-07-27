@@ -4,94 +4,98 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
 import Landing from "./pages/Landing.tsx";
-import Learn from "./pages/Learn.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AuthPage from "./pages/Auth.tsx";
 import AppHome from "./pages/AppHome.tsx";
-import TeacherDashboard from "./pages/TeacherDashboard.tsx";
-import StudentDashboard from "./pages/StudentDashboard.tsx";
-import Placeholder from "./pages/Placeholder.tsx";
-import QuestionBank from "./pages/QuestionBank.tsx";
-import Assignments from "./pages/Assignments.tsx";
-import ClassDetail from "./pages/ClassDetail.tsx";
-import AdminPage from "./pages/Admin.tsx";
-import SchoolAdminPage from "./pages/SchoolAdmin.tsx";
-import ExamRunner from "./pages/ExamRunner.tsx";
-import PdfImport from "./pages/PdfImport.tsx";
-import CoursePlan from "./pages/CoursePlan.tsx";
-import TeacherStats from "./pages/TeacherStats.tsx";
-import Messages from "./pages/Messages.tsx";
-import CalendarPage from "./pages/CalendarPage.tsx";
-import Announcements from "./pages/Announcements.tsx";
-import Reports from "./pages/Reports.tsx";
-import Settings from "./pages/Settings.tsx";
-import TeacherHomework from "./pages/TeacherHomework.tsx";
-import StudentHomework from "./pages/StudentHomework.tsx";
-import AssignmentReview from "./pages/AssignmentReview.tsx";
-import StudentExamResult from "./pages/StudentExamResult.tsx";
-import Wortschatz from "./pages/Wortschatz.tsx";
-import WortschatzFlashcards from "./pages/WortschatzFlashcards.tsx";
-import Kapitel from "./pages/Kapitel.tsx";
-import KapitelDetail from "./pages/KapitelDetail.tsx";
-import Certificates from "./pages/Certificates.tsx";
-import AuditLogs from "./pages/AuditLogs.tsx";
-import VerifyCertificate from "./pages/VerifyCertificate.tsx";
-import PlatformAdminLayout from "./pages/platform/PlatformAdminLayout.tsx";
-import PlatformDashboard from "./pages/platform/Dashboard.tsx";
-import PlatformSchools from "./pages/platform/Schools.tsx";
-import PlatformSchoolNew from "./pages/platform/SchoolNew.tsx";
-import PlatformSchoolDetail from "./pages/platform/SchoolDetail.tsx";
-import PlatformSettings from "./pages/platform/PlatformSettings.tsx";
-import PlatformApprovals from "./pages/platform/Approvals.tsx";
-import PlatformUsersGlobal from "./pages/platform/UsersGlobal.tsx";
-import PlatformClassesGlobal from "./pages/platform/ClassesGlobal.tsx";
-import PlatformStructure from "./pages/platform/Structure.tsx";
-import BillingAdmin from "./pages/platform/BillingAdmin.tsx";
-import SchoolAnalytics from "./pages/SchoolAnalytics.tsx";
-
 import { RequireSuperAdmin } from "./components/platform/RequireSuperAdmin.tsx";
 import { I18nProvider } from "@/lib/i18n";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ActiveSchoolProvider } from "@/contexts/ActiveSchoolContext";
 import { RequireAuth } from "@/components/RequireAuth";
-import PendingApproval from "./pages/PendingApproval.tsx";
-import ParentDashboard from "./pages/ParentDashboard.tsx";
-import ParentChildren from "./pages/parent/ParentChildren.tsx";
-import SchoolClassDetail from "./pages/school/SchoolClassDetail.tsx";
-import AcademicLayout from "./pages/academic/AcademicLayout.tsx";
-import AcademicDashboard from "./pages/academic/AcademicDashboard.tsx";
 import RolePlaceholder from "./components/school/RolePlaceholder.tsx";
-import Onboarding from "./pages/Onboarding.tsx";
-import ChooseSpace from "./pages/ChooseSpace.tsx";
-import TeacherStudioDashboard from "./pages/teacher-studio/TeacherStudioDashboard.tsx";
-import TeacherStudioSettings from "./pages/teacher-studio/TeacherStudioSettings.tsx";
-import SoloStudentDashboard from "./pages/solo-student/SoloStudentDashboard.tsx";
-import SoloStudentSettings from "./pages/solo-student/SoloStudentSettings.tsx";
-import OAuthConsent from "./pages/OAuthConsent.tsx";
-import Pricing from "./pages/Pricing.tsx";
-import Community from "./pages/Community.tsx";
-import Privacy from "./pages/Privacy.tsx";
-import AccountPrivacy from "./pages/AccountPrivacy.tsx";
-import GdprAdmin from "./pages/platform/GdprAdmin.tsx";
-import { AIAvatar } from "./components/AIAvatar.tsx";
-import Adaptive from "./pages/Adaptive.tsx";
-import Forum from "./pages/Forum.tsx";
-import ForumTopic from "./pages/ForumTopic.tsx";
-import Challenges from "./pages/Challenges.tsx";
-import Live from "./pages/Live.tsx";
-import LiveRoom from "./pages/LiveRoom.tsx";
-import VoiceCoach from "./pages/VoiceCoach.tsx";
 
 const queryClient = new QueryClient();
-const Avatar = lazy(() => import("./pages/Avatar.tsx"));
 
-const AvatarPage = () => (
-  <Suspense fallback={<div className="grid min-h-screen place-items-center bg-background text-sm text-muted-foreground">Chargement de l’avatar 3D…</div>}>
-    <Avatar />
-  </Suspense>
+const Index = lazy(() => import("./pages/Index.tsx"));
+const Learn = lazy(() => import("./pages/Learn.tsx"));
+const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard.tsx"));
+const StudentDashboard = lazy(() => import("./pages/StudentDashboard.tsx"));
+const QuestionBank = lazy(() => import("./pages/QuestionBank.tsx"));
+const Assignments = lazy(() => import("./pages/Assignments.tsx"));
+const ClassDetail = lazy(() => import("./pages/ClassDetail.tsx"));
+const SchoolAdminPage = lazy(() => import("./pages/SchoolAdmin.tsx"));
+const ExamRunner = lazy(() => import("./pages/ExamRunner.tsx"));
+const PdfImport = lazy(() => import("./pages/PdfImport.tsx"));
+const CoursePlan = lazy(() => import("./pages/CoursePlan.tsx"));
+const TeacherStats = lazy(() => import("./pages/TeacherStats.tsx"));
+const Messages = lazy(() => import("./pages/Messages.tsx"));
+const CalendarPage = lazy(() => import("./pages/CalendarPage.tsx"));
+const Announcements = lazy(() => import("./pages/Announcements.tsx"));
+const Reports = lazy(() => import("./pages/Reports.tsx"));
+const Settings = lazy(() => import("./pages/Settings.tsx"));
+const TeacherHomework = lazy(() => import("./pages/TeacherHomework.tsx"));
+const StudentHomework = lazy(() => import("./pages/StudentHomework.tsx"));
+const AssignmentReview = lazy(() => import("./pages/AssignmentReview.tsx"));
+const StudentExamResult = lazy(() => import("./pages/StudentExamResult.tsx"));
+const Wortschatz = lazy(() => import("./pages/Wortschatz.tsx"));
+const WortschatzFlashcards = lazy(() => import("./pages/WortschatzFlashcards.tsx"));
+const Kapitel = lazy(() => import("./pages/Kapitel.tsx"));
+const KapitelDetail = lazy(() => import("./pages/KapitelDetail.tsx"));
+const Certificates = lazy(() => import("./pages/Certificates.tsx"));
+const AuditLogs = lazy(() => import("./pages/AuditLogs.tsx"));
+const VerifyCertificate = lazy(() => import("./pages/VerifyCertificate.tsx"));
+const PlatformAdminLayout = lazy(() => import("./pages/platform/PlatformAdminLayout.tsx"));
+const PlatformDashboard = lazy(() => import("./pages/platform/Dashboard.tsx"));
+const PlatformSchools = lazy(() => import("./pages/platform/Schools.tsx"));
+const PlatformSchoolNew = lazy(() => import("./pages/platform/SchoolNew.tsx"));
+const PlatformSchoolDetail = lazy(() => import("./pages/platform/SchoolDetail.tsx"));
+const PlatformSettings = lazy(() => import("./pages/platform/PlatformSettings.tsx"));
+const PlatformApprovals = lazy(() => import("./pages/platform/Approvals.tsx"));
+const PlatformUsersGlobal = lazy(() => import("./pages/platform/UsersGlobal.tsx"));
+const PlatformClassesGlobal = lazy(() => import("./pages/platform/ClassesGlobal.tsx"));
+const PlatformStructure = lazy(() => import("./pages/platform/Structure.tsx"));
+const BillingAdmin = lazy(() => import("./pages/platform/BillingAdmin.tsx"));
+const GdprAdmin = lazy(() => import("./pages/platform/GdprAdmin.tsx"));
+const SchoolAnalytics = lazy(() => import("./pages/SchoolAnalytics.tsx"));
+const PendingApproval = lazy(() => import("./pages/PendingApproval.tsx"));
+const ParentDashboard = lazy(() => import("./pages/ParentDashboard.tsx"));
+const ParentChildren = lazy(() => import("./pages/parent/ParentChildren.tsx"));
+const SchoolClassDetail = lazy(() => import("./pages/school/SchoolClassDetail.tsx"));
+const AcademicLayout = lazy(() => import("./pages/academic/AcademicLayout.tsx"));
+const AcademicDashboard = lazy(() => import("./pages/academic/AcademicDashboard.tsx"));
+const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
+const ChooseSpace = lazy(() => import("./pages/ChooseSpace.tsx"));
+const TeacherStudioDashboard = lazy(() => import("./pages/teacher-studio/TeacherStudioDashboard.tsx"));
+const TeacherStudioSettings = lazy(() => import("./pages/teacher-studio/TeacherStudioSettings.tsx"));
+const SoloStudentDashboard = lazy(() => import("./pages/solo-student/SoloStudentDashboard.tsx"));
+const SoloStudentSettings = lazy(() => import("./pages/solo-student/SoloStudentSettings.tsx"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent.tsx"));
+const Pricing = lazy(() => import("./pages/Pricing.tsx"));
+const Community = lazy(() => import("./pages/Community.tsx"));
+const Privacy = lazy(() => import("./pages/Privacy.tsx"));
+const Terms = lazy(() => import("./pages/Terms.tsx"));
+const LegalConsent = lazy(() => import("./pages/LegalConsent.tsx"));
+const AccountPrivacy = lazy(() => import("./pages/AccountPrivacy.tsx"));
+const Adaptive = lazy(() => import("./pages/Adaptive.tsx"));
+const Forum = lazy(() => import("./pages/Forum.tsx"));
+const ForumTopic = lazy(() => import("./pages/ForumTopic.tsx"));
+const Challenges = lazy(() => import("./pages/Challenges.tsx"));
+const Live = lazy(() => import("./pages/Live.tsx"));
+const LiveRoom = lazy(() => import("./pages/LiveRoom.tsx"));
+const VoiceCoach = lazy(() => import("./pages/VoiceCoach.tsx"));
+const Avatar = lazy(() => import("./pages/Avatar.tsx"));
+const AIAvatar = lazy(() =>
+  import("./components/AIAvatar.tsx").then((module) => ({ default: module.AIAvatar })),
 );
+
+const PageFallback = () => (
+  <div className="grid min-h-screen place-items-center bg-background text-sm text-muted-foreground">
+    Chargement…
+  </div>
+);
+
+const AvatarPage = () => <Avatar />;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -102,7 +106,8 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <ActiveSchoolProvider>
-            <Routes>
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
               {/* Public free-learning app (no auth) */}
               <Route path="/" element={<Landing />} />
               <Route path="/learn" element={<Learn />} />
@@ -114,120 +119,122 @@ const App = () => (
               <Route path="/pending-approval" element={<PendingApproval />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/privacy" element={<Privacy />} />
-              <Route path="/account/privacy" element={<RequireAuth><AccountPrivacy /></RequireAuth>} />
-              <Route path="/community" element={<RequireAuth><Community /></RequireAuth>} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/legal-consent" element={<RequireAuth requireLegal={false}><LegalConsent /></RequireAuth>} />
+              <Route path="/account/privacy" element={<RequireAuth requireLegal={false}><AccountPrivacy /></RequireAuth>} />
+              <Route path="/community" element={<RequireAuth requireSpace><Community /></RequireAuth>} />
 
 
               {/* Authenticated app */}
               <Route path="/app" element={<RequireAuth><AppHome /></RequireAuth>} />
               <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
-              <Route path="/choose-space" element={<RequireAuth><ChooseSpace /></RequireAuth>} />
+              <Route path="/choose-space" element={<RequireAuth requireSpace><ChooseSpace /></RequireAuth>} />
               {/* Teacher Studio (independent teacher) */}
-              <Route path="/teacher-studio" element={<RequireAuth role={["teacher","admin","super_admin"]}><TeacherStudioDashboard /></RequireAuth>} />
-              <Route path="/teacher-studio/classes" element={<RequireAuth role={["teacher","admin","super_admin"]}><TeacherDashboard /></RequireAuth>} />
-              <Route path="/teacher-studio/classes/:id" element={<RequireAuth role={["teacher","admin","super_admin"]}><ClassDetail /></RequireAuth>} />
-              <Route path="/teacher-studio/students" element={<RequireAuth role={["teacher","admin","super_admin"]}><TeacherDashboard /></RequireAuth>} />
-              <Route path="/teacher-studio/homework" element={<RequireAuth role={["teacher","admin","super_admin"]}><TeacherHomework /></RequireAuth>} />
-              <Route path="/teacher-studio/exams" element={<RequireAuth role={["teacher","admin","super_admin"]}><Assignments /></RequireAuth>} />
-              <Route path="/teacher-studio/exams/:id" element={<RequireAuth role={["teacher","admin","super_admin"]}><AssignmentReview /></RequireAuth>} />
-              <Route path="/teacher-studio/certificates" element={<RequireAuth role={["teacher","admin","super_admin"]}><Certificates /></RequireAuth>} />
-              <Route path="/teacher-studio/reports" element={<RequireAuth role={["teacher","admin","super_admin"]}><Reports /></RequireAuth>} />
-              <Route path="/teacher-studio/settings" element={<RequireAuth role={["teacher","admin","super_admin"]}><TeacherStudioSettings /></RequireAuth>} />
-              <Route path="/solo-student" element={<RequireAuth><SoloStudentDashboard /></RequireAuth>} />
-              <Route path="/solo-student/settings" element={<RequireAuth><SoloStudentSettings /></RequireAuth>} />
-              <Route path="/solo-student/path" element={<RequireAuth><SoloStudentDashboard /></RequireAuth>} />
-              <Route path="/solo-student/kapitel" element={<RequireAuth><Kapitel /></RequireAuth>} />
-              <Route path="/solo-student/wortschatz" element={<RequireAuth><Wortschatz /></RequireAuth>} />
-              <Route path="/solo-student/flashcards" element={<RequireAuth><WortschatzFlashcards /></RequireAuth>} />
-              <Route path="/solo-student/exams" element={<RequireAuth><StudentHomework /></RequireAuth>} />
-              <Route path="/solo-student/certificates" element={<RequireAuth><Certificates /></RequireAuth>} />
-              <Route path="/student" element={<RequireAuth><StudentDashboard /></RequireAuth>} />
-              <Route path="/student/exam/:id" element={<RequireAuth><ExamRunner /></RequireAuth>} />
-              <Route path="/student/result/:id" element={<RequireAuth><StudentExamResult /></RequireAuth>} />
+              <Route path="/teacher-studio" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><TeacherStudioDashboard /></RequireAuth>} />
+              <Route path="/teacher-studio/classes" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><TeacherDashboard /></RequireAuth>} />
+              <Route path="/teacher-studio/classes/:id" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><ClassDetail /></RequireAuth>} />
+              <Route path="/teacher-studio/students" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><TeacherDashboard /></RequireAuth>} />
+              <Route path="/teacher-studio/homework" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><TeacherHomework /></RequireAuth>} />
+              <Route path="/teacher-studio/exams" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><Assignments /></RequireAuth>} />
+              <Route path="/teacher-studio/exams/:id" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><AssignmentReview /></RequireAuth>} />
+              <Route path="/teacher-studio/certificates" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><Certificates /></RequireAuth>} />
+              <Route path="/teacher-studio/reports" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><Reports /></RequireAuth>} />
+              <Route path="/teacher-studio/settings" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><TeacherStudioSettings /></RequireAuth>} />
+              <Route path="/solo-student" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentDashboard /></RequireAuth>} />
+              <Route path="/solo-student/settings" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentSettings /></RequireAuth>} />
+              <Route path="/solo-student/path" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentDashboard /></RequireAuth>} />
+              <Route path="/solo-student/kapitel" element={<RequireAuth spaceType="independent_student" spaceRole="student"><Kapitel /></RequireAuth>} />
+              <Route path="/solo-student/wortschatz" element={<RequireAuth spaceType="independent_student" spaceRole="student"><Wortschatz /></RequireAuth>} />
+              <Route path="/solo-student/flashcards" element={<RequireAuth spaceType="independent_student" spaceRole="student"><WortschatzFlashcards /></RequireAuth>} />
+              <Route path="/solo-student/exams" element={<RequireAuth spaceType="independent_student" spaceRole="student"><StudentHomework /></RequireAuth>} />
+              <Route path="/solo-student/certificates" element={<RequireAuth spaceType="independent_student" spaceRole="student"><Certificates /></RequireAuth>} />
+              <Route path="/student" element={<RequireAuth spaceType="school" spaceRole="student"><StudentDashboard /></RequireAuth>} />
+              <Route path="/student/exam/:id" element={<RequireAuth spaceType="school" spaceRole="student"><ExamRunner /></RequireAuth>} />
+              <Route path="/student/result/:id" element={<RequireAuth spaceType="school" spaceRole="student"><StudentExamResult /></RequireAuth>} />
 
               {/* Parent area */}
-              <Route path="/parent" element={<RequireAuth role={["parent","admin","super_admin"]}><ParentDashboard /></RequireAuth>} />
-              <Route path="/parent/children" element={<RequireAuth role={["parent","admin","super_admin"]}><ParentChildren /></RequireAuth>} />
-              <Route path="/parent/attendance" element={<RequireAuth role={["parent","admin","super_admin"]}><RolePlaceholder title="Présence" subtitle="Suivi de la présence de votre enfant" parentHref="/parent" parentLabel="Tableau de bord parent" /></RequireAuth>} />
-              <Route path="/parent/homework" element={<RequireAuth role={["parent","admin","super_admin"]}><RolePlaceholder title="Devoirs" subtitle="Devoirs en cours et corrigés" parentHref="/parent" /></RequireAuth>} />
-              <Route path="/parent/results" element={<RequireAuth role={["parent","admin","super_admin"]}><RolePlaceholder title="Résultats" subtitle="Notes et progression" parentHref="/parent" /></RequireAuth>} />
-              <Route path="/parent/certificates" element={<RequireAuth role={["parent","admin","super_admin"]}><RolePlaceholder title="Certificats" subtitle="Certificats obtenus" parentHref="/parent" /></RequireAuth>} />
-              <Route path="/parent/messages" element={<RequireAuth role={["parent","admin","super_admin"]}><Messages /></RequireAuth>} />
-              <Route path="/parent/calendar" element={<RequireAuth role={["parent","admin","super_admin"]}><CalendarPage /></RequireAuth>} />
-              <Route path="/parent/announcements" element={<RequireAuth role={["parent","admin","super_admin"]}><Announcements /></RequireAuth>} />
+              <Route path="/parent" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><ParentDashboard /></RequireAuth>} />
+              <Route path="/parent/children" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><ParentChildren /></RequireAuth>} />
+              <Route path="/parent/attendance" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><RolePlaceholder title="Présence" subtitle="Suivi de la présence de votre enfant" parentHref="/parent" parentLabel="Tableau de bord parent" /></RequireAuth>} />
+              <Route path="/parent/homework" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><RolePlaceholder title="Devoirs" subtitle="Devoirs en cours et corrigés" parentHref="/parent" /></RequireAuth>} />
+              <Route path="/parent/results" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><RolePlaceholder title="Résultats" subtitle="Notes et progression" parentHref="/parent" /></RequireAuth>} />
+              <Route path="/parent/certificates" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><RolePlaceholder title="Certificats" subtitle="Certificats obtenus" parentHref="/parent" /></RequireAuth>} />
+              <Route path="/parent/messages" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><Messages /></RequireAuth>} />
+              <Route path="/parent/calendar" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><CalendarPage /></RequireAuth>} />
+              <Route path="/parent/announcements" element={<RequireAuth role={["parent","super_admin"]} spaceType="school" spaceRole="parent"><Announcements /></RequireAuth>} />
 
               {/* Teacher area */}
-              <Route path="/teacher" element={<RequireAuth role={["teacher","admin"]}><TeacherDashboard /></RequireAuth>} />
-              <Route path="/teacher/bank" element={<RequireAuth role={["teacher","admin"]}><QuestionBank /></RequireAuth>} />
-              <Route path="/teacher/assignments" element={<RequireAuth role={["teacher","admin"]}><Assignments /></RequireAuth>} />
-              <Route path="/teacher/assignments/:id" element={<RequireAuth role={["teacher","admin"]}><AssignmentReview /></RequireAuth>} />
-              <Route path="/teacher/class/:id" element={<RequireAuth role={["teacher","admin"]}><ClassDetail /></RequireAuth>} />
-              <Route path="/teacher/import" element={<RequireAuth role={["teacher","admin"]}><PdfImport /></RequireAuth>} />
-              <Route path="/teacher/stats" element={<RequireAuth role={["teacher","admin"]}><TeacherStats /></RequireAuth>} />
-              <Route path="/teacher/reports" element={<RequireAuth role={["teacher","admin"]}><Reports /></RequireAuth>} />
-              <Route path="/teacher/homework" element={<RequireAuth role={["teacher","admin"]}><TeacherHomework /></RequireAuth>} />
-              <Route path="/teacher/classes" element={<RequireAuth role={["teacher","admin"]}><TeacherDashboard /></RequireAuth>} />
-              <Route path="/teacher/attendance" element={<RequireAuth role={["teacher","admin"]}><RolePlaceholder title="Présence" subtitle="Prendre la présence de vos classes" parentHref="/teacher" parentLabel="Espace professeur" /></RequireAuth>} />
-              <Route path="/teacher/exams" element={<RequireAuth role={["teacher","admin"]}><Assignments /></RequireAuth>} />
-              <Route path="/teacher/messages" element={<RequireAuth role={["teacher","admin"]}><Messages /></RequireAuth>} />
-              <Route path="/teacher/calendar" element={<RequireAuth role={["teacher","admin"]}><CalendarPage /></RequireAuth>} />
-              <Route path="/student/homework" element={<RequireAuth><StudentHomework /></RequireAuth>} />
-              <Route path="/student/path" element={<RequireAuth><StudentDashboard /></RequireAuth>} />
-              <Route path="/student/courses" element={<RequireAuth><Kapitel /></RequireAuth>} />
-              <Route path="/student/revisions" element={<RequireAuth><RolePlaceholder title="Mes révisions" subtitle="Révisions personnalisées" parentHref="/student" parentLabel="Mon espace" /></RequireAuth>} />
-              <Route path="/student/wortschatz" element={<RequireAuth><Wortschatz /></RequireAuth>} />
-              <Route path="/student/flashcards" element={<RequireAuth><WortschatzFlashcards /></RequireAuth>} />
-              <Route path="/student/oral" element={<RequireAuth><RolePlaceholder title="Oral" subtitle="Exercices de prononciation et expression orale" parentHref="/student" /></RequireAuth>} />
-              <Route path="/student/certificates" element={<RequireAuth><RolePlaceholder title="Mes certificats" subtitle="Vos certificats obtenus" parentHref="/student" /></RequireAuth>} />
-              <Route path="/student/messages" element={<RequireAuth><Messages /></RequireAuth>} />
-              <Route path="/student/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
-              <Route path="/student/profile" element={<RequireAuth><Settings /></RequireAuth>} />
+              <Route path="/teacher" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><TeacherDashboard /></RequireAuth>} />
+              <Route path="/teacher/bank" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><QuestionBank /></RequireAuth>} />
+              <Route path="/teacher/assignments" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Assignments /></RequireAuth>} />
+              <Route path="/teacher/assignments/:id" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><AssignmentReview /></RequireAuth>} />
+              <Route path="/teacher/class/:id" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><ClassDetail /></RequireAuth>} />
+              <Route path="/teacher/import" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><PdfImport /></RequireAuth>} />
+              <Route path="/teacher/stats" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><TeacherStats /></RequireAuth>} />
+              <Route path="/teacher/reports" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Reports /></RequireAuth>} />
+              <Route path="/teacher/homework" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><TeacherHomework /></RequireAuth>} />
+              <Route path="/teacher/classes" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><TeacherDashboard /></RequireAuth>} />
+              <Route path="/teacher/attendance" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><RolePlaceholder title="Présence" subtitle="Prendre la présence de vos classes" parentHref="/teacher" parentLabel="Espace professeur" /></RequireAuth>} />
+              <Route path="/teacher/exams" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Assignments /></RequireAuth>} />
+              <Route path="/teacher/messages" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Messages /></RequireAuth>} />
+              <Route path="/teacher/calendar" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><CalendarPage /></RequireAuth>} />
+              <Route path="/student/homework" element={<RequireAuth spaceType="school" spaceRole="student"><StudentHomework /></RequireAuth>} />
+              <Route path="/student/path" element={<RequireAuth spaceType="school" spaceRole="student"><StudentDashboard /></RequireAuth>} />
+              <Route path="/student/courses" element={<RequireAuth spaceType="school" spaceRole="student"><Kapitel /></RequireAuth>} />
+              <Route path="/student/revisions" element={<RequireAuth spaceType="school" spaceRole="student"><RolePlaceholder title="Mes révisions" subtitle="Révisions personnalisées" parentHref="/student" parentLabel="Mon espace" /></RequireAuth>} />
+              <Route path="/student/wortschatz" element={<RequireAuth spaceType="school" spaceRole="student"><Wortschatz /></RequireAuth>} />
+              <Route path="/student/flashcards" element={<RequireAuth spaceType="school" spaceRole="student"><WortschatzFlashcards /></RequireAuth>} />
+              <Route path="/student/oral" element={<RequireAuth spaceType="school" spaceRole="student"><RolePlaceholder title="Oral" subtitle="Exercices de prononciation et expression orale" parentHref="/student" /></RequireAuth>} />
+              <Route path="/student/certificates" element={<RequireAuth spaceType="school" spaceRole="student"><RolePlaceholder title="Mes certificats" subtitle="Vos certificats obtenus" parentHref="/student" /></RequireAuth>} />
+              <Route path="/student/messages" element={<RequireAuth spaceType="school" spaceRole="student"><Messages /></RequireAuth>} />
+              <Route path="/student/calendar" element={<RequireAuth spaceType="school" spaceRole="student"><CalendarPage /></RequireAuth>} />
+              <Route path="/student/profile" element={<RequireAuth spaceType="school" spaceRole="student"><Settings /></RequireAuth>} />
 
               {/* Shared modules */}
-              <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
-              <Route path="/calendar" element={<RequireAuth><CalendarPage /></RequireAuth>} />
-              <Route path="/announcements" element={<RequireAuth><Announcements /></RequireAuth>} />
-              <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
-              <Route path="/wortschatz" element={<RequireAuth><Wortschatz /></RequireAuth>} />
-              <Route path="/wortschatz/flashcards" element={<RequireAuth><WortschatzFlashcards /></RequireAuth>} />
-              <Route path="/kapitel" element={<RequireAuth><Kapitel /></RequireAuth>} />
-              <Route path="/kapitel/:level/:slug" element={<RequireAuth><KapitelDetail /></RequireAuth>} />
-              <Route path="/adaptive" element={<RequireAuth><Adaptive /></RequireAuth>} />
-              <Route path="/forum" element={<RequireAuth><Forum /></RequireAuth>} />
-              <Route path="/forum/:id" element={<RequireAuth><ForumTopic /></RequireAuth>} />
-              <Route path="/challenges" element={<RequireAuth><Challenges /></RequireAuth>} />
-              <Route path="/live" element={<RequireAuth><Live /></RequireAuth>} />
-              <Route path="/live/:code" element={<RequireAuth><LiveRoom /></RequireAuth>} />
-              <Route path="/avatar" element={<RequireAuth><AvatarPage /></RequireAuth>} />
-              <Route path="/voice-coach" element={<RequireAuth><VoiceCoach /></RequireAuth>} />
+              <Route path="/messages" element={<RequireAuth requireSpace><Messages /></RequireAuth>} />
+              <Route path="/calendar" element={<RequireAuth requireSpace><CalendarPage /></RequireAuth>} />
+              <Route path="/announcements" element={<RequireAuth requireSpace><Announcements /></RequireAuth>} />
+              <Route path="/settings" element={<RequireAuth requireSpace><Settings /></RequireAuth>} />
+              <Route path="/wortschatz" element={<RequireAuth requireSpace><Wortschatz /></RequireAuth>} />
+              <Route path="/wortschatz/flashcards" element={<RequireAuth requireSpace><WortschatzFlashcards /></RequireAuth>} />
+              <Route path="/kapitel" element={<RequireAuth requireSpace><Kapitel /></RequireAuth>} />
+              <Route path="/kapitel/:level/:slug" element={<RequireAuth requireSpace><KapitelDetail /></RequireAuth>} />
+              <Route path="/adaptive" element={<RequireAuth requireSpace><Adaptive /></RequireAuth>} />
+              <Route path="/forum" element={<RequireAuth requireSpace><Forum /></RequireAuth>} />
+              <Route path="/forum/:id" element={<RequireAuth requireSpace><ForumTopic /></RequireAuth>} />
+              <Route path="/challenges" element={<RequireAuth requireSpace><Challenges /></RequireAuth>} />
+              <Route path="/live" element={<RequireAuth requireSpace><Live /></RequireAuth>} />
+              <Route path="/live/:code" element={<RequireAuth requireSpace><LiveRoom /></RequireAuth>} />
+              <Route path="/avatar" element={<RequireAuth requireSpace><AvatarPage /></RequireAuth>} />
+              <Route path="/voice-coach" element={<RequireAuth requireSpace><VoiceCoach /></RequireAuth>} />
 
               {/* Admin */}
-              <Route path="/admin" element={<RequireAuth role={["admin","school_admin","super_admin"]}><AdminPage /></RequireAuth>} />
-              <Route path="/admin/school" element={<RequireAuth role={["admin","school_admin","super_admin"]}><SchoolAdminPage /></RequireAuth>} />
-              <Route path="/admin/certificates" element={<RequireAuth role={["teacher","admin"]}><Certificates /></RequireAuth>} />
-              <Route path="/admin/audit" element={<RequireAuth role={["admin","school_admin","super_admin"]}><AuditLogs /></RequireAuth>} />
+              <Route path="/admin" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
+              <Route path="/admin/school" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
+              <Route path="/admin/certificates" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Certificates /></RequireAuth>} />
+              <Route path="/admin/audit" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><AuditLogs /></RequireAuth>} />
 
               {/* School Admin (alias structuré /school-admin/*) */}
-              <Route path="/school-admin" element={<RequireAuth role={["admin","super_admin","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
-              <Route path="/school-admin/classes" element={<RequireAuth role={["admin","super_admin","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
-              <Route path="/school-admin/classes/:classId" element={<RequireAuth role={["admin","super_admin","school_admin"]}><SchoolClassDetail /></RequireAuth>} />
-              <Route path="/school-admin/teachers" element={<RequireAuth role={["admin","super_admin","school_admin"]}><AdminPage /></RequireAuth>} />
-              <Route path="/school-admin/students" element={<RequireAuth role={["admin","super_admin","school_admin"]}><AdminPage /></RequireAuth>} />
-              <Route path="/school-admin/approvals" element={<RequireAuth role={["admin","super_admin","school_admin"]}><AdminPage /></RequireAuth>} />
-              <Route path="/school-admin/academic-years" element={<RequireAuth role={["admin","super_admin","school_admin"]}><RolePlaceholder title="Années scolaires" subtitle="Organisation des années académiques" parentHref="/school-admin" parentLabel="Admin école" /></RequireAuth>} />
-              <Route path="/school-admin/sessions" element={<RequireAuth role={["admin","super_admin","school_admin"]}><RolePlaceholder title="Sessions" subtitle="Sessions de l'école (été, intensif, semestre…)" parentHref="/school-admin" /></RequireAuth>} />
-              <Route path="/school-admin/enrollments" element={<RequireAuth role={["admin","super_admin","school_admin"]}><RolePlaceholder title="Inscriptions" subtitle="Demandes d'inscription et affectations" parentHref="/school-admin" /></RequireAuth>} />
-              <Route path="/school-admin/attendance" element={<RequireAuth role={["admin","super_admin","school_admin"]}><RolePlaceholder title="Présence" subtitle="Suivi de la présence par classe" parentHref="/school-admin" /></RequireAuth>} />
-              <Route path="/school-admin/homework" element={<RequireAuth role={["admin","super_admin","school_admin"]}><TeacherHomework /></RequireAuth>} />
-              <Route path="/school-admin/exams" element={<RequireAuth role={["admin","super_admin","school_admin"]}><Assignments /></RequireAuth>} />
-              <Route path="/school-admin/certificates" element={<RequireAuth role={["admin","super_admin","school_admin"]}><Certificates /></RequireAuth>} />
-              <Route path="/school-admin/reports" element={<RequireAuth role={["admin","super_admin","school_admin"]}><Reports /></RequireAuth>} />
-              <Route path="/school-admin/analytics" element={<RequireAuth role={["admin","super_admin","school_admin"]}><SchoolAnalytics /></RequireAuth>} />
-              <Route path="/school-admin/settings" element={<RequireAuth role={["admin","super_admin","school_admin"]}><RolePlaceholder title="Paramètres école" subtitle="Configuration générale de l'école" parentHref="/school-admin" /></RequireAuth>} />
-              <Route path="/school-admin/rules" element={<RequireAuth role={["admin","super_admin","school_admin"]}><RolePlaceholder title="Règles école" subtitle="Règles d'absence, certificat, promotion…" parentHref="/school-admin" /></RequireAuth>} />
+              <Route path="/school-admin" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
+              <Route path="/school-admin/classes" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
+              <Route path="/school-admin/classes/:classId" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolClassDetail /></RequireAuth>} />
+              <Route path="/school-admin/teachers" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
+              <Route path="/school-admin/students" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
+              <Route path="/school-admin/approvals" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAdminPage /></RequireAuth>} />
+              <Route path="/school-admin/academic-years" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Années scolaires" subtitle="Organisation des années académiques" parentHref="/school-admin" parentLabel="Admin école" /></RequireAuth>} />
+              <Route path="/school-admin/sessions" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Sessions" subtitle="Sessions de l'école (été, intensif, semestre…)" parentHref="/school-admin" /></RequireAuth>} />
+              <Route path="/school-admin/enrollments" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Inscriptions" subtitle="Demandes d'inscription et affectations" parentHref="/school-admin" /></RequireAuth>} />
+              <Route path="/school-admin/attendance" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Présence" subtitle="Suivi de la présence par classe" parentHref="/school-admin" /></RequireAuth>} />
+              <Route path="/school-admin/homework" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><TeacherHomework /></RequireAuth>} />
+              <Route path="/school-admin/exams" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Assignments /></RequireAuth>} />
+              <Route path="/school-admin/certificates" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Certificates /></RequireAuth>} />
+              <Route path="/school-admin/reports" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Reports /></RequireAuth>} />
+              <Route path="/school-admin/analytics" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAnalytics /></RequireAuth>} />
+              <Route path="/school-admin/settings" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Paramètres école" subtitle="Configuration générale de l'école" parentHref="/school-admin" /></RequireAuth>} />
+              <Route path="/school-admin/rules" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Règles école" subtitle="Règles d'absence, certificat, promotion…" parentHref="/school-admin" /></RequireAuth>} />
 
               {/* Direction pédagogique */}
-              <Route path="/academic" element={<RequireAuth role={["academic_director","pedagogical_coordinator","admin","super_admin"]}><AcademicLayout /></RequireAuth>}>
+              <Route path="/academic" element={<RequireAuth role={["academic_director","pedagogical_coordinator","super_admin"]} spaceType="school" spaceRole={["academic_director","pedagogical_coordinator"]}><AcademicLayout /></RequireAuth>}>
                 <Route index element={<AcademicDashboard />} />
                 <Route path="curriculum" element={<RolePlaceholder title="Curriculum" subtitle="Programme A1.1 → B2.2" parentHref="/academic" parentLabel="Direction pédagogique" />} />
                 <Route path="levels" element={<RolePlaceholder title="Niveaux" subtitle="Gestion des niveaux et sous-niveaux" parentHref="/academic" />} />
@@ -263,8 +270,11 @@ const App = () => (
               </Route>
 
               <Route path="*" element={<NotFound />} />
-            </Routes>
-            <AIAvatar />
+              </Routes>
+            </Suspense>
+            <Suspense fallback={null}>
+              <AIAvatar />
+            </Suspense>
             </ActiveSchoolProvider>
           </AuthProvider>
         </BrowserRouter>

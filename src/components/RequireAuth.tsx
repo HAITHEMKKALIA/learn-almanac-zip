@@ -5,19 +5,69 @@ import { SchoolLayout } from "@/components/school/SchoolLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
+import { useActiveSchool, type SpaceType } from "@/contexts/ActiveSchoolContext";
+import { isSpaceAllowed } from "@/lib/spaceAccess";
 
-export function RequireAuth({ children, role }: { children: React.ReactNode; role?: AppRole | AppRole[] }) {
-  const { user, roles, approved, loading, isAdmin, isTeacher } = useAuth();
+type RequireAuthProps = {
+  children: React.ReactNode;
+  role?: AppRole | AppRole[];
+  requireLegal?: boolean;
+  requireSpace?: boolean;
+  spaceType?: SpaceType | SpaceType[];
+  spaceRole?: string | string[];
+};
+
+export function RequireAuth({
+  children,
+  role,
+  requireLegal = true,
+  requireSpace = false,
+  spaceType,
+  spaceRole,
+}: RequireAuthProps) {
+  const { user, roles, approved, legalAccepted, loading } = useAuth();
+  const {
+    activeSchool,
+    pendingRequests,
+    loading: spaceLoading,
+  } = useActiveSchool();
   const loc = useLocation();
   const { tt } = useI18n();
   if (loading) return <div className="h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary"/></div>;
   if (!user) return <Navigate to="/auth" replace state={{ from: loc.pathname }} />;
   if (approved === false && !roles.includes("super_admin")) return <Navigate to="/pending-approval" replace />;
+  if (requireLegal && legalAccepted === false && !roles.includes("super_admin")) {
+    return <Navigate to="/legal-consent" replace state={{ from: loc.pathname }} />;
+  }
+
+  const isSuperAdmin = roles.includes("super_admin");
+  const needsTenant = requireSpace || !!spaceType || !!spaceRole;
+  if (needsTenant && !isSuperAdmin) {
+    if (spaceLoading) {
+      return <div className="h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary"/></div>;
+    }
+    if (!activeSchool) {
+      return <Navigate to={pendingRequests.length > 0 ? "/pending-approval" : "/onboarding"} replace />;
+    }
+    const allowedTypes = spaceType
+      ? (Array.isArray(spaceType) ? spaceType : [spaceType])
+      : null;
+    const allowedRoles = spaceRole
+      ? (Array.isArray(spaceRole) ? spaceRole : [spaceRole])
+      : null;
+    const tenantAllowed = isSpaceAllowed(activeSchool, {
+      types: allowedTypes ?? undefined,
+      roles: allowedRoles ?? undefined,
+    });
+    if (!tenantAllowed) {
+      return <Navigate to="/app" replace />;
+    }
+  }
+
   if (role) {
     const need = Array.isArray(role) ? role : [role];
     if (!need.some(r => roles.includes(r))) {
-      const home = isAdmin ? "/admin/school" : isTeacher ? "/teacher" : "/student";
-      if (loc.pathname !== home) return <Navigate to={home} replace />;
+      if (loc.pathname !== "/app") return <Navigate to="/app" replace />;
       const noneLabel = tt({ fr: "aucun", de: "keine", ar: "لا شيء" });
       return (
         <SchoolLayout

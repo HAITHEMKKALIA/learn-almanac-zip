@@ -1,7 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 import type { AppRole } from "@/lib/roles";
+import { PRIVACY_VERSION, TERMS_VERSION } from "@/lib/legal";
 
 export type { AppRole };
 
@@ -10,9 +11,11 @@ interface AuthCtx {
   user: User | null;
   roles: AppRole[];
   approved: boolean | null;
+  legalAccepted: boolean | null;
   loading: boolean;
   signOut: () => Promise<void>;
   refreshRoles: () => Promise<void>;
+  refreshLegal: () => Promise<void>;
   isTeacher: boolean;
   isStudent: boolean;
   isAdmin: boolean;
@@ -26,34 +29,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [approved, setApproved] = useState<boolean | null>(null);
+  const [legalAccepted, setLegalAccepted] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
-  const realtimeOnlineIdsRef = useRef<Set<string>>(new Set());
-  const heartbeatOnlineIdsRef = useRef<Set<string>>(new Set());
-
-  const publishOnlineIds = useCallback(() => {
-    setOnlineUserIds(new Set([...realtimeOnlineIdsRef.current, ...heartbeatOnlineIdsRef.current]));
-  }, []);
 
   const loadHeartbeatPresence = useCallback(async () => {
     const cutoff = new Date(Date.now() - 90_000).toISOString();
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("user_presence")
       .select("user_id, last_seen_at")
       .gte("last_seen_at", cutoff);
     if (!error) {
-      heartbeatOnlineIdsRef.current = new Set((data || []).map((row: any) => row.user_id));
-      publishOnlineIds();
+      setOnlineUserIds(new Set((data || []).map((row) => row.user_id)));
     }
-  }, [publishOnlineIds]);
+  }, []);
 
   const fetchRoles = async (uid: string) => {
-    const [rolesRes, profileRes] = await Promise.all([
+    const [rolesRes, profileRes, consentRes] = await Promise.all([
       supabase.from("user_roles").select("role").eq("user_id", uid),
       supabase.from("profiles").select("approved").eq("user_id", uid).maybeSingle(),
+      supabase
+        .from("consent_logs")
+        .select("consent_type, version, granted")
+        .eq("user_id", uid)
+        .eq("granted", true)
+        .in("consent_type", ["terms", "privacy"]),
     ]);
-    setRoles((rolesRes.data?.map((r: any) => r.role as AppRole)) || []);
+    setRoles((rolesRes.data?.map((row) => row.role as AppRole)) || []);
     setApproved(profileRes.data?.approved ?? false);
+    const consents = consentRes.data || [];
+    const acceptedTerms = consents.some(
+      (row) => row.consent_type === "terms" && row.version === TERMS_VERSION,
+    );
+    const acceptedPrivacy = consents.some(
+      (row) => row.consent_type === "privacy" && row.version === PRIVACY_VERSION,
+    );
+    setLegalAccepted(acceptedTerms && acceptedPrivacy);
   };
 
   useEffect(() => {
@@ -61,10 +72,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
-        setTimeout(() => { fetchRoles(sess.user.id); }, 0);
+        setLoading(true);
+        setTimeout(() => {
+          fetchRoles(sess.user.id).finally(() => setLoading(false));
+        }, 0);
       } else {
         setRoles([]);
         setApproved(null);
+        setLegalAccepted(null);
+        setLoading(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
@@ -76,44 +92,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  // Global presence: track this user and expose online user ids
+  // Presence comes only from the RLS-protected heartbeat table. A global
+  // Realtime Presence channel would expose identifiers across schools.
   useEffect(() => {
     if (!user) {
-      realtimeOnlineIdsRef.current = new Set();
-      heartbeatOnlineIdsRef.current = new Set();
       setOnlineUserIds(new Set());
       return;
     }
-    const ch = supabase.channel("presence:online", { config: { presence: { key: user.id } } });
-    const sync = () => {
-      const state = ch.presenceState() as Record<string, any[]>;
-      realtimeOnlineIdsRef.current = new Set(Object.keys(state));
-      publishOnlineIds();
-    };
     const markSeen = async () => {
-      await (supabase as any)
+      await supabase
         .from("user_presence")
         .upsert({ user_id: user.id, last_seen_at: new Date().toISOString() }, { onConflict: "user_id" });
-      heartbeatOnlineIdsRef.current = new Set([...heartbeatOnlineIdsRef.current, user.id]);
-      publishOnlineIds();
-      loadHeartbeatPresence();
+      await loadHeartbeatPresence();
     };
-    ch.on("presence", { event: "sync" }, sync)
-      .on("presence", { event: "join" }, sync)
-      .on("presence", { event: "leave" }, sync)
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await ch.track({ user_id: user.id, at: Date.now() });
-          markSeen();
-        }
-      });
     const dbChannel = supabase.channel("presence:last-seen")
       .on("postgres_changes", { event: "*", schema: "public", table: "user_presence" }, loadHeartbeatPresence)
       .subscribe();
     const interval = window.setInterval(markSeen, 30_000);
     const onVis = () => {
       if (document.visibilityState === "visible") {
-        ch.track({ user_id: user.id, at: Date.now() });
         markSeen();
       }
     };
@@ -122,17 +119,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", onVis);
-      supabase.removeChannel(ch);
       supabase.removeChannel(dbChannel);
     };
-  }, [user?.id, loadHeartbeatPresence, publishOnlineIds]);
+  }, [user, loadHeartbeatPresence]);
 
   const signOut = async () => { await supabase.auth.signOut(); };
   const refreshRoles = async () => { if (user) await fetchRoles(user.id); };
+  const refreshLegal = async () => { if (user) await fetchRoles(user.id); };
 
   return (
     <Ctx.Provider value={{
-      session, user, roles, approved, loading, signOut, refreshRoles,
+      session, user, roles, approved, legalAccepted, loading, signOut, refreshRoles, refreshLegal,
       isTeacher: roles.includes("teacher") || roles.includes("examiner") || roles.includes("pedagogical_coordinator"),
       isStudent: roles.includes("student"),
       isAdmin: roles.includes("admin") || roles.includes("super_admin") || roles.includes("school_admin") || roles.includes("academic_director"),

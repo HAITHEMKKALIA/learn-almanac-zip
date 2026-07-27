@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Languages, ArrowLeft } from "lucide-react";
 import { useI18n, type Lang } from "@/lib/i18n";
+import { PRIVACY_VERSION, TERMS_VERSION } from "@/lib/legal";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -82,22 +83,18 @@ export default function AuthPage() {
       email, password,
       options: {
         emailRedirectTo: returnUrl,
-        data: { display_name: name || email.split("@")[0] },
+        data: {
+          display_name: name || email.split("@")[0],
+          birth_year: birthYear || null,
+          is_minor: isMinor,
+          guardian_email: isMinor ? guardianEmail : null,
+          guardian_consent: isMinor ? guardianConsent : false,
+          terms_version: TERMS_VERSION,
+          privacy_version: PRIVACY_VERSION,
+        },
       },
     });
     if (!error && data.user) {
-      await supabase.from("profiles").update({
-        birth_year: birthYear ? parseInt(birthYear) : null,
-        is_minor: isMinor,
-        guardian_email: isMinor ? guardianEmail : null,
-        terms_accepted_at: new Date().toISOString(),
-        privacy_accepted_at: new Date().toISOString(),
-      }).eq("user_id", data.user.id);
-      await supabase.from("consent_logs").insert([
-        { user_id: data.user.id, consent_type: "terms", granted: true, version: "1.0", user_agent: navigator.userAgent },
-        { user_id: data.user.id, consent_type: "privacy", granted: true, version: "1.0", user_agent: navigator.userAgent },
-        ...(isMinor ? [{ user_id: data.user.id, consent_type: "guardian_consent", granted: true, metadata: { guardian_email: guardianEmail } }] : []),
-      ]);
       await supabase.auth.signOut();
     }
     setBusy(false);
@@ -120,7 +117,7 @@ export default function AuthPage() {
         return;
       }
       const { data: rolesRows } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-      const isSuper = (rolesRows || []).some((r: any) => r.role === "super_admin");
+      const isSuper = (rolesRows || []).some((row) => row.role === "super_admin");
       setBusy(false);
       navigate(nextPath ?? (isSuper ? "/platform-admin" : "/app"));
       return;
@@ -200,7 +197,16 @@ export default function AuthPage() {
                 )}
                 <label className="flex items-start gap-2 text-xs text-white/90">
                   <input type="checkbox" checked={acceptTerms} onChange={e=>setAcceptTerms(e.target.checked)} className="mt-0.5" />
-                  <span>{tt({ fr: "J'accepte les CGU et la ", de: "Ich akzeptiere die AGB und die ", ar: "أوافق على الشروط و" })}<Link to="/privacy" target="_blank" className="underline">{tt({ fr: "politique de confidentialité", de: "Datenschutzerklärung", ar: "سياسة الخصوصية" })}</Link>.</span>
+                  <span>
+                    {tt({ fr: "J'accepte les ", de: "Ich akzeptiere die ", ar: "أوافق على " })}
+                    <Link to="/terms" target="_blank" className="underline">
+                      {tt({ fr: "conditions générales", de: "Nutzungsbedingungen", ar: "شروط الاستخدام" })}
+                    </Link>
+                    {tt({ fr: " et la ", de: " und die ", ar: " و" })}
+                    <Link to="/privacy" target="_blank" className="underline">
+                      {tt({ fr: "politique de confidentialité", de: "Datenschutzerklärung", ar: "سياسة الخصوصية" })}
+                    </Link>.
+                  </span>
                 </label>
                 <Button type="submit" disabled={busy} className="w-full">{busy && <Loader2 className="w-4 h-4 me-2 animate-spin"/>}{tt(T.create)}</Button>
               </form>

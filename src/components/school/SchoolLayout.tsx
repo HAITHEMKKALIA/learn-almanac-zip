@@ -13,6 +13,7 @@ import { MessagesBell } from "./MessagesBell";
 import { FloatingMessenger } from "./FloatingMessenger";
 import { SchoolSwitcher } from "./SchoolSwitcher";
 import { AcademyMotionPage } from "@/components/academy/AcademyUI";
+import { useActiveSchool } from "@/contexts/ActiveSchoolContext";
 
 interface Props {
   children: ReactNode;
@@ -24,26 +25,34 @@ interface Props {
 
 export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }: Props) {
   const { roles } = useAuth();
+  const { activeSchool, activeSpaceType } = useActiveSchool();
   const { tt } = useI18n();
   const { pathname } = useLocation();
 
   // Identité visuelle dynamique selon le rôle (palette, sidebar, ambiance, motion)
+  const membershipRole = activeSchool?.role === "owner" ? "school_admin" : activeSchool?.role;
   const roleTheme: "school-admin" | "teacher" | "student" | "parent" | "academic" =
-    roles.includes("super_admin") || roles.includes("admin") || roles.includes("school_admin")
+    roles.includes("super_admin") || membershipRole === "school_admin"
       ? "school-admin"
-      : roles.includes("academic_director") || roles.includes("pedagogical_coordinator")
+      : membershipRole === "academic_director" || membershipRole === "pedagogical_coordinator"
       ? "academic"
-      : roles.includes("teacher") || roles.includes("examiner")
+      : membershipRole === "teacher" || membershipRole === "examiner" || activeSpaceType === "independent_teacher"
       ? "teacher"
-      : roles.includes("parent")
+      : membershipRole === "parent"
       ? "parent"
       : "student";
 
-  const role = roles.includes("admin") || roles.includes("school_admin")
+  const role = membershipRole === "school_admin"
     ? tt({ fr: "Admin", de: "Admin", ar: "مسؤول" })
-    : roles.includes("teacher")
+    : membershipRole === "academic_director" || membershipRole === "pedagogical_coordinator"
+    ? tt({ fr: "Direction pédagogique", de: "Pädagogische Leitung", ar: "الإدارة التربوية" })
+    : membershipRole === "examiner"
+    ? tt({ fr: "Examinateur", de: "Prüfer", ar: "مُمتحِن" })
+    : membershipRole === "staff"
+    ? tt({ fr: "Personnel", de: "Mitarbeiter", ar: "الموظفون" })
+    : membershipRole === "teacher" || activeSpaceType === "independent_teacher"
     ? tt({ fr: "Professeur", de: "Lehrer", ar: "أستاذ" })
-    : roles.includes("parent")
+    : membershipRole === "parent"
     ? tt({ fr: "Parent", de: "Eltern", ar: "ولي أمر" })
     : tt({ fr: "Élève", de: "Schüler", ar: "تلميذ" });
   const home = tt({ fr: "Accueil", de: "Startseite", ar: "الرئيسية" });

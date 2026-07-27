@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LEGAL_UPDATED_AT, PRIVACY_VERSION } from "@/lib/legal";
 
 export default function Privacy() {
   const { tt, lang } = useI18n();
@@ -16,7 +17,9 @@ export default function Privacy() {
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 grid place-items-center text-white"><ShieldCheck className="h-6 w-6" /></div>
           <div>
             <h1 className="text-3xl font-display font-bold">{t("Politique de confidentialité","Datenschutzerklärung","سياسة الخصوصية")}</h1>
-            <p className="text-sm text-muted-foreground">Deutsch Meister — {t("Dernière mise à jour","Zuletzt aktualisiert","آخر تحديث")}: 2026-07-22</p>
+            <p className="text-sm text-muted-foreground">
+              Deutsch Meister · v{PRIVACY_VERSION} · {t("Dernière mise à jour","Zuletzt aktualisiert","آخر تحديث")}: {LEGAL_UPDATED_AT}
+            </p>
           </div>
         </div>
 

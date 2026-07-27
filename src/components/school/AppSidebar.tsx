@@ -5,10 +5,11 @@ import {
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard, BookOpen, GraduationCap, Users, ClipboardList, Library,
-  Upload, BarChart3, Shield, MessageSquare, CalendarDays, Megaphone, Settings,
-  FileText, PenLine, LogOut, School, Languages, NotebookPen, Sparkles,
+  BarChart3, MessageSquare, Settings,
+  FileText, LogOut, School, Languages, NotebookPen, Sparkles, CalendarDays,
   Award, UserCheck, Baby,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveSchool } from "@/contexts/ActiveSchoolContext";
 import { Button } from "@/components/ui/button";
@@ -19,72 +20,45 @@ import {
 } from "@/components/ui/select";
 
 type L = { fr: string; de: string; ar: string };
-type Item = { label: L; url: string; icon: any };
+type Item = { label: L; url: string; icon: LucideIcon };
 
 const studentItems: Item[] = [
   { label: { fr: "Tableau de bord", de: "Übersicht", ar: "لوحة التحكم" }, url: "/student", icon: LayoutDashboard },
   { label: { fr: "Apprendre", de: "Lernen", ar: "تعلّم" }, url: "/learn", icon: BookOpen },
-  { label: { fr: "Plan du cours", de: "Kursplan", ar: "خطة الدرس" }, url: "/plan", icon: GraduationCap },
-  { label: { fr: "Mes devoirs", de: "Meine Aufgaben", ar: "واجباتي" }, url: "/student#assignments", icon: ClipboardList },
-  { label: { fr: "Mes rédactions", de: "Meine Texte", ar: "نصوصي" }, url: "/student#schreiben", icon: PenLine },
-  { label: { fr: "Hausaufgaben", de: "Hausaufgaben", ar: "الواجبات المنزلية" }, url: "/student/homework", icon: NotebookPen },
-  { label: { fr: "Wortschatz", de: "Wortschatz", ar: "المفردات" }, url: "/wortschatz", icon: Sparkles },
-  { label: { fr: "Kapitel", de: "Kapitel", ar: "الفصول" }, url: "/kapitel", icon: BookOpen },
-  { label: { fr: "Calendrier", de: "Kalender", ar: "التقويم" }, url: "/calendar", icon: CalendarDays },
-  { label: { fr: "Annonces", de: "Ankündigungen", ar: "إعلانات" }, url: "/announcements", icon: Megaphone },
+  { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
+  { label: { fr: "Mes devoirs", de: "Meine Aufgaben", ar: "واجباتي" }, url: "/student/homework", icon: NotebookPen },
   { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
 const teacherItems: Item[] = [
   { label: { fr: "Tableau de bord", de: "Übersicht", ar: "لوحة التحكم" }, url: "/teacher", icon: LayoutDashboard },
-  { label: { fr: "Mes classes", de: "Meine Klassen", ar: "صفوفي" }, url: "/teacher", icon: Users },
+  { label: { fr: "Mes classes", de: "Meine Klassen", ar: "صفوفي" }, url: "/teacher/classes", icon: Users },
   { label: { fr: "Devoirs & Examens", de: "Aufgaben & Prüfungen", ar: "الواجبات والامتحانات" }, url: "/teacher/assignments", icon: ClipboardList },
-  { label: { fr: "Hausaufgaben", de: "Hausaufgaben", ar: "الواجبات المنزلية" }, url: "/teacher/homework", icon: NotebookPen },
-  { label: { fr: "Wortschatz", de: "Wortschatz", ar: "المفردات" }, url: "/wortschatz", icon: Sparkles },
-  { label: { fr: "Kapitel", de: "Kapitel", ar: "الفصول" }, url: "/kapitel", icon: BookOpen },
   { label: { fr: "Banque de questions", de: "Fragenbank", ar: "بنك الأسئلة" }, url: "/teacher/bank", icon: Library },
-  { label: { fr: "Import PDF", de: "PDF-Import", ar: "استيراد PDF" }, url: "/teacher/import", icon: Upload },
-  { label: { fr: "Statistiques", de: "Statistiken", ar: "إحصائيات" }, url: "/teacher/stats", icon: BarChart3 },
-  { label: { fr: "Rapports", de: "Berichte", ar: "تقارير" }, url: "/teacher/reports", icon: FileText },
   { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/messages", icon: MessageSquare },
-  { label: { fr: "Calendrier", de: "Kalender", ar: "التقويم" }, url: "/calendar", icon: CalendarDays },
-  { label: { fr: "Annonces", de: "Ankündigungen", ar: "إعلانات" }, url: "/announcements", icon: Megaphone },
-  { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
 const adminItems: Item[] = [
   { label: { fr: "Tableau école", de: "Schul-Übersicht", ar: "لوحة المدرسة" }, url: "/school-admin", icon: School },
   { label: { fr: "Classes", de: "Klassen", ar: "الصفوف" }, url: "/school-admin/classes", icon: GraduationCap },
-  { label: { fr: "Professeurs", de: "Lehrer", ar: "المعلمون" }, url: "/school-admin/teachers", icon: Users },
-  { label: { fr: "Élèves", de: "Schüler", ar: "التلاميذ" }, url: "/school-admin/students", icon: GraduationCap },
-  { label: { fr: "Approbations", de: "Freigaben", ar: "الموافقات" }, url: "/school-admin/approvals", icon: Shield },
-  { label: { fr: "Certificats", de: "Zertifikate", ar: "الشهادات" }, url: "/school-admin/certificates", icon: Award },
+  { label: { fr: "Membres", de: "Mitglieder", ar: "الأعضاء" }, url: "/school-admin/teachers", icon: Users },
   { label: { fr: "Rapports", de: "Berichte", ar: "تقارير" }, url: "/school-admin/reports", icon: FileText },
-  { label: { fr: "Journal d'audit", de: "Audit-Log", ar: "سجل التدقيق" }, url: "/admin/audit", icon: UserCheck },
-  { label: { fr: "Calendrier", de: "Kalender", ar: "التقويم" }, url: "/calendar", icon: CalendarDays },
-  { label: { fr: "Annonces", de: "Ankündigungen", ar: "إعلانات" }, url: "/announcements", icon: Megaphone },
-  { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/messages", icon: MessageSquare },
-  { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
+  { label: { fr: "Paramètres", de: "Einstellungen", ar: "الإعدادات" }, url: "/school-admin/settings", icon: Settings },
 ];
 
 const academicItems: Item[] = [
   { label: { fr: "Direction pédagogique", de: "Akademische Leitung", ar: "الإدارة الأكاديمية" }, url: "/academic", icon: GraduationCap },
-  { label: { fr: "Curriculum", de: "Lehrplan", ar: "المنهج" }, url: "/academic/curriculum", icon: BookOpen },
   { label: { fr: "Bibliothèque", de: "Bibliothek", ar: "المكتبة" }, url: "/academic/content-library", icon: Library },
   { label: { fr: "Banque de questions", de: "Fragenbank", ar: "بنك الأسئلة" }, url: "/academic/question-bank", icon: ClipboardList },
   { label: { fr: "Validation IA", de: "KI-Validierung", ar: "التحقق من الذكاء الاصطناعي" }, url: "/academic/ai-validation", icon: Sparkles },
   { label: { fr: "Rapports", de: "Berichte", ar: "تقارير" }, url: "/academic/reports", icon: FileText },
-  { label: { fr: "Calendrier", de: "Kalender", ar: "التقويم" }, url: "/calendar", icon: CalendarDays },
-  { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/messages", icon: MessageSquare },
-  { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
 const parentItems: Item[] = [
   { label: { fr: "Mes enfants", de: "Meine Kinder", ar: "أبنائي" }, url: "/parent", icon: Baby },
-  { label: { fr: "Bulletins", de: "Zeugnisse", ar: "كشوف الدرجات" }, url: "/parent/reports", icon: FileText },
-  { label: { fr: "Calendrier", de: "Kalender", ar: "التقويم" }, url: "/calendar", icon: CalendarDays },
-  { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/messages", icon: MessageSquare },
-  { label: { fr: "Annonces", de: "Ankündigungen", ar: "إعلانات" }, url: "/announcements", icon: Megaphone },
+  { label: { fr: "Devoirs", de: "Hausaufgaben", ar: "الواجبات" }, url: "/parent/homework", icon: NotebookPen },
+  { label: { fr: "Résultats", de: "Ergebnisse", ar: "النتائج" }, url: "/parent/results", icon: BarChart3 },
+  { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/parent/messages", icon: MessageSquare },
   { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
@@ -100,27 +74,16 @@ const studioItems: Item[] = [
   { label: { fr: "Tableau Studio", de: "Studio-Übersicht", ar: "لوحة الاستوديو" }, url: "/teacher-studio", icon: LayoutDashboard },
   { label: { fr: "Mes classes privées", de: "Meine privaten Klassen", ar: "صفوفي الخاصة" }, url: "/teacher-studio/classes", icon: GraduationCap },
   { label: { fr: "Mes élèves", de: "Meine Schüler", ar: "تلاميذي" }, url: "/teacher-studio/students", icon: Users },
-  { label: { fr: "Devoirs", de: "Hausaufgaben", ar: "الواجبات" }, url: "/teacher-studio/homework", icon: NotebookPen },
   { label: { fr: "Examens", de: "Prüfungen", ar: "الامتحانات" }, url: "/teacher-studio/exams", icon: ClipboardList },
-  { label: { fr: "Banque de questions", de: "Fragenbank", ar: "بنك الأسئلة" }, url: "/teacher/bank", icon: Library },
-  { label: { fr: "Attestations privées", de: "Private Zeugnisse", ar: "شهادات خاصة" }, url: "/teacher-studio/certificates", icon: Award },
-  { label: { fr: "Rapports", de: "Berichte", ar: "تقارير" }, url: "/teacher-studio/reports", icon: FileText },
-  { label: { fr: "Calendrier", de: "Kalender", ar: "التقويم" }, url: "/calendar", icon: CalendarDays },
-  { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/messages", icon: MessageSquare },
   { label: { fr: "Paramètres du studio", de: "Studio-Einstellungen", ar: "إعدادات الاستوديو" }, url: "/teacher-studio/settings", icon: Settings },
 ];
 
 const soloItems: Item[] = [
   { label: { fr: "Mon tableau", de: "Übersicht", ar: "لوحتي" }, url: "/solo-student", icon: LayoutDashboard },
-  { label: { fr: "Mon parcours", de: "Mein Weg", ar: "مساري" }, url: "/solo-student/settings", icon: GraduationCap },
   { label: { fr: "Apprendre", de: "Lernen", ar: "تعلّم" }, url: "/learn", icon: BookOpen },
-  { label: { fr: "Kapitel", de: "Kapitel", ar: "الفصول" }, url: "/solo-student/kapitel", icon: BookOpen },
+  { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
   { label: { fr: "Wortschatz", de: "Wortschatz", ar: "المفردات" }, url: "/solo-student/wortschatz", icon: Sparkles },
-  { label: { fr: "Flashcards", de: "Karteikarten", ar: "البطاقات" }, url: "/solo-student/flashcards", icon: Library },
-  { label: { fr: "Examens blancs", de: "Probeprüfungen", ar: "امتحانات تجريبية" }, url: "/solo-student/exams", icon: ClipboardList },
-  { label: { fr: "Mes certificats", de: "Meine Zertifikate", ar: "شهاداتي" }, url: "/solo-student/certificates", icon: Award },
-  { label: { fr: "Calendrier", de: "Kalender", ar: "التقويم" }, url: "/calendar", icon: CalendarDays },
-  { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
+  { label: { fr: "Mon parcours", de: "Mein Weg", ar: "مساري" }, url: "/solo-student/settings", icon: GraduationCap },
 ];
 
 const groupLabels = {
@@ -149,7 +112,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const { pathname } = useLocation();
   const { roles, signOut, user } = useAuth();
-  const { activeSpaceType } = useActiveSchool();
+  const { activeSpaceType, activeSchool } = useActiveSchool();
   const { lang, setLang } = useI18n();
   const collapsed = state === "collapsed";
 
@@ -185,7 +148,14 @@ export function AppSidebar() {
   );
 
   // Choose primary persona — active learning space takes precedence over the user's global role.
-  const top = highestRole(roles);
+  const membershipRole = activeSchool?.role === "owner"
+    ? "school_admin"
+    : activeSchool?.role;
+  const top = roles.includes("super_admin")
+    ? "super_admin"
+    : (membershipRole && membershipRole in ROLE_LABELS
+      ? membershipRole as keyof typeof ROLE_LABELS
+      : highestRole(roles));
   let primary: "admin" | "teacher" | "student" | "parent" | "examiner" | "academic" | "studio" | "solo" = "student";
   if (activeSpaceType === "independent_teacher") {
     primary = "studio";

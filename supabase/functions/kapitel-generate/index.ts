@@ -116,7 +116,8 @@ Deno.serve(async (req) => {
     log("user", userData.user.id);
 
     const { data: roles } = await sb.from("user_roles").select("role").eq("user_id", userData.user.id);
-    const ok = roles?.some((r) => r.role === "teacher" || r.role === "admin");
+    // Kapitel is official global content. Only the platform owner may mutate it.
+    const ok = roles?.some((r) => r.role === "super_admin");
     log("roles", roles, "allowed=", ok);
     if (!ok) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
@@ -191,4 +192,3 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
-

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SchoolLayout } from "@/components/school/SchoolLayout";
 import { getActiveSchoolId } from "@/components/school/SchoolSwitcher";
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Check, GraduationCap, Plus, Trash2, Users, ShieldCheck, Building2, Loader2, Clock } from "lucide-react";
+import { GraduationCap, Plus, Trash2, Users, ShieldCheck, Building2, Loader2, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { AcademyMotionPage, AcademyStatGrid, AcademyStatItem, AcademyMetricCard } from "@/components/academy/AcademyUI";
 import { AIQuotaWidget } from "@/components/school/AIQuotaWidget";
@@ -68,7 +68,7 @@ export default function SchoolAdminPage() {
       return;
     }
     setCreating(true);
-    const { data, error } = await (supabase as any).functions.invoke("school-create-user", {
+    const { data, error } = await supabase.functions.invoke("school-create-user", {
       body: {
         school_id: schoolId,
         email: createEmail.trim(),
@@ -83,27 +83,34 @@ export default function SchoolAdminPage() {
       toast.error(error?.message || data?.error || "Erreur");
       return;
     }
-    toast.success(tt({ fr: "Compte créé et approuvé ✓", de: "Konto erstellt und genehmigt ✓", ar: "تم إنشاء الحساب واعتماده ✓" }));
+    toast.success(tt({
+      fr: "Compte créé. La demande a été envoyée au propriétaire de la plateforme.",
+      de: "Konto erstellt. Der Antrag wurde an den Plattform-Inhaber gesendet.",
+      ar: "تم إنشاء الحساب وإرسال الطلب إلى مالك المنصة.",
+    }));
     // keep creds visible so admin can copy
     setCreateName("");
     load();
   };
 
   useEffect(() => {
-    const handler = (e: any) => setSchoolId(e.detail || getActiveSchoolId());
+    const handler = (event: Event) => {
+      const { detail } = event as CustomEvent<string>;
+      setSchoolId(detail || getActiveSchoolId());
+    };
     window.addEventListener("active-school-changed", handler);
     return () => window.removeEventListener("active-school-changed", handler);
   }, []);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!schoolId) { setLoading(false); return; }
     setLoading(true);
     const [{ data: sch }, { data: mem }, { data: cls }] = await Promise.all([
       supabase.from("schools").select("name").eq("id", schoolId).maybeSingle(),
-      (supabase as any).rpc("school_members_full", { _school_id: schoolId }),
+      supabase.rpc("school_members_full", { _school_id: schoolId }),
       supabase.from("classes").select("id,name,level,teacher_id,invite_code").eq("school_id", schoolId).order("name"),
     ]);
-    setSchoolName((sch as any)?.name || tt({ fr: "École", de: "Schule", ar: "المدرسة" }));
+    setSchoolName(sch?.name || "École");
     const memList = (mem as Member[]) || [];
     setMembers(memList);
     setClasses((cls as ClassRow[]) || []);
@@ -114,8 +121,8 @@ export default function SchoolAdminPage() {
         .map(m => ({ user_id: m.user_id, display_name: m.display_name, email: m.email }))
     );
     setLoading(false);
-  };
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [schoolId]);
+  }, [schoolId]);
+  useEffect(() => { void load(); }, [load]);
 
   // Un membre est compté comme professeur s'il a explicitement le rôle teacher (école ou app),
   // ou s'il est owner ET n'est pas un élève actif.
@@ -127,16 +134,21 @@ export default function SchoolAdminPage() {
   // Un élève = school_role student (pas owner/teacher) ET pas dans la liste prof
   const students = members.filter(m => m.school_role === "student" && !isTeacher(m));
 
-  const assign = async (uid: string, role: "teacher"|"student", classId?: string) => {
-    if (!schoolId) return;
-    const { error } = await (supabase as any).rpc("admin_assign_user", {
-      _target: uid, _school_id: schoolId, _role: role, _class_id: classId ?? null,
+  const assignToClass = async (uid: string, classId: string) => {
+    if (!schoolId || !classId) return;
+    const { error } = await supabase.rpc("school_assign_student_to_class", {
+      _school_id: schoolId,
+      _target: uid,
+      _class_id: classId,
     });
-    if (error) toast.error(error.message); else { toast.success(tt({ fr: "Assigné", de: "Zugewiesen", ar: "تم التعيين" })); load(); }
+    if (error) toast.error(error.message); else {
+      toast.success(tt({ fr: "Élève ajouté à la classe", de: "Schüler zur Klasse hinzugefügt", ar: "تمت إضافة الطالب إلى الصف" }));
+      load();
+    }
   };
 
   const removeFromClass = async (uid: string, classId: string) => {
-    const { error } = await (supabase as any).rpc("admin_remove_from_class", { _target: uid, _class_id: classId });
+    const { error } = await supabase.rpc("admin_remove_from_class", { _target: uid, _class_id: classId });
     if (error) toast.error(error.message); else { toast.success(tt({ fr: "Retiré de la classe", de: "Aus der Klasse entfernt", ar: "تمت إزالته من الصف" })); load(); }
   };
 
@@ -144,7 +156,7 @@ export default function SchoolAdminPage() {
     if (!schoolId || !newClassName.trim() || !newClassTeacher) {
       toast.error(tt({ fr: "Nom, niveau et professeur requis", de: "Name, Stufe und Lehrkraft erforderlich", ar: "الاسم والمستوى والمعلم مطلوبون" })); return;
     }
-    const { error } = await (supabase as any).rpc("admin_create_class", {
+    const { error } = await supabase.rpc("admin_create_class", {
       _school_id: schoolId, _name: newClassName.trim(), _level: newClassLevel, _teacher_id: newClassTeacher,
     });
     if (error) toast.error(error.message); else { toast.success(tt({ fr: "Classe créée", de: "Klasse erstellt", ar: "تم إنشاء الصف" })); setNewClassName(""); load(); }
@@ -182,7 +194,11 @@ export default function SchoolAdminPage() {
   return (
     <SchoolLayout
       title={`${tt({ fr: "Administration", de: "Verwaltung", ar: "إدارة" })} — ${schoolName}`}
-      subtitle={tt({ fr: "Gérez professeurs, élèves, classes et approbations de cette école.", de: "Verwalten Sie Lehrkräfte, Schüler, Klassen und Freigaben dieser Schule.", ar: "إدارة المعلمين والطلاب والصفوف والموافقات لهذه المدرسة." })}
+      subtitle={tt({
+        fr: "Gérez les membres et les classes de cette école. Les nouvelles adhésions sont validées par le propriétaire de la plateforme.",
+        de: "Verwalten Sie Mitglieder und Klassen. Neue Mitgliedschaften werden vom Plattform-Inhaber freigegeben.",
+        ar: "إدارة أعضاء وصفوف هذه المدرسة. يوافق مالك المنصة على العضويات الجديدة.",
+      })}
       actions={
         <div className="flex items-center gap-2">
           <Badge variant="outline"><Building2 className="h-3 w-3 mr-1" />{members.length} {tt({ fr: "membres", de: "Mitglieder", ar: "أعضاء" })}</Badge>
@@ -196,7 +212,7 @@ export default function SchoolAdminPage() {
         <AcademyStatItem><AcademyMetricCard icon={<Building2 className="h-4 w-4"/>} label={tt({ fr: "Membres", de: "Mitglieder", ar: "الأعضاء" })} value={members.length} hint={tt({ fr: "dans l'école", de: "in der Schule", ar: "في المدرسة" })} accent="primary" /></AcademyStatItem>
         <AcademyStatItem><AcademyMetricCard icon={<ShieldCheck className="h-4 w-4"/>} label={tt({ fr: "Professeurs", de: "Lehrkräfte", ar: "المعلمون" })} value={teachers.length} accent="accent" /></AcademyStatItem>
         <AcademyStatItem><AcademyMetricCard icon={<GraduationCap className="h-4 w-4"/>} label={tt({ fr: "Élèves", de: "Schüler", ar: "الطلاب" })} value={students.length} accent="success" /></AcademyStatItem>
-        <AcademyStatItem><AcademyMetricCard icon={<Clock className="h-4 w-4"/>} label={tt({ fr: "En attente", de: "Ausstehend", ar: "قيد الانتظار" })} value={pending.length} hint={tt({ fr: "à approuver", de: "zu genehmigen", ar: "للموافقة" })} accent="warning" /></AcademyStatItem>
+        <AcademyStatItem><AcademyMetricCard icon={<Clock className="h-4 w-4"/>} label={tt({ fr: "En attente", de: "Ausstehend", ar: "قيد الانتظار" })} value={pending.length} hint={tt({ fr: "validation plateforme", de: "Plattformfreigabe", ar: "موافقة المنصة" })} accent="warning" /></AcademyStatItem>
       </AcademyStatGrid>
       <div className="grid sm:grid-cols-2 gap-4 mb-6">
         <AIQuotaWidget scope="school" schoolId={schoolId} title={tt({ fr: "Quota IA école aujourd'hui", de: "KI-Kontingent Schule heute", ar: "حصة الذكاء الاصطناعي للمدرسة اليوم" })} />
@@ -216,21 +232,21 @@ export default function SchoolAdminPage() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Plus className="h-5 w-5 text-primary" />
-                {tt({ fr: "Créer un professeur ou un élève (compte approuvé)", de: "Lehrkraft oder Schüler erstellen (genehmigt)", ar: "إنشاء معلم أو طالب (حساب معتمد)" })}
+                {tt({ fr: "Demander un compte professeur ou élève", de: "Lehrer- oder Schülerkonto beantragen", ar: "طلب حساب معلم أو طالب" })}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 {tt({
-                  fr: "Définissez l'email et le mot de passe. Le compte sera créé, approuvé et ajouté à l'école avec le rôle choisi. Communiquez ces identifiants à l'utilisateur.",
-                  de: "Legen Sie E-Mail und Passwort fest. Das Konto wird erstellt, genehmigt und der Schule mit der gewählten Rolle hinzugefügt. Teilen Sie die Zugangsdaten dem Benutzer mit.",
-                  ar: "حدد البريد وكلمة المرور. سيتم إنشاء الحساب واعتماده وإضافته إلى المدرسة بالدور المختار. شارك بيانات الدخول مع المستخدم."
+                  fr: "Définissez l'email et le mot de passe. La demande sera ajoutée à la file centrale ; l'utilisateur ne pourra accéder à l'école qu'après validation du propriétaire de la plateforme.",
+                  de: "Legen Sie E-Mail und Passwort fest. Der Antrag wird zentral geprüft; der Schulzugang wird erst danach aktiviert.",
+                  ar: "حدد البريد وكلمة المرور. يضاف الطلب إلى قائمة المراجعة المركزية ولا يمكن دخول المدرسة قبل موافقة مالك المنصة."
                 })}
               </p>
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground">{tt({ fr: "Rôle", de: "Rolle", ar: "الدور" })}</label>
-                  <Select value={createRole} onValueChange={(v) => setCreateRole(v as any)}>
+                  <Select value={createRole} onValueChange={(v) => setCreateRole(v as typeof createRole)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="student">{tt({ fr: "Élève", de: "Schüler", ar: "طالب" })}</SelectItem>
@@ -268,7 +284,7 @@ export default function SchoolAdminPage() {
               <div className="flex justify-end">
                 <Button onClick={createAccount} disabled={creating}>
                   {creating ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Plus className="h-4 w-4 mr-1" />}
-                  {tt({ fr: "Créer le compte", de: "Konto erstellen", ar: "إنشاء الحساب" })}
+                  {tt({ fr: "Créer et envoyer la demande", de: "Erstellen und Antrag senden", ar: "إنشاء وإرسال الطلب" })}
                 </Button>
               </div>
               {createEmail && createPassword && (
@@ -285,7 +301,7 @@ export default function SchoolAdminPage() {
 
         <TabsContent value="pending">
           <Card>
-            <CardHeader><CardTitle className="text-lg">{tt({ fr: "Comptes en attente d'approbation", de: "Konten warten auf Genehmigung", ar: "حسابات بانتظار الموافقة" })}</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg">{tt({ fr: "Demandes en attente de validation centrale", de: "Anträge warten auf zentrale Freigabe", ar: "طلبات بانتظار الموافقة المركزية" })}</CardTitle></CardHeader>
             <CardContent className="space-y-2">
               {pending.length === 0 && <p className="text-sm text-muted-foreground">{tt({ fr: "Aucune inscription en attente.", de: "Keine ausstehenden Registrierungen.", ar: "لا توجد تسجيلات معلقة." })}</p>}
               {pending.map(p => (
@@ -294,17 +310,10 @@ export default function SchoolAdminPage() {
                     <div className="font-medium">{p.display_name || <i>{tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" })}</i>}</div>
                     <div className="text-sm text-muted-foreground">{p.email}</div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline" onClick={() => assign(p.user_id, "teacher")}>
-                      <ShieldCheck className="h-3 w-3 mr-1" /> {tt({ fr: "Approuver Professeur", de: "Lehrkraft genehmigen", ar: "اعتماد معلم" })}
-                    </Button>
-                    <Select onValueChange={(v) => assign(p.user_id, "student", v)}>
-                      <SelectTrigger className="h-9 w-[220px]"><SelectValue placeholder={tt({ fr: "Approuver Élève → classe", de: "Schüler genehmigen → Klasse", ar: "اعتماد طالب ← صف" })} /></SelectTrigger>
-                      <SelectContent>
-                        {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.level})</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {tt({ fr: "Chez le propriétaire", de: "Beim Plattform-Inhaber", ar: "لدى مالك المنصة" })}
+                  </Badge>
                 </div>
               ))}
             </CardContent>
@@ -326,9 +335,11 @@ export default function SchoolAdminPage() {
                     <div className="font-medium">{t.display_name || <i>{tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" })}</i>} <Badge variant="outline" className="ml-2 text-xs">{t.school_role}</Badge></div>
                     <div className="text-sm text-muted-foreground">{t.email}</div>
                   </div>
-                  <div className="flex gap-1">
-                    {!t.approved && <Button size="sm" onClick={() => assign(t.user_id, "teacher")}><Check className="h-3 w-3 mr-1" />{tt({ fr: "Approuver", de: "Genehmigen", ar: "اعتماد" })}</Button>}
-                  </div>
+                  {!t.approved && (
+                    <Badge variant="outline" className="border-amber-500/30 text-amber-700 dark:text-amber-300">
+                      {tt({ fr: "Validation centrale", de: "Zentrale Freigabe", ar: "موافقة مركزية" })}
+                    </Badge>
+                  )}
                 </div>
               ))}
               {teachers.length === 0 && <p className="text-sm text-muted-foreground">{tt({ fr: "Aucun professeur. Approuvez un compte en attente avec le rôle Professeur.", de: "Keine Lehrkräfte. Genehmigen Sie ein ausstehendes Konto als Lehrkraft.", ar: "لا يوجد معلمون. اعتمد حسابًا بانتظار الموافقة كمعلم." })}</p>}
@@ -357,7 +368,7 @@ export default function SchoolAdminPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Select onValueChange={(v) => assign(s.user_id, "student", v)}>
+                    <Select onValueChange={(v) => assignToClass(s.user_id, v)}>
                       <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder={tt({ fr: "Ajouter à classe…", de: "Zu Klasse hinzufügen…", ar: "أضف إلى صف…" })} /></SelectTrigger>
                       <SelectContent>
                         {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.level})</SelectItem>)}
@@ -392,7 +403,7 @@ export default function SchoolAdminPage() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground">{tt({ fr: "Niveau", de: "Stufe", ar: "المستوى" })}</label>
-                  <Select value={newClassLevel} onValueChange={(v) => setNewClassLevel(v as any)}>
+                  <Select value={newClassLevel} onValueChange={(v) => setNewClassLevel(v as typeof newClassLevel)}>
                     <SelectTrigger className="w-[110px]"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="A1">A1</SelectItem>

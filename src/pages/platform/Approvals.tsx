@@ -15,56 +15,92 @@ type PendingProfile = {
   user_id: string; display_name: string | null; email: string | null; created_at: string;
 };
 type School = { id: string; name: string };
+type PendingSchool = {
+  id: string;
+  name: string;
+  tenant_type: string;
+  owner_id: string;
+  owner_name?: string;
+  owner_email?: string;
+  created_at: string;
+};
 
-const ROLES = ["student", "teacher", "school_admin", "examiner", "academic_director", "admin"] as const;
+const ROLES = [
+  "student",
+  "parent",
+  "teacher",
+  "examiner",
+  "staff",
+  "pedagogical_coordinator",
+  "academic_director",
+  "school_admin",
+] as const;
 
 export default function Approvals() {
   const { tt } = useI18n();
   const [members, setMembers] = useState<PendingMember[]>([]);
   const [profiles, setProfiles] = useState<PendingProfile[]>([]);
+  const [pendingSchools, setPendingSchools] = useState<PendingSchool[]>([]);
   const [schools, setSchools] = useState<School[]>([]);
   const [loading, setLoading] = useState(true);
   const [assign, setAssign] = useState<Record<string, { school_id?: string; role?: string }>>({});
 
   const load = async () => {
     setLoading(true);
-    const sb = supabase as any;
-    const [memsRes, profsRes, schRes] = await Promise.all([
-      sb.rpc("admin_pending_members"),
-      sb.rpc("admin_pending_profiles"),
-      sb.from("schools").select("id, name").order("name"),
+    const [memsRes, profsRes, pendingSchoolsRes, schRes] = await Promise.all([
+      supabase.rpc("admin_pending_members"),
+      supabase.rpc("admin_pending_profiles"),
+      supabase.rpc("admin_pending_schools"),
+      supabase.from("schools").select("id, name").eq("status", "active").order("name"),
     ]);
     setMembers(memsRes.data || []);
     setProfiles(profsRes.data || []);
+    setPendingSchools(pendingSchoolsRes.data || []);
     setSchools(schRes.data || []);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
 
   const approveMember = async (m: PendingMember) => {
-    const sb = supabase as any;
-    const { error } = await sb.from("school_members").update({ status: "approved", approved_at: new Date().toISOString() }).eq("id", m.id);
+    const { error } = await supabase.rpc("platform_review_membership", {
+      _membership_id: m.id,
+      _decision: "approve",
+      _reason: null,
+    });
     if (error) return toast.error(error.message);
-    await sb.from("profiles").update({ approved: true }).eq("user_id", m.user_id);
     toast.success("Membre approuvé"); load();
   };
   const rejectMember = async (m: PendingMember) => {
-    const sb = supabase as any;
-    const { error } = await sb.from("school_members").update({ status: "rejected" }).eq("id", m.id);
+    const { error } = await supabase.rpc("platform_review_membership", {
+      _membership_id: m.id,
+      _decision: "reject",
+      _reason: "Demande refusée par le propriétaire de la plateforme",
+    });
     if (error) return toast.error(error.message);
     toast.success("Refusé"); load();
   };
   const approveProfile = async (p: PendingProfile) => {
-    const sb = supabase as any;
-    const { error } = await sb.from("profiles").update({ approved: true }).eq("user_id", p.user_id);
+    const { error } = await supabase.rpc("admin_set_approved", {
+      _target: p.user_id,
+      _approved: true,
+    });
     if (error) return toast.error(error.message);
     toast.success("Compte approuvé"); load();
+  };
+  const reviewSchool = async (school: PendingSchool, decision: "approve" | "reject") => {
+    const { error } = await supabase.rpc("platform_review_school", {
+      _school_id: school.id,
+      _decision: decision,
+      _reason: decision === "reject" ? "Demande d'espace refusée" : null,
+    });
+    if (error) return toast.error(error.message);
+    toast.success(decision === "approve" ? "Espace approuvé" : "Espace refusé");
+    load();
   };
   const assignAndApprove = async (p: PendingProfile) => {
     const cfg = assign[p.user_id] || {};
     if (!cfg.school_id || !cfg.role) return toast.error("Choisissez école et rôle");
-    const sb = supabase as any;
-    const { error } = await sb.rpc("admin_assign_user", {
+    const { error } = await supabase.rpc("admin_assign_user", {
       _target: p.user_id, _school_id: cfg.school_id, _role: cfg.role,
     });
     if (error) return toast.error(error.message);
@@ -80,6 +116,52 @@ export default function Approvals() {
         <h1 className="text-3xl font-display font-bold">Approbations</h1>
         <p className="text-muted-foreground mt-1">Validez les comptes, assignez un rôle et une école.</p>
       </header>
+
+      <section>
+        <h2 className="font-display font-semibold text-lg mb-3 flex items-center gap-2">
+          <Building2 className="h-4 w-4" /> Espaces et écoles en attente ({pendingSchools.length})
+        </h2>
+        <div className="rounded-2xl border bg-card overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40">
+              <tr>
+                <th className="text-left px-4 py-3">Espace</th>
+                <th className="text-left px-4 py-3">Type</th>
+                <th className="text-left px-4 py-3">Propriétaire</th>
+                <th className="text-left px-4 py-3">Demandé le</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && <tr><td colSpan={5} className="text-center py-10 text-muted-foreground">Chargement…</td></tr>}
+              {!loading && pendingSchools.length === 0 && (
+                <tr><td colSpan={5} className="text-center py-10 text-muted-foreground">Aucun espace en attente.</td></tr>
+              )}
+              {pendingSchools.map((school) => (
+                <tr key={school.id} className="border-t hover:bg-muted/20">
+                  <td className="px-4 py-3 font-medium">{school.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{school.tenant_type}</td>
+                  <td className="px-4 py-3">
+                    <div>{school.owner_name || "—"}</div>
+                    <div className="text-xs text-muted-foreground">{school.owner_email}</div>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {new Date(school.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3 text-right space-x-2">
+                    <Button size="sm" variant="outline" onClick={() => reviewSchool(school, "reject")}>
+                      <X className="h-3 w-3 mr-1" />Refuser
+                    </Button>
+                    <Button size="sm" onClick={() => reviewSchool(school, "approve")}>
+                      <Check className="h-3 w-3 mr-1" />Approuver
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section>
         <h2 className="font-display font-semibold text-lg mb-3 flex items-center gap-2">

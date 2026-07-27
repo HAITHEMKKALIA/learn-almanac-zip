@@ -2250,8 +2250,12 @@ export type Database = {
           approved_by: string | null
           id: string
           joined_at: string
+          requested_class_id: string | null
+          review_reason: string | null
+          reviewed_at: string | null
           role: Database["public"]["Enums"]["school_role"]
           school_id: string
+          space_role: Database["public"]["Enums"]["app_role"] | null
           status: string
           user_id: string
         }
@@ -2260,8 +2264,12 @@ export type Database = {
           approved_by?: string | null
           id?: string
           joined_at?: string
+          requested_class_id?: string | null
+          review_reason?: string | null
+          reviewed_at?: string | null
           role?: Database["public"]["Enums"]["school_role"]
           school_id: string
+          space_role?: Database["public"]["Enums"]["app_role"] | null
           status?: string
           user_id: string
         }
@@ -2270,12 +2278,23 @@ export type Database = {
           approved_by?: string | null
           id?: string
           joined_at?: string
+          requested_class_id?: string | null
+          review_reason?: string | null
+          reviewed_at?: string | null
           role?: Database["public"]["Enums"]["school_role"]
           school_id?: string
+          space_role?: Database["public"]["Enums"]["app_role"] | null
           status?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "school_members_requested_class_id_fkey"
+            columns: ["requested_class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "school_members_school_id_fkey"
             columns: ["school_id"]
@@ -2460,6 +2479,9 @@ export type Database = {
           name: string
           owner_id: string
           phone: string | null
+          review_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           slug: string
           status: string
           tenant_type: string
@@ -2480,6 +2502,9 @@ export type Database = {
           name: string
           owner_id: string
           phone?: string | null
+          review_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           slug: string
           status?: string
           tenant_type?: string
@@ -2500,6 +2525,9 @@ export type Database = {
           name?: string
           owner_id?: string
           phone?: string | null
+          review_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           slug?: string
           status?: string
           tenant_type?: string
@@ -3340,6 +3368,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_pending_schools: {
+        Args: never
+        Returns: {
+          created_at: string
+          id: string
+          name: string
+          owner_email: string
+          owner_id: string
+          owner_name: string
+          tenant_type: string
+        }[]
+      }
       admin_remove_from_class: {
         Args: { _class_id: string; _target: string }
         Returns: undefined
@@ -3457,6 +3497,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_school_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _school_id: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_approved: { Args: { _user_id: string }; Returns: boolean }
       is_approved_member: {
         Args: { _school_id: string; _user_id: string }
@@ -3529,7 +3577,7 @@ export type Database = {
           is_independent: boolean
           logo_url: string
           name: string
-          role: Database["public"]["Enums"]["school_role"]
+          role: string
           slug: string
           tenant_type: string
         }[]
@@ -3540,13 +3588,52 @@ export type Database = {
           id: string
           logo_url: string
           name: string
-          role: Database["public"]["Enums"]["school_role"]
+          role: string
           slug: string
         }[]
+      }
+      my_pending_space_requests: {
+        Args: never
+        Returns: {
+          id: string
+          membership_status: string
+          name: string
+          requested_at: string
+          school_status: string
+          tenant_type: string
+        }[]
+      }
+      platform_review_membership: {
+        Args: {
+          _decision: string
+          _membership_id: string
+          _reason?: string
+        }
+        Returns: undefined
+      }
+      platform_review_school: {
+        Args: {
+          _decision: string
+          _reason?: string
+          _school_id: string
+        }
+        Returns: undefined
       }
       promote_students: {
         Args: { _student_ids: string[]; _target_class_id: string }
         Returns: number
+      }
+      record_my_legal_consent: {
+        Args: {
+          _privacy_version: string
+          _terms_version: string
+          _user_agent?: string
+        }
+        Returns: undefined
+      }
+      request_school_space: {
+        Args: { _school_name: string }
+        Returns: string
       }
       school_members_full: {
         Args: { _school_id: string }
@@ -3560,8 +3647,20 @@ export type Database = {
           user_id: string
         }[]
       }
+      school_assign_student_to_class: {
+        Args: {
+          _class_id: string
+          _school_id: string
+          _target: string
+        }
+        Returns: undefined
+      }
       student_can_access_questions: {
         Args: { _assignment_id: string; _user_id: string }
+        Returns: boolean
+      }
+      users_share_school: {
+        Args: { _left_user: string; _right_user: string }
         Returns: boolean
       }
       student_can_view_teacher_presence: {

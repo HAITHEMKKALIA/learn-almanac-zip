@@ -1,4 +1,5 @@
-// School admin/owner creates an approved teacher or student account (email + password).
+// A school manager can create an account request. The platform owner remains
+// the only actor allowed to approve the profile and membership.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -35,14 +36,24 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
-    // Authorization: super_admin/admin OR owner of this school
+    // Authorization is tenant-scoped: platform owner or an approved manager of
+    // this exact active school. A global `admin` role is never sufficient.
     const { data: rolesRows } = await admin.from("user_roles").select("role").eq("user_id", caller.id);
     const roles = (rolesRows || []).map((r: any) => r.role);
-    let authorized = roles.includes("super_admin") || roles.includes("admin");
+    let authorized = roles.includes("super_admin");
     if (!authorized) {
-      const { data: mem } = await admin.from("school_members")
-        .select("role").eq("school_id", school_id).eq("user_id", caller.id).maybeSingle();
-      authorized = mem?.role === "owner" || roles.includes("school_admin");
+      const [{ data: school }, { data: memberships }] = await Promise.all([
+        admin.from("schools").select("status").eq("id", school_id).maybeSingle(),
+        admin.from("school_members")
+          .select("role, space_role, status")
+          .eq("school_id", school_id)
+          .eq("user_id", caller.id),
+      ]);
+      authorized = school?.status === "active"
+        && (memberships || []).some((membership: any) =>
+          membership.status === "approved"
+          && (membership.role === "owner" || membership.space_role === "school_admin")
+        );
     }
     if (!authorized) return json({ error: "not_authorized" }, 403);
 
@@ -53,7 +64,6 @@ Deno.serve(async (req) => {
     const { data: prof } = await admin.from("profiles").select("user_id").ilike("email", targetEmail).maybeSingle();
     if (prof?.user_id) {
       user_id = prof.user_id;
-      await admin.auth.admin.updateUserById(user_id, { password: String(password), email_confirm: true });
     } else {
       const { data: created, error: cErr } = await admin.auth.admin.createUser({
         email: targetEmail,
@@ -65,28 +75,30 @@ Deno.serve(async (req) => {
       user_id = created.user.id;
     }
 
-    // Approve + name
-    await admin.from("profiles").update({
-      approved: true,
-      ...(display_name ? { display_name } : {}),
-    }).eq("user_id", user_id);
-
-    // App role
-    await admin.from("user_roles").insert({ user_id, role }).then(() => {}, () => {});
-
-    // School membership
-    const schoolRole = role === "teacher" ? "teacher" : "student";
-    await admin.from("school_members").upsert({
-      school_id, user_id, role: schoolRole,
-      status: "approved", approved_at: new Date().toISOString(),
-    }, { onConflict: "school_id,user_id" }).then(() => {}, () => {});
-
-    // Optional class assignment for students
+    // School membership request; class assignment is performed only after the
+    // platform owner approves this membership.
     if (role === "student" && class_id) {
-      await admin.from("class_members").insert({ class_id, student_id: user_id }).then(() => {}, () => {});
+      const { data: targetClass } = await admin.from("classes")
+        .select("id")
+        .eq("id", class_id)
+        .eq("school_id", school_id)
+        .maybeSingle();
+      if (!targetClass) return json({ error: "class_not_in_school" }, 400);
     }
+    const schoolRole = role === "teacher" ? "teacher" : "student";
+    const { error: membershipError } = await admin.from("school_members").upsert({
+      school_id, user_id, role: schoolRole,
+      space_role: role,
+      status: "pending",
+      approved_by: null,
+      approved_at: null,
+      requested_class_id: role === "student" && class_id ? class_id : null,
+      reviewed_at: null,
+      review_reason: null,
+    }, { onConflict: "school_id,user_id,role" });
+    if (membershipError) return json({ error: membershipError.message }, 400);
 
-    return json({ user_id, email: targetEmail });
+    return json({ user_id, email: targetEmail, status: "pending_owner_approval" });
   } catch (e: any) {
     return json({ error: e?.message || "unknown_error" }, 500);
   }

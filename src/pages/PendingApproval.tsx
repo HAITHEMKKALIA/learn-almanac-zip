@@ -5,21 +5,36 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
+import { useActiveSchool } from "@/contexts/ActiveSchoolContext";
+
+type PendingProfile = {
+  display_name: string | null;
+  email: string | null;
+  approved: boolean;
+};
 
 export default function PendingApproval() {
   const { user, signOut, roles } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<PendingProfile | null>(null);
   const { tt } = useI18n();
+  const { pendingRequests, refresh, loading: spacesLoading } = useActiveSchool();
 
   useEffect(() => {
     if (!user) { navigate("/auth", { replace: true }); return; }
-    supabase.from("profiles").select("display_name, email, approved").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => {
+    Promise.all([
+      supabase.from("profiles").select("display_name, email, approved").eq("user_id", user.id).maybeSingle(),
+      refresh(),
+    ]).then(([{ data }]) => {
         setProfile(data);
-        if (data?.approved) navigate("/app", { replace: true });
       });
-  }, [user, navigate]);
+  }, [user, navigate, refresh]);
+
+  useEffect(() => {
+    if (profile?.approved && !spacesLoading && pendingRequests.length === 0) {
+      navigate("/app", { replace: true });
+    }
+  }, [profile?.approved, pendingRequests.length, spacesLoading, navigate]);
 
   return (
     <div className="min-h-screen grid place-items-center bg-academy-hero p-4">
@@ -34,9 +49,9 @@ export default function PendingApproval() {
             </h1>
             <p className="text-sm text-muted-foreground">
               {tt({
-                fr: "Votre accès doit être approuvé par un administrateur.",
-                de: "Ihr Zugang muss von einem Administrator genehmigt werden.",
-                ar: "يجب أن يوافق المسؤول على الوصول إلى حسابك.",
+                fr: "Votre accès doit être approuvé par le propriétaire de la plateforme.",
+                de: "Ihr Zugang muss vom Plattform-Inhaber freigegeben werden.",
+                ar: "يجب أن يوافق مالك المنصة على الوصول إلى حسابك.",
               })}
             </p>
           </div>
@@ -48,13 +63,32 @@ export default function PendingApproval() {
           <div className="flex justify-between"><span className="text-muted-foreground">{tt({ fr: "Rôles demandés", de: "Angeforderte Rollen", ar: "الأدوار المطلوبة" })}</span><span className="font-medium">{roles.join(", ") || "student"}</span></div>
         </div>
 
+        {pendingRequests.length > 0 && (
+          <div className="space-y-2 mb-4">
+            <p className="text-sm font-medium">
+              {tt({ fr: "Demandes en cours", de: "Offene Anträge", ar: "الطلبات الحالية" })}
+            </p>
+            {pendingRequests.map((request) => (
+              <div key={request.id} className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3 text-sm">
+                <div>
+                  <div className="font-medium">{request.name}</div>
+                  <div className="text-xs text-muted-foreground">{request.tenant_type}</div>
+                </div>
+                <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+                  {tt({ fr: "En attente", de: "Ausstehend", ar: "قيد الانتظار" })}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 mb-4 flex gap-3">
           <ShieldCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
           <p className="text-sm">
             {tt({
-              fr: "Pour des raisons de sécurité, votre compte doit être validé par l'administration de l'école avant d'accéder aux espaces protégés. Vous pouvez toujours explorer le mode public en attendant.",
-              de: "Aus Sicherheitsgründen muss Ihr Konto von der Schulverwaltung bestätigt werden, bevor Sie auf geschützte Bereiche zugreifen können. Den öffentlichen Modus können Sie in der Zwischenzeit weiter erkunden.",
-              ar: "لأسباب أمنية، يجب أن تتم المصادقة على حسابك من قبل إدارة المدرسة قبل الوصول إلى المساحات المحمية. يمكنك دائمًا استكشاف الوضع العام في غضون ذلك.",
+              fr: "Pour protéger chaque école, aucun espace n'est accessible avant validation centrale. Vous pouvez explorer le mode public pendant l'examen de votre demande.",
+              de: "Zum Schutz jeder Schule ist kein Bereich vor der zentralen Freigabe zugänglich. Während der Prüfung können Sie den öffentlichen Modus nutzen.",
+              ar: "لحماية كل مدرسة، لا يمكن دخول أي مساحة قبل الموافقة المركزية. يمكنك استخدام الوضع العام أثناء مراجعة طلبك.",
             })}
           </p>
         </div>

@@ -12,6 +12,8 @@ import {
   GraduationCap, School, User, Users, KeyRound, Loader2,
   ArrowLeft, Sparkles, Check,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { toast } from "sonner";
 
 type Mode = "school" | "independent_teacher" | "independent_student" | "join_code" | "parent" | null;
@@ -30,9 +32,9 @@ export default function Onboarding() {
   const nav = useNavigate();
   const [mode, setMode] = useState<Mode>(null);
   const [busy, setBusy] = useState(false);
+  const [schoolName, setSchoolName] = useState("");
   const [studioName, setStudioName] = useState("");
   const [level, setLevel] = useState("A1.1");
-  const [goal, setGoal] = useState("");
   const [code, setCode] = useState("");
 
   if (!user) {
@@ -42,47 +44,53 @@ export default function Onboarding() {
 
   async function createTeacherStudio() {
     setBusy(true);
-    const { data, error } = await (supabase as any).rpc("create_independent_teacher_space", {
+    const { error } = await supabase.rpc("create_independent_teacher_space", {
       _studio_name: studioName || "Mon Studio",
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     await refreshRoles();
-    localStorage.setItem("active_school_id", data);
     await refreshSpaces();
-    toast.success("Studio créé !");
-    nav("/teacher-studio", { replace: true });
+    toast.success("Demande de studio envoyée au propriétaire de la plateforme.");
+    nav("/pending-approval", { replace: true });
   }
 
   async function createSoloSpace() {
     setBusy(true);
-    const { data, error } = await (supabase as any).rpc("create_independent_student_space", {
+    const { error } = await supabase.rpc("create_independent_student_space", {
       _current_level: level,
     });
-    if (!error && data && goal.trim()) {
-      await (supabase as any).from("solo_student_settings")
-        .update({ learning_goal: goal.trim() })
-        .eq("school_id", data);
-    }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     await refreshRoles();
-    localStorage.setItem("active_school_id", data);
     await refreshSpaces();
-    toast.success("Espace personnel créé !");
-    nav("/solo-student", { replace: true });
+    toast.success("Demande d'espace envoyée au propriétaire de la plateforme.");
+    nav("/pending-approval", { replace: true });
   }
 
   async function joinByCode() {
     if (!code.trim()) return;
     setBusy(true);
-    const { data, error } = await (supabase as any).rpc("join_class_by_code", { _code: code.trim() });
+    const { error } = await supabase.rpc("join_class_by_code", { _code: code.trim() });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     await refreshRoles();
     await refreshSpaces();
-    toast.success("Classe rejointe !");
-    nav("/student", { replace: true });
+    toast.success("Demande d'accès à la classe envoyée pour approbation.");
+    nav("/pending-approval", { replace: true });
+  }
+
+  async function requestSchool() {
+    if (schoolName.trim().length < 3) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("request_school_space", {
+      _school_name: schoolName.trim(),
+    });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    await refreshSpaces();
+    toast.success("Demande d'école envoyée au propriétaire de la plateforme.");
+    nav("/pending-approval", { replace: true });
   }
 
   const cards = [
@@ -199,10 +207,6 @@ export default function Onboarding() {
                       {["A1.1","A1.2","A2.1","A2.2","B1.1","B1.2","B2.1","B2.2"].map(l => <option key={l}>{l}</option>)}
                     </select>
                   </div>
-                  <div>
-                    <Label>Mon objectif (optionnel)</Label>
-                    <Input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="Ex: Réussir le Goethe B1" />
-                  </div>
                   <Bullets items={["Parcours A1 → B2", "Vocabulaire & Kapitel", "Examens blancs et certificats"]} accent={ACCENTS.independent_student} />
                   <Button onClick={createSoloSpace} disabled={busy} className="w-full">
                     {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />} Démarrer mon parcours
@@ -227,9 +231,20 @@ export default function Onboarding() {
 
               {mode === "school" && (
                 <ModeCard accent={ACCENTS.school} icon={School} title="Inscription d'une école"
-                  desc="La création d'une école est validée par le Super Admin. Contactez l'équipe pour activer votre établissement.">
+                  desc="La création d'une école est validée par le propriétaire de la plateforme.">
+                  <div>
+                    <Label>Nom de l'école ou de l'institut</Label>
+                    <Input
+                      value={schoolName}
+                      onChange={(event) => setSchoolName(event.target.value)}
+                      placeholder="Ex. Institut Deutsch Tunis"
+                    />
+                  </div>
                   <Bullets items={["Espace multi-classes", "Direction pédagogique", "Examens officiels & certificats"]} accent={ACCENTS.school} />
-                  <Button variant="outline" onClick={() => setMode(null)} className="w-full">Retour aux options</Button>
+                  <Button onClick={requestSchool} disabled={busy || schoolName.trim().length < 3} className="w-full">
+                    {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    Envoyer la demande
+                  </Button>
                 </ModeCard>
               )}
 
@@ -247,7 +262,21 @@ export default function Onboarding() {
   );
 }
 
-function ModeCard({ accent, icon: Icon, title, desc, children }: any) {
+type Accent = (typeof ACCENTS)[keyof typeof ACCENTS];
+
+function ModeCard({
+  accent,
+  icon: Icon,
+  title,
+  desc,
+  children,
+}: {
+  accent: Accent;
+  icon: LucideIcon;
+  title: string;
+  desc: string;
+  children: ReactNode;
+}) {
   return (
     <Card className="relative overflow-hidden border-2">
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.grad}`} />
@@ -263,7 +292,7 @@ function ModeCard({ accent, icon: Icon, title, desc, children }: any) {
   );
 }
 
-function Bullets({ items, accent }: { items: string[]; accent: any }) {
+function Bullets({ items, accent }: { items: string[]; accent: Accent }) {
   return (
     <ul className="space-y-2">
       {items.map((it) => (

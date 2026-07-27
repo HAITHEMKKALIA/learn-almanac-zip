@@ -1,5 +1,5 @@
 // Generates vocabulary entries for a (level, theme_slug) using Lovable AI and inserts them.
-// Teachers/admins only.
+// Official global vocabulary: platform owner only.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -24,8 +24,8 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     const { data: roles } = await admin.from("user_roles").select("role").eq("user_id", user.id);
-    const isTeacher = roles?.some((r) => r.role === "teacher" || r.role === "admin");
-    if (!isTeacher) return json({ error: "Forbidden" }, 403);
+    const isPlatformOwner = roles?.some((r) => r.role === "super_admin");
+    if (!isPlatformOwner) return json({ error: "Forbidden" }, 403);
 
     const { level, theme_slug, count = 30 } = await req.json();
     if (!level || !theme_slug) return json({ error: "level and theme_slug required" }, 400);

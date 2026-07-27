@@ -14,8 +14,18 @@ export type School = {
   is_independent?: boolean;
 };
 
+export type PendingSpaceRequest = {
+  id: string;
+  name: string;
+  tenant_type: SpaceType;
+  school_status: string;
+  membership_status: string;
+  requested_at: string;
+};
+
 interface ActiveSchoolCtx {
   schools: School[];
+  pendingRequests: PendingSpaceRequest[];
   activeSchoolId: string | null;
   activeSchool: School | null;
   activeSpaceType: SpaceType | null;
@@ -30,6 +40,7 @@ const STORAGE_KEY = "active_school_id";
 export function ActiveSchoolProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [schools, setSchools] = useState<School[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<PendingSpaceRequest[]>([]);
   const [activeSchoolId, setActiveIdState] = useState<string | null>(
     typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null,
   );
@@ -38,15 +49,20 @@ export function ActiveSchoolProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     if (!user) {
       setSchools([]);
+      setPendingRequests([]);
       setLoading(false);
       return;
     }
     setLoading(true);
-    // Prefer my_learning_spaces (includes tenant_type); fallback to my_schools
-    const { data: lsData, error: lsErr } = await (supabase as any).rpc("my_learning_spaces");
-    const data = lsErr ? (await (supabase as any).rpc("my_schools")).data : lsData;
+    // Only server-filtered, active and approved memberships are trusted.
+    const [{ data: lsData, error: lsErr }, pendingRes] = await Promise.all([
+      supabase.rpc("my_learning_spaces"),
+      supabase.rpc("my_pending_space_requests"),
+    ]);
+    const data = lsErr ? (await supabase.rpc("my_schools")).data : lsData;
     const list = (data || []) as School[];
     setSchools(list);
+    setPendingRequests((pendingRes.data || []) as PendingSpaceRequest[]);
     setActiveIdState((current) => {
       if (current && list.find((s) => s.id === current)) return current;
       const next = list[0]?.id ?? null;
@@ -55,7 +71,7 @@ export function ActiveSchoolProvider({ children }: { children: ReactNode }) {
       return next;
     });
     setLoading(false);
-  }, [user?.id]);
+  }, [user]);
 
   useEffect(() => {
     refresh();
@@ -76,7 +92,7 @@ export function ActiveSchoolProvider({ children }: { children: ReactNode }) {
   const activeSpaceType = (activeSchool?.tenant_type ?? null) as SpaceType | null;
 
   return (
-    <Ctx.Provider value={{ schools, activeSchoolId, activeSchool, activeSpaceType, setActiveSchoolId, loading, refresh }}>
+    <Ctx.Provider value={{ schools, pendingRequests, activeSchoolId, activeSchool, activeSpaceType, setActiveSchoolId, loading, refresh }}>
       {children}
     </Ctx.Provider>
   );
