@@ -22,12 +22,20 @@ const META: Record<string, { label: string; Icon: any; ring: string; tint: strin
 
 export default function ChooseSpace() {
   const { schools, loading, setActiveSchoolId } = useActiveSchool();
+  const { user } = useAuth();
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "school" | "independent_teacher" | "independent_student">("all");
   const [defaultId, setDefaultId] = useState<string | null>(
     typeof window !== "undefined" ? localStorage.getItem(STORAGE_DEFAULT) : null,
   );
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function handleLogout() {
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    nav("/auth");
+  }
 
   if (loading) {
     return (
