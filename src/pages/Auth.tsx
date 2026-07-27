@@ -40,9 +40,17 @@ export default function AuthPage() {
   }, [searchParams]);
   const returnUrl = nextPath ? `${window.location.origin}${nextPath}` : `${window.location.origin}/app`;
 
+  // Only auto-redirect when a `next` param is present (e.g. OAuth consent flow).
+  // Otherwise, let the user see the sign-in form even if a session already exists,
+  // so they can switch accounts.
   useEffect(() => {
-    if (!loading && user) navigate(nextPath ?? "/app", { replace: true });
+    if (!loading && user && nextPath) navigate(nextPath, { replace: true });
   }, [user, loading, navigate, nextPath]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success(tt({ fr: "Déconnecté", de: "Abgemeldet", ar: "تم تسجيل الخروج" }));
+  };
 
   const T = {
     title: { fr: "Deutsch Meister", de: "Deutsch Meister", ar: "ديتش مايستر" },
