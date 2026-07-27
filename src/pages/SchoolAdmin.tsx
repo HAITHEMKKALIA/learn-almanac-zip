@@ -391,16 +391,25 @@ export default function SchoolAdminPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               {filteredMembers.filter(m => teachers.includes(m)).map(t => (
-                <div key={t.user_id} className="border rounded-lg p-3 flex items-center justify-between gap-2">
-                  <div>
+                <div key={t.user_id} className="border rounded-lg p-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
                     <div className="font-medium">{t.display_name || <i>{tt({ fr: "(sans nom)", de: "(ohne Namen)", ar: "(بدون اسم)" })}</i>} <Badge variant="outline" className="ml-2 text-xs">{t.school_role}</Badge></div>
                     <div className="text-sm text-muted-foreground">{t.email}</div>
                   </div>
-                  {!t.approved && (
-                    <Badge variant="outline" className="border-amber-500/30 text-amber-700 dark:text-amber-300">
-                      {tt({ fr: "Validation centrale", de: "Zentrale Freigabe", ar: "موافقة مركزية" })}
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {t.approved ? (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(t.user_id, "suspend")}>
+                        <PauseCircle className="h-4 w-4 mr-1" />{tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(t.user_id, "reactivate", { space_role: "teacher" })}>
+                        <PlayCircle className="h-4 w-4 mr-1" />{tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" onClick={() => removeMember(t.user_id, t.display_name)} className="text-destructive hover:text-destructive">
+                      <UserMinus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
               {teachers.length === 0 && <p className="text-sm text-muted-foreground">{tt({ fr: "Aucun professeur. Approuvez un compte en attente avec le rôle Professeur.", de: "Keine Lehrkräfte. Genehmigen Sie ein ausstehendes Konto als Lehrkraft.", ar: "لا يوجد معلمون. اعتمد حسابًا بانتظار الموافقة كمعلم." })}</p>}
