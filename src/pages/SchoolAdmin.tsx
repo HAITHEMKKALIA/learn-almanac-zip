@@ -112,20 +112,31 @@ export default function SchoolAdminPage() {
   const load = useCallback(async () => {
     if (!schoolId) { setLoading(false); return; }
     setLoading(true);
-    const [{ data: sch }, { data: mem }, { data: cls }] = await Promise.all([
+    const [{ data: sch }, { data: mem }, { data: cls }, { data: pendRows }] = await Promise.all([
       supabase.from("schools").select("name").eq("id", schoolId).maybeSingle(),
       supabase.rpc("school_members_full", { _school_id: schoolId }),
       supabase.from("classes").select("id,name,level,teacher_id,invite_code").eq("school_id", schoolId).order("name"),
+      supabase
+        .from("school_members")
+        .select("user_id, space_role, requested_class_id, joined_at, status")
+        .eq("school_id", schoolId)
+        .eq("status", "pending")
+        .order("joined_at", { ascending: false }),
     ]);
     setSchoolName(sch?.name || "École");
     const memList = (mem as Member[]) || [];
     setMembers(memList);
     setClasses((cls as ClassRow[]) || []);
-    // Pending = membres de cette école non encore approuvés
+    const profMap = new Map(memList.map(m => [m.user_id, m]));
     setPending(
-      memList
-        .filter(m => !m.approved)
-        .map(m => ({ user_id: m.user_id, display_name: m.display_name, email: m.email }))
+      ((pendRows as any[]) || []).map(r => ({
+        user_id: r.user_id,
+        display_name: profMap.get(r.user_id)?.display_name ?? null,
+        email: profMap.get(r.user_id)?.email ?? null,
+        space_role: r.space_role,
+        requested_class_id: r.requested_class_id,
+        joined_at: r.joined_at,
+      }))
     );
     setLoading(false);
   }, [schoolId]);
