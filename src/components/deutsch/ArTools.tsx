@@ -5,7 +5,7 @@
 //    (HTML rendu par le navigateur → polices arabes natives, contrairement à jsPDF)
 
 import { useMemo, useState } from "react";
-import { UNITS } from "@/data/curriculum";
+import { getActiveUnits } from "@/data/activeUnits";
 import { translateFrToAr, isArTranslationComplete, useI18n } from "@/lib/i18n";
 import type { Lesson } from "@/data/curriculum";
 import type { EnrichedLesson } from "@/data/lessonEnrichment";
