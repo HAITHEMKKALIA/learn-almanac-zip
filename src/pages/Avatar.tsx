@@ -645,6 +645,10 @@ export default function Avatar() {
               </div>
             </Card>
 
+            <AvatarChat onSpeak={(reply) => speak(reply)} speaking={speaking || loadingSpeech} />
+
+
+
             <Card className="p-4 sm:p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
