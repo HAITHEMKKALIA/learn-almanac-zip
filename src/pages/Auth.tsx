@@ -104,6 +104,7 @@ export default function AuthPage() {
   const onSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!acceptTerms) { toast.error(tt({ fr: "Veuillez accepter les CGU et la politique de confidentialité.", de: "Bitte akzeptieren Sie AGB und Datenschutz.", ar: "يرجى قبول الشروط وسياسة الخصوصية." })); return; }
+    if (email.trim().toLowerCase() !== emailConfirm.trim().toLowerCase()) { toast.error(tt({ fr: "Les emails ne correspondent pas.", de: "Die E-Mails stimmen nicht überein.", ar: "البريدان غير متطابقين." })); return; }
     if (isMinor && (!guardianConsent || !guardianEmail)) { toast.error(tt({ fr: "Consentement parental requis (email du parent).", de: "Elterliche Einwilligung erforderlich.", ar: "موافقة الوالدين مطلوبة." })); return; }
 
     // Validate account-type specific fields
