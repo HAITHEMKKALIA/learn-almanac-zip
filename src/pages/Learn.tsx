@@ -11,9 +11,9 @@ const Learn = () => {
       <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
           <Button asChild variant="ghost" size="sm">
-            <Link to="/">
+            <Link to="/student">
               <ArrowLeft className="h-4 w-4 me-1.5 rtl:rotate-180" />
-              {tt({ fr: "Accueil", de: "Startseite", ar: "الرئيسية" })}
+              {tt({ fr: "Retour à mon espace", de: "Zurück zu meinem Bereich", ar: "العودة إلى مساحتي" })}
             </Link>
           </Button>
           <div className="flex items-center gap-2 text-sm font-semibold">
