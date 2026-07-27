@@ -91,6 +91,7 @@ export function ArGlossary({ onBack }: { onBack: () => void }) {
 /* ============ 2. Mode test AR (santé i18n) ============ */
 export function ArHealthCheck({ onBack }: { onBack: () => void }) {
   const report = useMemo(() => {
+    const UNITS = getActiveUnits();
     const items: { unitId: string; label: string; fr: string; ar: string; ok: boolean }[] = [];
     UNITS.forEach(u => {
       const ua = UNIT_AR[u.id];
