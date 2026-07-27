@@ -3697,6 +3697,14 @@ export type Database = {
         Returns: string
       }
       join_class_by_code: { Args: { _code: string }; Returns: string }
+      list_public_schools: {
+        Args: never
+        Returns: {
+          id: string
+          kind: string
+          name: string
+        }[]
+      }
       log_audit: {
         Args: {
           _action: string
