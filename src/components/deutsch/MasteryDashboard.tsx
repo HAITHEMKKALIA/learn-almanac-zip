@@ -40,7 +40,7 @@ export function MasteryDashboard({ onBack }: MasteryDashboardProps) {
   const lessonRows = useMemo(() => {
     return stats
       .map(s => {
-        const unit = UNITS.find(u => u.id === s.unitId);
+        const unit = ALL_UNITS.find(u => u.id === s.unitId);
         const lesson = unit?.lessons.find(l => l.id === s.lessonId);
         return {
           stats: s,
