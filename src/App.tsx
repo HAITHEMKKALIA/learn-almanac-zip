@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -81,10 +82,16 @@ import ForumTopic from "./pages/ForumTopic.tsx";
 import Challenges from "./pages/Challenges.tsx";
 import Live from "./pages/Live.tsx";
 import LiveRoom from "./pages/LiveRoom.tsx";
-import Avatar from "./pages/Avatar.tsx";
 import VoiceCoach from "./pages/VoiceCoach.tsx";
 
 const queryClient = new QueryClient();
+const Avatar = lazy(() => import("./pages/Avatar.tsx"));
+
+const AvatarPage = () => (
+  <Suspense fallback={<div className="grid min-h-screen place-items-center bg-background text-sm text-muted-foreground">Chargement de l’avatar 3D…</div>}>
+    <Avatar />
+  </Suspense>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -191,7 +198,7 @@ const App = () => (
               <Route path="/challenges" element={<RequireAuth><Challenges /></RequireAuth>} />
               <Route path="/live" element={<RequireAuth><Live /></RequireAuth>} />
               <Route path="/live/:code" element={<RequireAuth><LiveRoom /></RequireAuth>} />
-              <Route path="/avatar" element={<RequireAuth><Avatar /></RequireAuth>} />
+              <Route path="/avatar" element={<RequireAuth><AvatarPage /></RequireAuth>} />
               <Route path="/voice-coach" element={<RequireAuth><VoiceCoach /></RequireAuth>} />
 
               {/* Admin */}

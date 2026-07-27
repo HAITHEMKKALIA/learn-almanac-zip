@@ -1,1 +1,25 @@
 project_id = "uqyjpvsdiuiuomkoocnk"
+
+[functions.tts]
+verify_jwt = false
+
+[functions.avatar-tts]
+verify_jwt = true
+
+[functions.exam-start]
+verify_jwt = true
+
+[functions.exam-answer]
+verify_jwt = true
+
+[functions.exam-submit]
+verify_jwt = true
+
+[functions.pdf-import]
+verify_jwt = true
+
+[functions.admin-create-school]
+verify_jwt = true
+
+[functions.school-create-user]
+verify_jwt = true

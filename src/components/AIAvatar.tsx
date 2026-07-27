@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Mic, MicOff, X, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,22 +12,56 @@ const T = {
   ar: { title: "الأستاذ الذكي", greet: "مرحبا! جاهز للتدرب على الألمانية؟", listen: "تكلّم الآن…", ask: "اطرح سؤالاً", speak: "استمع", close: "إغلاق" },
 } as const;
 
+type SpeechResultEvent = Event & {
+  results: ArrayLike<ArrayLike<{ transcript: string }>>;
+};
+
+type BrowserSpeechRecognition = {
+  lang: string;
+  interimResults: boolean;
+  onresult: ((event: SpeechResultEvent) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
+
 /**
  * Floating AI avatar that greets the user, listens to speech (Web Speech API when available)
  * and speaks back using SpeechSynthesis with a German voice when possible.
  */
 export function AIAvatar() {
+  const { pathname } = useLocation();
   const { lang } = useI18n();
   const t = T[lang as keyof typeof T] ?? T.fr;
   const [open, setOpen] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [listening, setListening] = useState(false);
   const [message, setMessage] = useState<string>(t.greet);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const visible = [
+    "/student",
+    "/solo-student",
+    "/kapitel",
+    "/wortschatz",
+    "/adaptive",
+    "/voice-coach",
+  ].some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 
   useEffect(() => {
     setMessage(t.greet);
   }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (visible) return;
+    recognitionRef.current?.stop();
+    window.speechSynthesis?.cancel();
+    setListening(false);
+    setSpeaking(false);
+    setOpen(false);
+  }, [visible]);
 
   const speak = (text: string) => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -42,7 +77,11 @@ export function AIAvatar() {
   };
 
   const startListening = () => {
-    const SR: any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const speechWindow = window as Window & {
+      SpeechRecognition?: BrowserSpeechRecognitionConstructor;
+      webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor;
+    };
+    const SR = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
     if (!SR) {
       setMessage("Speech recognition not supported in this browser.");
       return;
@@ -50,7 +89,7 @@ export function AIAvatar() {
     const rec = new SR();
     rec.lang = "de-DE";
     rec.interimResults = false;
-    rec.onresult = (e: any) => {
+    rec.onresult = (e: SpeechResultEvent) => {
       const text = e.results[0][0].transcript;
       setMessage(`« ${text} » — Sehr gut!`);
       speak(`Ich habe gehört: ${text}. Sehr gut!`);
@@ -63,9 +102,11 @@ export function AIAvatar() {
   };
 
   const stopListening = () => {
-    recognitionRef.current?.stop?.();
+    recognitionRef.current?.stop();
     setListening(false);
   };
+
+  if (!visible) return null;
 
   return (
     <div className="fixed bottom-6 end-6 z-50 pointer-events-none">
