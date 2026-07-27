@@ -79,6 +79,21 @@ export default function UsersGlobal({ role }: { role: "teacher" | "student"; tit
 
   const pages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
 
+  const reload = () => setRoleIds((ids) => (ids ? [...ids] : ids));
+  const setApproved = async (uid: string, approved: boolean) => {
+    const { error } = await (supabase as any).rpc("admin_set_approved", { _target: uid, _approved: approved });
+    if (error) return toast.error(error.message);
+    toast.success(approved ? tt({ fr: "Compte réactivé", de: "Konto reaktiviert", ar: "تم إعادة تفعيل الحساب" }) : tt({ fr: "Compte suspendu", de: "Konto gesperrt", ar: "تم تعليق الحساب" }));
+    reload();
+  };
+  const del = async (uid: string, name: string | null) => {
+    if (!confirm(tt({ fr: `Supprimer définitivement ${name || "ce compte"} ?`, de: `${name || "Dieses Konto"} endgültig löschen?`, ar: `حذف ${name || "الحساب"} نهائياً؟` }))) return;
+    const { error } = await (supabase as any).rpc("admin_delete_user", { _target: uid });
+    if (error) return toast.error(error.message);
+    toast.success(tt({ fr: "Compte supprimé", de: "Konto gelöscht", ar: "تم حذف الحساب" }));
+    reload();
+  };
+
   const title = role === "teacher"
     ? tt({ fr: "Professeurs", de: "Lehrkräfte", ar: "المعلمون" })
     : tt({ fr: "Élèves", de: "Schüler", ar: "الطلاب" });
