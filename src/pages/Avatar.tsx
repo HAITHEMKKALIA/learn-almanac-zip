@@ -59,6 +59,7 @@ import {
   type VisemeStandard,
   validateGlbHeader,
 } from "@/features/avatar/avatar-utils";
+import { AvatarChat } from "@/features/avatar/AvatarChat";
 
 const DEFAULT_MODEL_URL = "/models/avatar-aurelia.glb";
 const DEFAULT_MODEL_NAME = "Aurélia — professeure virtuelle originale";
@@ -353,8 +354,8 @@ export default function Avatar() {
     setCalibration(getProfile("default"));
   };
 
-  const speak = async () => {
-    const message = text.trim();
+  const speak = async (override?: string) => {
+    const message = (override ?? text).trim();
     if (!message) {
       toast.error("Ajoutez une phrase à faire prononcer.");
       return;
@@ -643,6 +644,10 @@ export default function Avatar() {
                 </Button>
               </div>
             </Card>
+
+            <AvatarChat onSpeak={(reply) => speak(reply)} speaking={speaking || loadingSpeech} />
+
+
 
             <Card className="p-4 sm:p-5">
               <div className="flex items-start justify-between gap-3">
