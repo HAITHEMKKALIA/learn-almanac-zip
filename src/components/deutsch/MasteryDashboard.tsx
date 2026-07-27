@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 import { getAllStats, masteryPercent, type LessonStats } from "@/lib/lessonStats";
 import { UNITS } from "@/data/curriculum";
+import { UNITS_A2 } from "@/data/curriculumA2";
+import { UNITS_B1 } from "@/data/curriculumB1";
+import { UNITS_B2 } from "@/data/curriculumB2";
+const ALL_UNITS = [...UNITS, ...UNITS_A2, ...UNITS_B1, ...UNITS_B2];
 import { formatSeconds } from "@/data/lessonEnrichment";
 
 interface MasteryDashboardProps {
