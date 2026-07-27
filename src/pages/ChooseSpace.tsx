@@ -91,10 +91,22 @@ export default function ChooseSpace() {
       </div>
 
       <div className="max-w-5xl mx-auto">
-        <div className="mb-4">
-          <Button variant="ghost" size="sm" onClick={() => (window.history.length > 1 ? nav(-1) : nav("/app"))} className="gap-1.5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={() => (window.history.length > 1 ? nav(-1) : nav("/app"))} className="gap-1.5 w-fit">
             <ArrowLeft className="h-4 w-4" /> Retour
           </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/80 border border-border text-sm">
+              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-[260px]">
+                {user?.email || "Compte invité"}
+              </span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLogout} disabled={signingOut} className="gap-1.5">
+              {signingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+              Déconnecter
+            </Button>
+          </div>
         </div>
         <motion.div
           initial={{ opacity: 0, y: -16 }}
