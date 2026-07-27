@@ -454,6 +454,18 @@ export default function SchoolAdminPage() {
                         </SelectContent>
                       </Select>
                     )}
+                    {s.approved ? (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(s.user_id, "suspend")}>
+                        <PauseCircle className="h-4 w-4 mr-1" />{tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => reviewMembership(s.user_id, "reactivate", { space_role: "student" })}>
+                        <PlayCircle className="h-4 w-4 mr-1" />{tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" onClick={() => removeMember(s.user_id, s.display_name)} className="text-destructive hover:text-destructive">
+                      <UserMinus className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
