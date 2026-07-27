@@ -59,6 +59,7 @@ import {
   type VisemeStandard,
   validateGlbHeader,
 } from "@/features/avatar/avatar-utils";
+import { AvatarChat } from "@/features/avatar/AvatarChat";
 
 const DEFAULT_MODEL_URL = "/models/avatar-aurelia.glb";
 const DEFAULT_MODEL_NAME = "Aurélia — professeure virtuelle originale";
