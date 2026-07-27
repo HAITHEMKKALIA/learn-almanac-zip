@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, Sparkles,
+  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, ArrowLeft, Sparkles,
 } from "lucide-react";
 
 const STORAGE_DEFAULT = "default_space_id";
