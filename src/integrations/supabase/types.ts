@@ -2118,6 +2118,59 @@ export type Database = {
           },
         ]
       }
+      plan_prices: {
+        Row: {
+          active: boolean
+          billing_period_months: number
+          created_at: string
+          id: string
+          label: string
+          notes: string | null
+          plan_code: string
+          price_tnd: number
+          school_id: string | null
+          scope: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          billing_period_months?: number
+          created_at?: string
+          id?: string
+          label: string
+          notes?: string | null
+          plan_code: string
+          price_tnd?: number
+          school_id?: string | null
+          scope: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          billing_period_months?: number
+          created_at?: string
+          id?: string
+          label?: string
+          notes?: string | null
+          plan_code?: string
+          price_tnd?: number
+          school_id?: string | null
+          scope?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_prices_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           created_at: string
@@ -2622,6 +2675,7 @@ export type Database = {
           slug: string
           status: string
           tenant_type: string
+          trial_ends_at: string | null
           updated_at: string
           website: string | null
         }
@@ -2645,6 +2699,7 @@ export type Database = {
           slug: string
           status?: string
           tenant_type?: string
+          trial_ends_at?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -2668,6 +2723,7 @@ export type Database = {
           slug?: string
           status?: string
           tenant_type?: string
+          trial_ends_at?: string | null
           updated_at?: string
           website?: string | null
         }
