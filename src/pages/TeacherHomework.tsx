@@ -563,6 +563,32 @@ function SubmissionGrader({ sub, homework, tt, onReload }: any) {
             {finishing && <Loader2 className="h-3 w-3 me-1 animate-spin" />}
             <CheckCircle2 className="h-3 w-3 me-1" />{tt({ fr: "Appliquer & terminer", de: "Anwenden & abschließen", ar: "تطبيق وإنهاء" })}
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={async () => {
+              try {
+                const graded = sub.status === "graded";
+                await notify({
+                  user_id: sub.student_id,
+                  type: graded ? "homework.reminder_graded" : "homework.reminder",
+                  title: graded
+                    ? tt({ fr: "Rappel : correction disponible", de: "Erinnerung: Korrektur verfügbar", ar: "تذكير: التصحيح متاح" })
+                    : tt({ fr: "Rappel de devoir", de: "Hausaufgaben-Erinnerung", ar: "تذكير بالواجب" }),
+                  body: graded
+                    ? `${homework.title} — ${sub.score ?? 0}/${homework.max_points}`
+                    : `${homework.title}${homework.due_at ? ` · ${new Date(homework.due_at).toLocaleDateString()}` : ""}`,
+                  link: "/student/homework",
+                });
+                toast.success(tt({ fr: "🔔 Notification envoyée", de: "🔔 Benachrichtigung gesendet", ar: "🔔 تم إرسال الإشعار" }));
+              } catch (e: any) {
+                toast.error(e.message || "Error");
+              }
+            }}
+          >
+            <Bell className="h-3 w-3 me-1" />
+            {tt({ fr: "Renotifier l'élève", de: "Schüler erneut benachrichtigen", ar: "إعادة إشعار الطالب" })}
+          </Button>
         </div>
       </CardContent>
     </Card>
