@@ -526,12 +526,14 @@ function LessonPicker({
   onClose: () => void;
   onClear: () => void;
 }) {
+  const UNITS = getActiveUnits();
+  const level = getActiveLevel();
   return (
     <div className="fixed inset-0 z-[1000] bg-background/95 backdrop-blur-sm flex flex-col">
       <div className="px-3.5 py-3 border-b border-border flex items-center gap-2">
         <button onClick={onClose} className="bg-transparent border-none text-primary text-lg cursor-pointer">←</button>
         <div className="flex-1">
-          <h3 className="text-foreground m-0 text-[15px]">📖 Choisir la leçon (Herr Professor s'y concentre)</h3>
+          <h3 className="text-foreground m-0 text-[15px]">📖 Choisir la leçon · Niveau {level}</h3>
           <div className="text-muted-foreground text-[11px]">Le tuteur posera ses questions sur cette leçon uniquement.</div>
         </div>
         <button
