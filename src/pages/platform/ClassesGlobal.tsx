@@ -23,6 +23,7 @@ export default function ClassesGlobal() {
   const [rows, setRows] = useState<Row[]>([]);
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(true);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     (async () => {
