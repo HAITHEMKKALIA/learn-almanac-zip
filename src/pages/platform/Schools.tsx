@@ -42,6 +42,20 @@ export default function PlatformSchools() {
   };
   useEffect(() => { load(); }, []);
 
+  const setStatus = async (id: string, status: string) => {
+    const { error } = await (supabase as any).rpc("admin_set_school_status", { _school_id: id, _status: status });
+    if (error) return toast.error(error.message);
+    toast.success(tt({ fr: "Statut mis à jour", de: "Status aktualisiert", ar: "تم تحديث الحالة" }));
+    load();
+  };
+  const del = async (id: string, name: string) => {
+    if (!confirm(tt({ fr: `Supprimer définitivement « ${name} » ?`, de: `„${name}" endgültig löschen?`, ar: `حذف "${name}" نهائياً؟` }))) return;
+    const { error } = await (supabase as any).rpc("admin_delete_school", { _school_id: id });
+    if (error) return toast.error(error.message);
+    toast.success(tt({ fr: "École supprimée", de: "Schule gelöscht", ar: "تم حذف المدرسة" }));
+    load();
+  };
+
   const filtered = rows.filter((r) => {
     if (filter !== "all" && r.status !== filter) return false;
     if (q && !`${r.name} ${r.city} ${r.country} ${r.email}`.toLowerCase().includes(q.toLowerCase())) return false;
