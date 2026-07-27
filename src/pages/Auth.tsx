@@ -21,6 +21,7 @@ export default function AuthPage() {
   const { tt, lang, setLang } = useI18n();
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
+  const [emailConfirm, setEmailConfirm] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [birthYear, setBirthYear] = useState("");
