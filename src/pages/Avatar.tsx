@@ -60,9 +60,29 @@ import {
   validateGlbHeader,
 } from "@/features/avatar/avatar-utils";
 
-const DEFAULT_MODEL_URL = "/models/avatar-doctor.glb";
-const DEFAULT_MODEL_NAME = "Avatar médecin — Deutsch Meister";
+const DEFAULT_MODEL_URL = "/models/avatar-aurelia.glb";
+const DEFAULT_MODEL_NAME = "Aurélia — professeure virtuelle originale";
 const CALIBRATION_STORAGE_KEY = "deutsch-meister-avatar-calibration-v2";
+
+type FaceLabControls = {
+  jaw: number;
+  smile: number;
+  brows: number;
+  blinkLeft: number;
+  blinkRight: number;
+  pucker: number;
+  cheeks: number;
+};
+
+const DEFAULT_FACE_LAB: FaceLabControls = {
+  jaw: 0,
+  smile: 0,
+  brows: 0,
+  blinkLeft: 0,
+  blinkRight: 0,
+  pucker: 0,
+  cheeks: 0,
+};
 
 const VOICES = [
   { id: "sage", label: "Sage — pédagogue" },
@@ -175,6 +195,7 @@ export default function Avatar() {
   const [voice, setVoice] = useState("sage");
   const [loadingSpeech, setLoadingSpeech] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [faceLab, setFaceLab] = useState<FaceLabControls>(DEFAULT_FACE_LAB);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const objectUrlRef = useRef<string | null>(null);
@@ -190,6 +211,10 @@ export default function Avatar() {
     jawOverride: null,
     browOverride: null,
     smileOverride: null,
+    blinkLeftOverride: null,
+    blinkRightOverride: null,
+    puckerOverride: null,
+    cheekOverride: null,
   });
 
   const stopAudio = useCallback(() => {
@@ -237,10 +262,45 @@ export default function Avatar() {
   };
 
   const resetCalibration = () => {
-    expressionsRef.current = { jawOverride: null, browOverride: null, smileOverride: null };
+    expressionsRef.current = {
+      jawOverride: null,
+      browOverride: null,
+      smileOverride: null,
+      blinkLeftOverride: null,
+      blinkRightOverride: null,
+      puckerOverride: null,
+      cheekOverride: null,
+    };
+    setFaceLab(DEFAULT_FACE_LAB);
     setCalibration({ ...DEFAULT_AVATAR_CALIBRATION });
     controllerRef.current?.resetFace();
     toast.success("Réglages recommandés restaurés");
+  };
+
+  const updateFaceLab = (key: keyof FaceLabControls, value: number) => {
+    setFaceLab((current) => ({ ...current, [key]: value }));
+    const expressions = expressionsRef.current;
+    if (key === "jaw") expressions.jawOverride = value;
+    if (key === "smile") expressions.smileOverride = value;
+    if (key === "brows") expressions.browOverride = value;
+    if (key === "blinkLeft") expressions.blinkLeftOverride = value;
+    if (key === "blinkRight") expressions.blinkRightOverride = value;
+    if (key === "pucker") expressions.puckerOverride = value;
+    if (key === "cheeks") expressions.cheekOverride = value;
+  };
+
+  const resetFaceLab = () => {
+    setFaceLab(DEFAULT_FACE_LAB);
+    expressionsRef.current = {
+      jawOverride: null,
+      browOverride: null,
+      smileOverride: null,
+      blinkLeftOverride: null,
+      blinkRightOverride: null,
+      puckerOverride: null,
+      cheekOverride: null,
+    };
+    controllerRef.current?.resetFace();
   };
 
   const loadFile = async (file: File) => {
@@ -610,6 +670,80 @@ export default function Avatar() {
                     Analyse en cours…
                   </div>
                 )}
+              </div>
+            </Card>
+
+            <Card className="p-4 sm:p-5">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-semibold">3. Visage 3D en temps réel</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Chaque curseur déforme directement la géométrie du visage.
+                  </p>
+                </div>
+                <Button size="sm" variant="ghost" onClick={resetFaceLab}>
+                  <RotateCcw className="mr-1 h-3.5 w-3.5" />
+                  Auto
+                </Button>
+              </div>
+
+              <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+                <SliderRow
+                  label="Ouverture de la bouche"
+                  value={faceLab.jaw}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(value) => updateFaceLab("jaw", value)}
+                />
+                <SliderRow
+                  label="Sourire"
+                  value={faceLab.smile}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(value) => updateFaceLab("smile", value)}
+                />
+                <SliderRow
+                  label="Sourcils"
+                  value={faceLab.brows}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(value) => updateFaceLab("brows", value)}
+                />
+                <SliderRow
+                  label="Lèvres arrondies"
+                  value={faceLab.pucker}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(value) => updateFaceLab("pucker", value)}
+                />
+                <SliderRow
+                  label="Paupière gauche"
+                  value={faceLab.blinkLeft}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(value) => updateFaceLab("blinkLeft", value)}
+                />
+                <SliderRow
+                  label="Paupière droite"
+                  value={faceLab.blinkRight}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(value) => updateFaceLab("blinkRight", value)}
+                />
+                <SliderRow
+                  label="Volume des joues"
+                  value={faceLab.cheeks}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  onChange={(value) => updateFaceLab("cheeks", value)}
+                />
               </div>
             </Card>
 

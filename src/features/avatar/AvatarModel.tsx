@@ -35,6 +35,10 @@ export type AvatarExpressions = {
   jawOverride: number | null;
   browOverride: number | null;
   smileOverride: number | null;
+  blinkLeftOverride: number | null;
+  blinkRightOverride: number | null;
+  puckerOverride: number | null;
+  cheekOverride: number | null;
 };
 
 export type AvatarMappingReport = {
@@ -67,18 +71,20 @@ type Props = {
 };
 
 const ARKIT_NAMES = [
-  "eyeBlinkLeft",
-  "eyeBlinkRight",
-  "browInnerUp",
-  "browDownLeft",
-  "browDownRight",
-  "browOuterUpLeft",
-  "browOuterUpRight",
-  "jawOpen",
-  "mouthSmileLeft",
-  "mouthSmileRight",
-  "mouthFunnel",
-  "mouthPucker",
+  "browDownLeft", "browDownRight", "browInnerUp", "browOuterUpLeft",
+  "browOuterUpRight", "cheekPuff", "cheekSquintLeft", "cheekSquintRight",
+  "eyeBlinkLeft", "eyeBlinkRight", "eyeLookDownLeft", "eyeLookDownRight",
+  "eyeLookInLeft", "eyeLookInRight", "eyeLookOutLeft", "eyeLookOutRight",
+  "eyeLookUpLeft", "eyeLookUpRight", "eyeSquintLeft", "eyeSquintRight",
+  "eyeWideLeft", "eyeWideRight", "jawForward", "jawLeft", "jawOpen",
+  "jawRight", "mouthClose", "mouthDimpleLeft", "mouthDimpleRight",
+  "mouthFrownLeft", "mouthFrownRight", "mouthFunnel", "mouthLeft",
+  "mouthLowerDownLeft", "mouthLowerDownRight", "mouthPressLeft",
+  "mouthPressRight", "mouthPucker", "mouthRight", "mouthRollLower",
+  "mouthRollUpper", "mouthShrugLower", "mouthShrugUpper", "mouthSmileLeft",
+  "mouthSmileRight", "mouthStretchLeft", "mouthStretchRight",
+  "mouthUpperUpLeft", "mouthUpperUpRight", "noseSneerLeft",
+  "noseSneerRight", "tongueOut",
 ];
 
 const CONTROL_ALIASES = {
@@ -90,6 +96,7 @@ const CONTROL_ALIASES = {
   jaw: ["jawOpen", "mouthOpen"],
   funnel: ["mouthFunnel"],
   pucker: ["mouthPucker"],
+  cheek: ["cheekPuff"],
 } as const;
 
 function clamp01(value: number): number {
@@ -144,13 +151,21 @@ export const AvatarModel = forwardRef<AvatarController, Props>(function AvatarMo
     const size = bounds.getSize(new THREE.Vector3());
     const center = bounds.getCenter(new THREE.Vector3());
     const height = Math.max(size.y, 0.1);
+    const presentation = gltf.scene.userData.avatarPresentation;
     const isPortraitAvatar =
-      gltf.scene.userData.avatarPresentation === "portrait" ||
+      presentation === "portrait" ||
       gltf.scene.name.includes("Doctor_Modern_Realistic");
-    const visibleHeight = isPortraitAvatar ? height * 0.5 : height;
-    const focusY = isPortraitAvatar
+    const isUpperBodyAvatar = presentation === "upper-body";
+    const visibleHeight = isUpperBodyAvatar
+      ? height * 0.72
+      : isPortraitAvatar
+        ? height * 0.5
+        : height;
+    const focusY = isUpperBodyAvatar
       ? bounds.max.y - visibleHeight * 0.48
-      : center.y;
+      : isPortraitAvatar
+        ? bounds.max.y - visibleHeight * 0.48
+        : center.y;
 
     return {
       center: new THREE.Vector3(center.x, focusY, center.z),
@@ -207,7 +222,15 @@ export const AvatarModel = forwardRef<AvatarController, Props>(function AvatarMo
     },
     resetFace: () => {
       registryRef.current.forEach((entries) => applyEntries(entries, 0));
-      expressionsRef.current = { jawOverride: null, browOverride: null, smileOverride: null };
+      expressionsRef.current = {
+        jawOverride: null,
+        browOverride: null,
+        smileOverride: null,
+        blinkLeftOverride: null,
+        blinkRightOverride: null,
+        puckerOverride: null,
+        cheekOverride: null,
+      };
       signalRef.current = { intensity: 0, viseme: "viseme_sil", speaking: false };
     },
     setMorph: (name, value) => applyEntries(registryRef.current.get(name), value),
@@ -262,13 +285,23 @@ export const AvatarModel = forwardRef<AvatarController, Props>(function AvatarMo
         blinkValue = Math.sin(progress * Math.PI);
       }
     }
-    applyAliases(CONTROL_ALIASES.blinkLeft, blinkValue);
-    applyAliases(CONTROL_ALIASES.blinkRight, blinkValue);
+    applyAliases(
+      CONTROL_ALIASES.blinkLeft,
+      expressions.blinkLeftOverride ?? blinkValue,
+    );
+    applyAliases(
+      CONTROL_ALIASES.blinkRight,
+      expressions.blinkRightOverride ?? blinkValue,
+    );
 
     const autoBrow = signal.speaking ? smoothedMouth.current * calibration.browIntensity : 0;
     const brow = expressions.browOverride ?? autoBrow;
     applyAliases(CONTROL_ALIASES.browUp, brow);
     applyAliases(CONTROL_ALIASES.smile, expressions.smileOverride ?? calibration.smile);
+    if (expressions.puckerOverride !== null) {
+      applyAliases(CONTROL_ALIASES.pucker, expressions.puckerOverride);
+    }
+    applyAliases(CONTROL_ALIASES.cheek, expressions.cheekOverride ?? 0);
 
     if (expressions.jawOverride !== null && selectedStandard === "oculus") {
       applyAliases(CONTROL_ALIASES.jaw, expressions.jawOverride);
