@@ -520,3 +520,52 @@ export default function SchoolAdminPage() {
     </SchoolLayout>
   );
 }
+
+function PendingRow({
+  p, classes, onApprove, onReject, onRemove, labels,
+}: {
+  p: Pending;
+  classes: ClassRow[];
+  onApprove: (role: string, classId?: string) => void;
+  onReject: () => void;
+  onRemove: () => void;
+  labels: Record<string, string>;
+}) {
+  const [role, setRole] = useState<string>(p.space_role || "student");
+  const [classId, setClassId] = useState<string>(p.requested_class_id || "");
+  return (
+    <div className="border rounded-lg p-3 flex flex-wrap items-center justify-between gap-3">
+      <div className="min-w-0">
+        <div className="font-medium">{p.display_name || <i>{labels.noName}</i>}</div>
+        <div className="text-sm text-muted-foreground">{p.email}</div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select value={role} onValueChange={setRole}>
+          <SelectTrigger className="h-9 w-[140px]"><SelectValue placeholder={labels.role} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="student">{labels.student}</SelectItem>
+            <SelectItem value="teacher">{labels.teacher}</SelectItem>
+          </SelectContent>
+        </Select>
+        {role === "student" && (
+          <Select value={classId || "__none"} onValueChange={(v) => setClassId(v === "__none" ? "" : v)}>
+            <SelectTrigger className="h-9 w-[180px]"><SelectValue placeholder={labels.classPh} /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none">{labels.noClass}</SelectItem>
+              {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.level})</SelectItem>)}
+            </SelectContent>
+          </Select>
+        )}
+        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => onApprove(role, classId || undefined)}>
+          <Check className="h-4 w-4 mr-1" />{labels.approve}
+        </Button>
+        <Button size="sm" variant="outline" onClick={onReject}>
+          <X className="h-4 w-4 mr-1" />{labels.reject}
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onRemove} className="text-destructive hover:text-destructive">
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
