@@ -30,6 +30,24 @@ export default function AuthPage() {
   const currentYear = new Date().getFullYear();
   const isMinor = birthYear !== "" && currentYear - parseInt(birthYear) < 16;
 
+  // Account type & attachment
+  type AccountType = "student" | "teacher" | "school";
+  type Attachment = "existing" | "independent";
+  const [accountType, setAccountType] = useState<AccountType>("student");
+  const [attachment, setAttachment] = useState<Attachment>("existing");
+  const [selectedSchoolId, setSelectedSchoolId] = useState<string>("");
+  const [studioName, setStudioName] = useState("");
+  const [startLevel, setStartLevel] = useState("A1.1");
+  const [schoolName, setSchoolName] = useState("");
+  const [schoolKind, setSchoolKind] = useState<"school" | "institute">("school");
+  const [schools, setSchools] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    supabase.rpc("list_public_schools" as any).then(({ data }: any) => {
+      setSchools(((data as any[]) || []).map((s: any) => ({ id: s.id, name: s.name })));
+    });
+  }, []);
+
   // Preserve `next` (e.g. OAuth consent URL) through sign-in, sign-up, and Google.
   const nextPath = useMemo(() => {
     const raw = searchParams.get("next");
