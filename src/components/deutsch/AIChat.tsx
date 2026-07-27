@@ -513,7 +513,7 @@ export function AIChat({ scenario, onClose }: AIChatProps) {
 }
 
 // ============== Lesson picker for Herr Professor ==============
-import { UNITS } from "@/data/curriculum";
+import { getActiveUnits, getActiveLevel } from "@/data/activeUnits";
 
 function LessonPicker({
   current,
