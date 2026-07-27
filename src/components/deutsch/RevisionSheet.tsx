@@ -46,7 +46,7 @@ function aggregate(): AggregatedDifficulty {
 
 /** Retrouve un VocabItem (de/fr) dans tout le programme à partir du DE. */
 function findVocab(de: string): VocabItem | null {
-  for (const u of UNITS) {
+  for (const u of ALL_UNITS) {
     for (const l of u.lessons) {
       const m = l.vocab.find(v => v.de.toLowerCase() === de.toLowerCase());
       if (m) return m;
@@ -59,7 +59,7 @@ function buildTargetedExercises(agg: AggregatedDifficulty): Exercise[] {
   const exos: Exercise[] = [];
 
   // 1) Exercices ciblés sur les mots faibles (QCM FR→DE)
-  const allDe = UNITS.flatMap(u => u.lessons.flatMap(l => l.vocab.map(v => v.de)));
+  const allDe = getActiveUnits().flatMap(u => u.lessons.flatMap(l => l.vocab.map(v => v.de)));
   const seenWords = new Set<string>();
   for (const { word } of agg.weakWords) {
     if (seenWords.has(word.toLowerCase())) continue;
