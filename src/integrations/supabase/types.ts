@@ -3567,6 +3567,10 @@ export type Database = {
         Args: { _school_id: string; _user_id: string }
         Returns: boolean
       }
+      can_manage_class: {
+        Args: { _class_id: string; _user_id: string }
+        Returns: boolean
+      }
       can_manage_learning_space: {
         Args: { _school_id: string; _user_id: string }
         Returns: boolean
