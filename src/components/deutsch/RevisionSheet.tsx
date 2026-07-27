@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { getAllStats, type LessonStats } from "@/lib/lessonStats";
 import { UNITS } from "@/data/curriculum";
+import { UNITS_A2 } from "@/data/curriculumA2";
+import { UNITS_B1 } from "@/data/curriculumB1";
+import { UNITS_B2 } from "@/data/curriculumB2";
+import { getActiveUnits } from "@/data/activeUnits";
+const ALL_UNITS = [...UNITS, ...UNITS_A2, ...UNITS_B1, ...UNITS_B2];
 import { ExerciseEngine } from "./ExerciseEngine";
 import { SpeakBtn } from "./SpeakBtn";
 import { AnalogClock } from "./AnalogClock";
