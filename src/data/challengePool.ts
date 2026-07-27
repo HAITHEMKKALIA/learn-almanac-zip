@@ -1,5 +1,8 @@
-// Pool de mots/phrases tirés des 23 modules pour la révision quotidienne (Tageschallenge)
+// Pool de mots/phrases pour la révision quotidienne (Tageschallenge).
+// Priorité au niveau actif (A1/A2/B1/B2) sélectionné par l'utilisateur,
+// avec repli sur les modules complets si le pool actif est trop petit.
 import { COURSE_MODULES } from "./courseModules";
+import { getActiveUnits, getActiveLevel } from "./activeUnits";
 
 export interface ChallengeWord {
   de: string;
@@ -9,14 +12,37 @@ export interface ChallengeWord {
   note?: string;
 }
 
-// Construit le pool complet à partir de tous les modules
-export function buildChallengePool(): ChallengeWord[] {
+// Pool tiré du niveau actif (A1/A2/B1/B2)
+function buildActiveLevelPool(): ChallengeWord[] {
+  const level = getActiveLevel();
   const pool: ChallengeWord[] = [];
+  for (const u of getActiveUnits()) {
+    for (const l of u.lessons) {
+      for (const v of l.vocab) {
+        if (v.de && v.fr) {
+          pool.push({
+            de: v.de,
+            fr: v.fr,
+            moduleTitle: `${u.title} · ${level}`,
+            moduleIcon: u.icon || "📘",
+            note: v.ex,
+          });
+        }
+      }
+    }
+  }
+  return pool;
+}
+
+// Construit le pool complet à partir de tous les modules (fallback)
+export function buildChallengePool(): ChallengeWord[] {
+  const active = buildActiveLevelPool();
+  if (active.length >= 30) return active;
+  const pool: ChallengeWord[] = [...active];
   for (const m of COURSE_MODULES) {
     for (const sec of m.sections) {
       if (sec.items) {
         for (const it of sec.items) {
-          // On garde uniquement les items avec de + fr non vides
           if (it.de && it.fr && it.de.trim() && it.fr.trim()) {
             pool.push({
               de: it.de.trim(),
@@ -32,6 +58,7 @@ export function buildChallengePool(): ChallengeWord[] {
   }
   return pool;
 }
+
 
 // Sélection déterministe basée sur la date (même set toute la journée)
 function dateSeed(dateStr: string): number {
