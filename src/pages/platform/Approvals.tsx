@@ -101,7 +101,7 @@ export default function Approvals() {
     const cfg = assign[p.user_id] || {};
     if (!cfg.school_id || !cfg.role) return toast.error("Choisissez école et rôle");
     const { error } = await supabase.rpc("admin_assign_user", {
-      _target: p.user_id, _school_id: cfg.school_id, _role: cfg.role,
+      _target: p.user_id, _school_id: cfg.school_id, _role: cfg.role as any,
     });
     if (error) return toast.error(error.message);
     toast.success(`Approuvé et assigné comme ${cfg.role}`); load();
