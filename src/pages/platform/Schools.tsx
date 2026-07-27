@@ -133,7 +133,15 @@ export default function PlatformSchools() {
                 <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full ${statusClass(s.status)}`}>{s.status}</span></td>
                 <td className="px-4 py-3 text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-right">
-                  <Button asChild size="sm" variant="ghost"><Link to={`/platform-admin/schools/${s.id}`}>{tt({ fr: "Ouvrir", de: "Öffnen", ar: "فتح" })}</Link></Button>
+                  <div className="flex gap-1 justify-end">
+                    <Button asChild size="sm" variant="ghost"><Link to={`/platform-admin/schools/${s.id}`}>{tt({ fr: "Ouvrir", de: "Öffnen", ar: "فتح" })}</Link></Button>
+                    {s.status === "suspended" ? (
+                      <Button size="sm" variant="ghost" className="text-emerald-600" onClick={() => setStatus(s.id, "active")} title={tt({ fr: "Réactiver", de: "Reaktivieren", ar: "إعادة تفعيل" })}><PlayCircle className="h-4 w-4" /></Button>
+                    ) : (
+                      <Button size="sm" variant="ghost" className="text-amber-600" onClick={() => setStatus(s.id, "suspended")} title={tt({ fr: "Suspendre", de: "Sperren", ar: "تعليق" })}><PauseCircle className="h-4 w-4" /></Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => del(s.id, s.name)} title={tt({ fr: "Supprimer", de: "Löschen", ar: "حذف" })}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
                 </td>
               </tr>
             ))}
