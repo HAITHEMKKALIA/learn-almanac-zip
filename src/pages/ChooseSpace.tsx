@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useActiveSchool } from "@/contexts/ActiveSchoolContext";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, ArrowLeft, Sparkles,
+  Building2, GraduationCap, User, Loader2, Plus, Search, Star, ArrowRight, ArrowLeft, Sparkles, LogOut, Mail,
 } from "lucide-react";
 
 const STORAGE_DEFAULT = "default_space_id";
@@ -20,12 +22,20 @@ const META: Record<string, { label: string; Icon: any; ring: string; tint: strin
 
 export default function ChooseSpace() {
   const { schools, loading, setActiveSchoolId } = useActiveSchool();
+  const { user } = useAuth();
   const nav = useNavigate();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<"all" | "school" | "independent_teacher" | "independent_student">("all");
   const [defaultId, setDefaultId] = useState<string | null>(
     typeof window !== "undefined" ? localStorage.getItem(STORAGE_DEFAULT) : null,
   );
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function handleLogout() {
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    nav("/auth");
+  }
 
   if (loading) {
     return (
@@ -81,10 +91,22 @@ export default function ChooseSpace() {
       </div>
 
       <div className="max-w-5xl mx-auto">
-        <div className="mb-4">
-          <Button variant="ghost" size="sm" onClick={() => (window.history.length > 1 ? nav(-1) : nav("/app"))} className="gap-1.5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <Button variant="ghost" size="sm" onClick={() => (window.history.length > 1 ? nav(-1) : nav("/app"))} className="gap-1.5 w-fit">
             <ArrowLeft className="h-4 w-4" /> Retour
           </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/80 border border-border text-sm">
+              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-[260px]">
+                {user?.email || "Compte invité"}
+              </span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLogout} disabled={signingOut} className="gap-1.5">
+              {signingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
+              Déconnecter
+            </Button>
+          </div>
         </div>
         <motion.div
           initial={{ opacity: 0, y: -16 }}
