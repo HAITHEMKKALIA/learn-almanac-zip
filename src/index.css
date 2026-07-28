@@ -301,14 +301,9 @@
   h2 { font-size: clamp(1.1rem, 5vw, 1.4rem) !important; }
   .hide-on-mobile { display: none !important; }
 }
-@supports (padding: env(safe-area-inset-bottom)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-}
+/* Safe-area insets are applied per-container (sticky headers, main content, install banner)
+   rather than on <body>, otherwise body padding + min-h-screen layouts overflow the viewport
+   and break page scrolling. */
 
 /* Standalone (installed PWA) tweaks */
 @media (display-mode: standalone) {
