@@ -882,7 +882,7 @@ export function DeutschMeister() {
 
             <div className="mt-2 mb-3 px-3 py-2 rounded-xl border border-primary/30 bg-primary/5">
               <div className="flex items-center justify-between">
-                <h3 className="text-foreground text-sm font-extrabold m-0">📚 Sommaire — {ACTIVE_UNITS.length} chapitres</h3>
+                <h2 className="text-foreground text-sm font-extrabold m-0">📚 Sommaire — {ACTIVE_UNITS.length} chapitres</h2>
                 <span dir="rtl" className="text-primary text-xs font-bold">📖 الفهرس — {ACTIVE_UNITS.length} فصول</span>
               </div>
               <p className="text-muted-foreground text-[11px] mt-0.5">Programme complet · Cliquez sur un chapitre</p>
@@ -975,7 +975,7 @@ export function DeutschMeister() {
               <span className="text-primary">→</span>
             </button>
 
-            <h3 className="text-foreground text-sm font-bold mb-1 mt-1">🎭 Scénarios de conversation ({SCENARIOS.length})</h3>
+            <h2 className="text-foreground text-sm font-bold mb-1 mt-1">🎭 Scénarios de conversation ({SCENARIOS.length})</h2>
             <p className="text-muted-foreground text-xs mb-3">Pratiquez avec l'IA dans des situations réelles</p>
             <div className="grid grid-cols-2 gap-2">
               {SCENARIOS.map(s => (
@@ -995,7 +995,7 @@ export function DeutschMeister() {
 
         {nav === "ref" && (
           <div>
-            <h3 className="text-foreground text-sm font-bold mb-3 mt-1">📖 Référence rapide</h3>
+            <h2 className="text-foreground text-sm font-bold mb-3 mt-1">📖 Référence rapide</h2>
             
             <div className="flex flex-col gap-2">
               <button onClick={() => setView("courseComplete")} className="flex items-center gap-3 p-4 rounded-xl border-2 border-primary bg-gradient-to-br from-primary/15 to-primary/5 cursor-pointer text-left hover:opacity-90 transition-opacity">

@@ -90,6 +90,11 @@ export default function Landing() {
 
   return (
     <div dir={lang === "ar" ? "rtl" : "ltr"} className="academy-bg min-h-dvh academy-text-primary overflow-x-hidden">
+      <PageSeo
+        path="/"
+        title="Deutsch Meister — Académie d'allemand A1 à B2 en ligne"
+        description="Plateforme SaaS multi-écoles pour apprendre l'allemand de A1 à B2 : cours interactifs, professeur IA, examens, certificats et espaces école, professeur et élève."
+      />
       {/* Cinematic intro overlay */}
       {!introDone && (
         <motion.div
