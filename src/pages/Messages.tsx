@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { SchoolLayout } from "@/components/school/SchoolLayout";
@@ -43,7 +44,8 @@ function dayLabel(d: Date, lang: string, locale: any) {
 }
 
 export default function Messages() {
-  const { user, onlineUserIds } = useAuth();
+  const { user, onlineUserIds, roles } = useAuth();
+  const [searchParams] = useSearchParams();
   const { tt, lang } = useI18n();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
@@ -51,6 +53,7 @@ export default function Messages() {
   const [draft, setDraft] = useState("");
   const [search, setSearch] = useState("");
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+  const [contacts, setContacts] = useState<Profile[]>([]);
   const [replyTo, setReplyTo] = useState<Msg|null>(null);
   const [editing, setEditing] = useState<Msg|null>(null);
   const [typingPeers, setTypingPeers] = useState<Set<string>>(new Set());
@@ -91,6 +94,48 @@ export default function Messages() {
   }, [user]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Preload contacts: teachers see their students, students see their teachers
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const isTeacher = roles.some((r) => ["teacher", "examiner", "staff", "school_admin", "admin", "super_admin"].includes(r));
+      const collected: Record<string, string | null> = {};
+      if (isTeacher) {
+        const { data: cls } = await supabase.from("classes").select("id, teacher_id").eq("teacher_id", user.id);
+        for (const c of cls || []) {
+          const { data: roster } = await supabase.rpc("get_class_roster", { _class_id: (c as any).id });
+          (roster || []).forEach((r: any) => { collected[r.student_id] = r.display_name || r.email; });
+        }
+      } else {
+        // Student: fetch classes I belong to, then teacher_id for each
+        const { data: cm } = await supabase.from("class_members").select("class_id").eq("student_id", user.id);
+        const classIds = (cm || []).map((r: any) => r.class_id);
+        if (classIds.length) {
+          const { data: cls } = await supabase.from("classes").select("teacher_id").in("id", classIds);
+          const tids = Array.from(new Set((cls || []).map((c: any) => c.teacher_id).filter(Boolean)));
+          if (tids.length) {
+            const { data: profs } = await supabase.from("profiles").select("user_id, display_name, email").in("user_id", tids);
+            (profs || []).forEach((p: any) => { collected[p.user_id] = p.display_name || p.email; });
+          }
+        }
+      }
+      const list: Profile[] = Object.entries(collected).map(([user_id, display_name]) => ({ user_id, display_name }));
+      setContacts(list);
+      setProfiles((s) => {
+        const n = { ...s };
+        list.forEach((p) => { n[p.user_id] = p.display_name || p.user_id.slice(0, 8); });
+        return n;
+      });
+    })();
+  }, [user, roles]);
+
+  // Auto-select peer from URL ?peer=<id>
+  useEffect(() => {
+    const p = searchParams.get("peer");
+    if (p && p !== activePeer) setActivePeer(p);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Realtime DM updates
   useEffect(() => {
@@ -340,6 +385,26 @@ export default function Messages() {
                 </button>
               );
             })}
+            {contacts.filter(c => !conversations.some(v => v.peer === c.user_id)).length > 0 && (
+              <div className="mt-3">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
+                  {tt({ fr: "Mes contacts", de: "Meine Kontakte", ar: "جهات اتصالي" })}
+                </div>
+                {contacts.filter(c => !conversations.some(v => v.peer === c.user_id)).map(p => {
+                  const online = onlineUserIds.has(p.user_id);
+                  return (
+                    <button key={p.user_id} onClick={()=>setActivePeer(p.user_id)}
+                      className={`w-full text-left px-2 py-2 rounded-md transition flex items-center gap-3 ${activePeer===p.user_id ? "bg-primary/10" : "hover:bg-muted"}`}>
+                      <div className="relative">
+                        <Avatar className="h-9 w-9"><AvatarFallback className="bg-primary/15 text-primary text-xs">{initials(p.display_name)}</AvatarFallback></Avatar>
+                        {online && <span className="absolute bottom-0 end-0 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background"/>}
+                      </div>
+                      <div className="text-sm truncate">{p.display_name || p.user_id.slice(0,8)}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 

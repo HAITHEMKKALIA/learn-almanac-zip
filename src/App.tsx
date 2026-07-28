@@ -70,6 +70,7 @@ const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
 const ChooseSpace = lazy(() => import("./pages/ChooseSpace.tsx"));
 const TeacherStudioDashboard = lazy(() => import("./pages/teacher-studio/TeacherStudioDashboard.tsx"));
 const TeacherStudioSettings = lazy(() => import("./pages/teacher-studio/TeacherStudioSettings.tsx"));
+const TeacherStudents = lazy(() => import("./pages/TeacherStudents.tsx"));
 const SoloStudentDashboard = lazy(() => import("./pages/solo-student/SoloStudentDashboard.tsx"));
 const SoloStudentSettings = lazy(() => import("./pages/solo-student/SoloStudentSettings.tsx"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent.tsx"));
@@ -178,6 +179,7 @@ const App = () => (
               <Route path="/teacher/reports" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Reports /></RequireAuth>} />
               <Route path="/teacher/homework" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><TeacherHomework /></RequireAuth>} />
               <Route path="/teacher/classes" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><TeacherDashboard /></RequireAuth>} />
+              <Route path="/teacher/students" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><TeacherStudents /></RequireAuth>} />
               <Route path="/teacher/attendance" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><RolePlaceholder title="Présence" subtitle="Prendre la présence de vos classes" parentHref="/teacher" parentLabel="Espace professeur" /></RequireAuth>} />
               <Route path="/teacher/exams" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Assignments /></RequireAuth>} />
               <Route path="/teacher/messages" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Messages /></RequireAuth>} />
