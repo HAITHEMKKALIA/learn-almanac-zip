@@ -192,23 +192,23 @@ export default function ExamRunner() {
   const answered = Object.values(answers).filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-background select-none" onCopy={e=>e.preventDefault()}>
-      <header className="sticky top-0 z-10 border-b bg-card p-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Lock className="w-4 h-4 text-primary"/>
-          <span className="font-semibold text-sm">{assignment?.title}</span>
-          <Badge variant="outline">{assignment?.level}</Badge>
+    <div className="min-h-[100dvh] bg-background select-none pb-[env(safe-area-inset-bottom)]" onCopy={e=>e.preventDefault()}>
+      <header className="sticky top-0 z-10 border-b bg-card px-2 sm:px-3 py-2 flex items-center justify-between gap-2 pt-[calc(0.5rem+env(safe-area-inset-top))]">
+        <div className="flex items-center gap-2 min-w-0">
+          <Lock className="w-4 h-4 text-primary shrink-0"/>
+          <span className="font-semibold text-xs sm:text-sm truncate">{assignment?.title}</span>
+          <Badge variant="outline" className="hidden sm:inline-flex">{assignment?.level}</Badge>
         </div>
-        <div className="flex items-center gap-3">
-          {violations > 0 && <Badge variant="destructive">⚠ {violations}</Badge>}
-          <div className={`flex items-center gap-1 font-mono text-lg ${remaining < 60 ? "text-destructive animate-pulse" : ""}`}>
+        <div className="flex items-center gap-2 shrink-0">
+          {violations > 0 && <Badge variant="destructive" className="text-xs">⚠ {violations}</Badge>}
+          <div className={`flex items-center gap-1 font-mono text-base sm:text-lg ${remaining < 60 ? "text-destructive animate-pulse" : ""}`}>
             <Clock className="w-4 h-4"/>{fmt(remaining)}
           </div>
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto p-4 space-y-4">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="max-w-3xl mx-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+        <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
           <span>{tt({ fr: "Question", de: "Frage", ar: "سؤال" })} {idx + 1} / {questions.length}</span>
           <span>{answered} {tt({ fr: "répondu(es)", de: "beantwortet", ar: "تمت الإجابة" })}</span>
         </div>
