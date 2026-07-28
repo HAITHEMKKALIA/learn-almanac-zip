@@ -53,6 +53,7 @@ export default function Messages() {
   const [draft, setDraft] = useState("");
   const [search, setSearch] = useState("");
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+  const [contacts, setContacts] = useState<Profile[]>([]);
   const [replyTo, setReplyTo] = useState<Msg|null>(null);
   const [editing, setEditing] = useState<Msg|null>(null);
   const [typingPeers, setTypingPeers] = useState<Set<string>>(new Set());
