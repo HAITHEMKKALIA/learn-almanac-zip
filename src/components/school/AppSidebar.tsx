@@ -117,7 +117,7 @@ function pick(l: L, lang: Lang): string {
 }
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const { pathname } = useLocation();
   const { roles, signOut, user } = useAuth();
   const { activeSpaceType, activeSchool } = useActiveSchool();
