@@ -500,6 +500,19 @@ export default function Avatar() {
               dpr={[1, 1.5]}
               shadows
               gl={{ antialias: true, powerPreference: "high-performance" }}
+              onCreated={({ gl }) => {
+                const canvas = gl.domElement;
+                const handleLost = (e: Event) => {
+                  e.preventDefault();
+                  console.warn("[Avatar] WebGL context lost — will auto-restore");
+                };
+                const handleRestored = () => {
+                  console.info("[Avatar] WebGL context restored");
+                  try { gl.setSize(canvas.clientWidth, canvas.clientHeight, false); } catch {}
+                };
+                canvas.addEventListener("webglcontextlost", handleLost as EventListener, false);
+                canvas.addEventListener("webglcontextrestored", handleRestored as EventListener, false);
+              }}
             >
               <color attach="background" args={["#07101d"]} />
               <ambientLight intensity={0.85} />
