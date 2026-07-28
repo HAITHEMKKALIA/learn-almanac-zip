@@ -421,7 +421,7 @@ export default function TeacherHomework() {
 
       {/* Corrections */}
       <Dialog open={!!viewSubsFor} onOpenChange={(o) => !o && setViewSubsFor(null)}>
-        <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl w-[calc(100vw-1rem)] max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader><DialogTitle>{viewSubsFor?.title} — {tt({ fr: "Corrections", de: "Korrekturen", ar: "التصحيحات" })}</DialogTitle></DialogHeader>
           {subs.length === 0 ? (
             <p className="text-sm text-muted-foreground">{tt({ fr: "Aucune soumission.", de: "Keine Abgabe.", ar: "لا توجد إرساليات." })}</p>
