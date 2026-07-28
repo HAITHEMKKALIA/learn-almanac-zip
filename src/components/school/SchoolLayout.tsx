@@ -107,7 +107,7 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
           )}
 
           {/* Content */}
-          <main className="flex-1 p-3 sm:p-4 md:p-6 role-page-in overflow-x-hidden" key={pathname}>
+          <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-4 md:p-6 pb-24 role-page-in overflow-x-hidden" key={pathname}>
             <AcademyMotionPage>{children}</AcademyMotionPage>
           </main>
         </div>
