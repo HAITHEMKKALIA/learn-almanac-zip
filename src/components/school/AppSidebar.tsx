@@ -7,7 +7,7 @@ import {
   LayoutDashboard, BookOpen, GraduationCap, Users, ClipboardList, Library,
   BarChart3, MessageSquare, Settings,
   FileText, LogOut, School, Languages, NotebookPen, Sparkles, CalendarDays,
-  Award, UserCheck, Baby,
+  Award, UserCheck, Baby, CreditCard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
