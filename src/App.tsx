@@ -14,6 +14,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ActiveSchoolProvider } from "@/contexts/ActiveSchoolContext";
 import { RequireAuth } from "@/components/RequireAuth";
 import RolePlaceholder from "./components/school/RolePlaceholder.tsx";
+import { InstallPWA } from "./components/pwa/InstallPWA";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +108,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <InstallPWA />
         <BrowserRouter>
           <AuthProvider>
             <ActiveSchoolProvider>

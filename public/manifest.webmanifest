@@ -1,18 +1,28 @@
 {
-  "name": "Deutsch Meister",
-  "short_name": "DeutschMeister",
+  "name": "Deutsch Meister — Apprendre l'allemand",
+  "short_name": "Deutsch Meister",
   "description": "Plateforme d'apprentissage de l'allemand A1 à B2 — écoles, classes, professeurs et élèves.",
   "id": "/",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
   "background_color": "#0b0f1a",
   "theme_color": "#1e3a8a",
   "lang": "fr",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Apprendre", "short_name": "Apprendre", "url": "/learn", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Devoirs", "short_name": "Devoirs", "url": "/student/homework", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Professeur IA", "short_name": "IA", "url": "/avatar", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
   ]
 }
