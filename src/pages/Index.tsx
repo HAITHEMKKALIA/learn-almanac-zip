@@ -5,7 +5,7 @@ import { LayoutDashboard } from "lucide-react";
 
 const Index = () => {
   return (
-    <div className="h-screen w-screen overflow-hidden bg-background relative">
+    <div className="min-h-[100dvh] w-full bg-background relative overflow-x-hidden">
       <DeutschMeister />
       {/* Floating shortcut to the school dashboards */}
       <Button
