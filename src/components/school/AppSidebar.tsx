@@ -40,6 +40,7 @@ const teacherItems: Item[] = [
   { label: { fr: "Examens", de: "Prüfungen", ar: "الامتحانات" }, url: "/teacher/assignments", icon: ClipboardList },
   { label: { fr: "Banque de questions", de: "Fragenbank", ar: "بنك الأسئلة" }, url: "/teacher/bank", icon: Library },
   { label: { fr: "Messages", de: "Nachrichten", ar: "الرسائل" }, url: "/messages", icon: MessageSquare },
+  { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
 const adminItems: Item[] = [
