@@ -64,6 +64,7 @@ export default function PricingGridEditor({ scope, schoolId = null, title, descr
     setSaving(null);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     toast({ title: "Tarif enregistré ✓" });
+    onChange?.();
   };
 
   const remove = async (id: string) => {
@@ -71,6 +72,7 @@ export default function PricingGridEditor({ scope, schoolId = null, title, descr
     const { error } = await supabase.from("plan_prices").delete().eq("id", id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((rs) => rs.filter((r) => r.id !== id));
+    onChange?.();
   };
 
   const add = async () => {
