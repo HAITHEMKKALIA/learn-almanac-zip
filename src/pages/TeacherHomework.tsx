@@ -70,6 +70,16 @@ export default function TeacherHomework() {
   };
   useEffect(() => { load(); }, []);
 
+  // Realtime: refresh list when submissions arrive from students
+  useEffect(() => {
+    const ch = supabase
+      .channel("teacher-homework-sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "homework_submissions" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "homework" }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
+
   const startNew = () => {
     setEdit({
       title: "", instructions: "", category: "schreiben",

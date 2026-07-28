@@ -54,6 +54,17 @@ export default function StudentHomework() {
   };
   useEffect(() => { load(); }, [user?.id]);
 
+  // Realtime sync with teacher: refresh when homework or my submissions change
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase
+      .channel("student-homework-sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "homework" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "homework_submissions", filter: `student_id=eq.${user.id}` }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user?.id]);
+
   const openHw = async (h: any) => {
     setActive(h); setContent(h.mySubmission?.content || ""); setFile(null); setAudioBlob(null);
     const { data: qs } = await supabase.from("homework_questions").select("*").eq("homework_id", h.id).order("position");
