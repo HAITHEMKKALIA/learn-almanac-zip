@@ -44,17 +44,31 @@ export type NotifPayload = {
   metadata?: Record<string, any>;
 };
 
-/** Insert a notification row (RLS: any authenticated user may insert). */
+/**
+ * Send notifications through the secured `send_notification` RPC.
+ * The server enforces that the caller is allowed to notify each target
+ * (self, admin, or shared-school membership).
+ * Payloads are grouped by (type,title,body,link,metadata) to batch recipients.
+ */
 export async function notify(payload: NotifPayload | NotifPayload[]) {
-  const rows = (Array.isArray(payload) ? payload : [payload]).map((p) => ({
-    user_id: p.user_id,
-    type: p.type,
-    title: p.title,
-    body: p.body ?? null,
-    link: p.link ?? null,
-    metadata: p.metadata ?? {},
-  }));
-  if (rows.length === 0) return;
-  const { error } = await supabase.from("notifications").insert(rows);
-  if (error) console.error("[notify]", error.message);
+  const list = Array.isArray(payload) ? payload : [payload];
+  if (list.length === 0) return;
+  const groups = new Map<string, { p: NotifPayload; ids: string[] }>();
+  for (const p of list) {
+    const key = JSON.stringify([p.type, p.title, p.body ?? null, p.link ?? null, p.metadata ?? {}]);
+    const g = groups.get(key);
+    if (g) g.ids.push(p.user_id);
+    else groups.set(key, { p, ids: [p.user_id] });
+  }
+  for (const { p, ids } of groups.values()) {
+    const { error } = await supabase.rpc("send_notification", {
+      _user_ids: ids,
+      _type: p.type,
+      _title: p.title,
+      _body: p.body ?? null,
+      _link: p.link ?? null,
+      _metadata: (p.metadata ?? {}) as any,
+    });
+    if (error) console.error("[notify]", error.message);
+  }
 }
