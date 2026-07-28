@@ -231,6 +231,7 @@ const App = () => (
               <Route path="/school-admin/certificates" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Certificates /></RequireAuth>} />
               <Route path="/school-admin/reports" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Reports /></RequireAuth>} />
               <Route path="/school-admin/analytics" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAnalytics /></RequireAuth>} />
+              <Route path="/school-admin/billing" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolBilling /></RequireAuth>} />
               <Route path="/school-admin/settings" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Paramètres école" subtitle="Configuration générale de l'école" parentHref="/school-admin" /></RequireAuth>} />
               <Route path="/school-admin/rules" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Règles école" subtitle="Règles d'absence, certificat, promotion…" parentHref="/school-admin" /></RequireAuth>} />
 
