@@ -44,7 +44,8 @@ function dayLabel(d: Date, lang: string, locale: any) {
 }
 
 export default function Messages() {
-  const { user, onlineUserIds } = useAuth();
+  const { user, onlineUserIds, roles } = useAuth();
+  const [searchParams] = useSearchParams();
   const { tt, lang } = useI18n();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [profiles, setProfiles] = useState<Record<string, string>>({});
