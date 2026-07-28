@@ -172,6 +172,14 @@ export default function BillingAdmin() {
               );
             })}
           </TabsContent>
+
+          <TabsContent value="pricing" className="mt-4">
+            <PricingGridEditor
+              scope="platform"
+              title="Grille des tarifs plateforme (TND)"
+              description="Tarifs de référence proposés aux écoles, instituts, professeurs et élèves indépendants. Les écoles peuvent ensuite définir leurs propres tarifs pour leurs élèves."
+            />
+          </TabsContent>
         </Tabs>
       </div>
 
