@@ -60,7 +60,7 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div data-role-theme={roleTheme} className="h-screen max-h-screen flex w-full bg-muted/30 relative overflow-hidden">
+      <div data-role-theme={roleTheme} className="h-[100svh] max-h-[100svh] flex w-full bg-muted/30 relative overflow-hidden">
         <div className="role-ambient" aria-hidden />
         <AppSidebar />
 

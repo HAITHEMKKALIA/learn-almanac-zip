@@ -187,7 +187,7 @@ export default function ClassDetail() {
   if (!klass) return <div className="p-6">{tt({ fr: "Chargement…", de: "Lädt…", ar: "جارٍ التحميل…" })}</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 p-4 md:p-6">
+    <div className="min-h-full bg-gradient-to-b from-background via-background to-primary/5 p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
       <AcademyMotionPage>
         <div className="space-y-4">
