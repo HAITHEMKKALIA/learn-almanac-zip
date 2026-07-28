@@ -117,7 +117,7 @@ function pick(l: L, lang: Lang): string {
 }
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const { pathname } = useLocation();
   const { roles, signOut, user } = useAuth();
   const { activeSpaceType, activeSchool } = useActiveSchool();
@@ -142,9 +142,13 @@ export function AppSidebar() {
                   tooltip={collapsed ? title : undefined}
                   className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary data-[active=true]:font-semibold hover:bg-sidebar-accent/60"
                 >
-                  <NavLink to={it.url} className="flex items-center gap-3">
+                  <NavLink
+                    to={it.url}
+                    className="flex items-center gap-3"
+                    onClick={() => { if (isMobile) setOpenMobile(false); }}
+                  >
                     <it.icon className="h-4 w-4 shrink-0" />
-                    {!collapsed && <span className="truncate">{title}</span>}
+                    {(!collapsed || isMobile) && <span className="truncate">{title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
