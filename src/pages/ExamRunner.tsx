@@ -260,20 +260,20 @@ export default function ExamRunner() {
         </Card>
 
         <div className="flex items-center justify-between gap-2">
-          <Button variant="outline" disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>← {tt({ fr: "Précédent", de: "Zurück", ar: "السابق" })}</Button>
+          <Button size="sm" variant="outline" disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>← {tt({ fr: "Précédent", de: "Zurück", ar: "السابق" })}</Button>
           {idx < questions.length - 1 ? (
-            <Button onClick={() => setIdx(i => i + 1)}>{tt({ fr: "Suivant", de: "Weiter", ar: "التالي" })} →</Button>
+            <Button size="sm" onClick={() => setIdx(i => i + 1)}>{tt({ fr: "Suivant", de: "Weiter", ar: "التالي" })} →</Button>
           ) : (
-            <Button onClick={() => doSubmit(false)} disabled={submitting} className="bg-primary">
-              <Send className="w-4 h-4 mr-1"/>{submitting ? tt({ fr: "Envoi…", de: "Senden…", ar: "إرسال…" }) : tt({ fr: "Terminer l'examen", de: "Prüfung beenden", ar: "إنهاء الامتحان" })}
+            <Button size="sm" onClick={() => doSubmit(false)} disabled={submitting} className="bg-primary">
+              <Send className="w-4 h-4 mr-1"/>{submitting ? tt({ fr: "Envoi…", de: "Senden…", ar: "إرسال…" }) : tt({ fr: "Terminer", de: "Beenden", ar: "إنهاء" })}
             </Button>
           )}
         </div>
 
-        <div className="grid grid-cols-10 gap-1 pt-2">
+        <div className="grid grid-cols-6 sm:grid-cols-10 gap-1 pt-2">
           {questions.map((qq, i) => (
             <button key={qq.id} onClick={() => setIdx(i)}
-                    className={`h-8 rounded text-xs font-mono ${i === idx ? "bg-primary text-primary-foreground" : answers[qq.id] ? "bg-secondary" : "bg-muted"}`}>
+                    className={`h-9 sm:h-8 rounded text-xs font-mono ${i === idx ? "bg-primary text-primary-foreground" : answers[qq.id] ? "bg-secondary" : "bg-muted"}`}>
               {i + 1}
             </button>
           ))}
