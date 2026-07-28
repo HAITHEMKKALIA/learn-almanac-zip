@@ -95,6 +95,48 @@ export default function Messages() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Preload contacts: teachers see their students, students see their teachers
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const isTeacher = roles.some((r) => ["teacher", "examiner", "staff", "school_admin", "admin", "super_admin"].includes(r));
+      const collected: Record<string, string | null> = {};
+      if (isTeacher) {
+        const { data: cls } = await supabase.from("classes").select("id, teacher_id").eq("teacher_id", user.id);
+        for (const c of cls || []) {
+          const { data: roster } = await supabase.rpc("get_class_roster", { _class_id: (c as any).id });
+          (roster || []).forEach((r: any) => { collected[r.student_id] = r.display_name || r.email; });
+        }
+      } else {
+        // Student: fetch classes I belong to, then teacher_id for each
+        const { data: cm } = await supabase.from("class_members").select("class_id").eq("student_id", user.id);
+        const classIds = (cm || []).map((r: any) => r.class_id);
+        if (classIds.length) {
+          const { data: cls } = await supabase.from("classes").select("teacher_id").in("id", classIds);
+          const tids = Array.from(new Set((cls || []).map((c: any) => c.teacher_id).filter(Boolean)));
+          if (tids.length) {
+            const { data: profs } = await supabase.from("profiles").select("user_id, display_name, email").in("user_id", tids);
+            (profs || []).forEach((p: any) => { collected[p.user_id] = p.display_name || p.email; });
+          }
+        }
+      }
+      const list: Profile[] = Object.entries(collected).map(([user_id, display_name]) => ({ user_id, display_name }));
+      setContacts(list);
+      setProfiles((s) => {
+        const n = { ...s };
+        list.forEach((p) => { n[p.user_id] = p.display_name || p.user_id.slice(0, 8); });
+        return n;
+      });
+    })();
+  }, [user, roles]);
+
+  // Auto-select peer from URL ?peer=<id>
+  useEffect(() => {
+    const p = searchParams.get("peer");
+    if (p && p !== activePeer) setActivePeer(p);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   // Realtime DM updates
   useEffect(() => {
     if (!user) return;
