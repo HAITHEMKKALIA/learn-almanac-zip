@@ -20,6 +20,7 @@ const queryClient = new QueryClient();
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Learn = lazy(() => import("./pages/Learn.tsx"));
+const MedicalGerman = lazy(() => import("./pages/MedicalGerman.tsx"));
 const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard.tsx"));
 const StudentDashboard = lazy(() => import("./pages/StudentDashboard.tsx"));
 const QuestionBank = lazy(() => import("./pages/QuestionBank.tsx"));
@@ -119,6 +120,7 @@ const App = () => (
               {/* Public free-learning app (no auth) */}
               <Route path="/" element={<Landing />} />
               <Route path="/learn" element={<Learn />} />
+              <Route path="/learn/medical-german" element={<MedicalGerman />} />
               <Route path="/deutschmeister" element={<Index />} />
               <Route path="/plan" element={<CoursePlan />} />
              <Route path="/auth" element={<AuthPage />} />
