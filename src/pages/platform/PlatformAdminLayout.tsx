@@ -95,8 +95,9 @@ export default function PlatformAdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
-      <aside className="hidden lg:flex w-64 shrink-0 border-r border-border flex-col">
+    <div className="h-[100svh] flex w-full overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+      <aside className="hidden lg:flex w-64 shrink-0 border-r border-border flex-col h-full">
+
         {SidebarInner}
       </aside>
 
