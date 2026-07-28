@@ -60,13 +60,13 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div data-role-theme={roleTheme} className="h-[100svh] max-h-[100svh] flex w-full bg-muted/30 relative overflow-hidden">
+      <div data-role-theme={roleTheme} className="h-[100dvh] min-h-0 flex w-full bg-muted/30 relative overflow-hidden">
         <div className="role-ambient" aria-hidden />
         <AppSidebar />
 
         <div className="flex-1 flex flex-col min-w-0 min-h-0 relative z-[1]">
           {/* Top bar */}
-          <header className="sticky top-0 z-30 h-14 flex items-center gap-2 border-b bg-background/85 backdrop-blur-xl px-2 sm:px-4">
+          <header className="z-30 min-h-14 shrink-0 flex items-center gap-2 border-b bg-background/85 backdrop-blur-xl px-2 sm:px-4 pt-[env(safe-area-inset-top)]">
             <SidebarTrigger className="text-foreground shrink-0" />
             <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground min-w-0">
               <Link to="/app" className="hover:text-foreground">{home}</Link>
@@ -91,7 +91,7 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
 
           {/* Page header — bandeau teinté selon le rôle */}
           {(title || actions) && (
-            <div className="role-header-tint px-4 sm:px-6 py-4 sm:py-5">
+            <div className="role-header-tint shrink-0 px-4 sm:px-6 py-4 sm:py-5">
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div className="min-w-0">
                   {title && (
@@ -107,7 +107,7 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
           )}
 
           {/* Content */}
-          <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-3 sm:p-4 md:p-6 pb-24 role-page-in overflow-x-hidden" key={pathname}>
+          <main className="flex-1 min-h-0 min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y p-3 sm:p-4 md:p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] role-page-in [-webkit-overflow-scrolling:touch]" key={pathname}>
             <AcademyMotionPage>{children}</AcademyMotionPage>
           </main>
         </div>
