@@ -62,6 +62,7 @@ const PendingApproval = lazy(() => import("./pages/PendingApproval.tsx"));
 const ParentDashboard = lazy(() => import("./pages/ParentDashboard.tsx"));
 const ParentChildren = lazy(() => import("./pages/parent/ParentChildren.tsx"));
 const SchoolClassDetail = lazy(() => import("./pages/school/SchoolClassDetail.tsx"));
+const SchoolBilling = lazy(() => import("./pages/school/SchoolBilling.tsx"));
 const AcademicLayout = lazy(() => import("./pages/academic/AcademicLayout.tsx"));
 const AcademicDashboard = lazy(() => import("./pages/academic/AcademicDashboard.tsx"));
 const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
