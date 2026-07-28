@@ -385,6 +385,26 @@ export default function Messages() {
                 </button>
               );
             })}
+            {contacts.filter(c => !conversations.some(v => v.peer === c.user_id)).length > 0 && (
+              <div className="mt-3">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1">
+                  {tt({ fr: "Mes contacts", de: "Meine Kontakte", ar: "جهات اتصالي" })}
+                </div>
+                {contacts.filter(c => !conversations.some(v => v.peer === c.user_id)).map(p => {
+                  const online = onlineUserIds.has(p.user_id);
+                  return (
+                    <button key={p.user_id} onClick={()=>setActivePeer(p.user_id)}
+                      className={`w-full text-left px-2 py-2 rounded-md transition flex items-center gap-3 ${activePeer===p.user_id ? "bg-primary/10" : "hover:bg-muted"}`}>
+                      <div className="relative">
+                        <Avatar className="h-9 w-9"><AvatarFallback className="bg-primary/15 text-primary text-xs">{initials(p.display_name)}</AvatarFallback></Avatar>
+                        {online && <span className="absolute bottom-0 end-0 h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background"/>}
+                      </div>
+                      <div className="text-sm truncate">{p.display_name || p.user_id.slice(0,8)}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
