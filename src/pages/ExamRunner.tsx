@@ -135,7 +135,7 @@ export default function ExamRunner() {
   // ---- screens
   if (confirmStart) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 bg-background">
         <Card className="max-w-lg w-full">
           <CardHeader><CardTitle className="flex items-center gap-2"><Lock className="w-5 h-5 text-primary"/>{tt({ fr: "Examen surveillé", de: "Überwachte Prüfung", ar: "امتحان مراقب" })}</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
