@@ -90,6 +90,7 @@ const soloItems: Item[] = [
   { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
   { label: { fr: "Wortschatz", de: "Wortschatz", ar: "المفردات" }, url: "/solo-student/wortschatz", icon: Sparkles },
   { label: { fr: "Mon parcours", de: "Mein Weg", ar: "مساري" }, url: "/solo-student/settings", icon: GraduationCap },
+  { label: { fr: "Mon abonnement", de: "Mein Abo", ar: "اشتراكي" }, url: "/solo-student/billing", icon: CreditCard },
 ];
 
 const groupLabels = {
