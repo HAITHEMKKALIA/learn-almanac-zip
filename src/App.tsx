@@ -126,6 +126,8 @@ const App = () => (
               <Route path="/verify/:number" element={<VerifyCertificate />} />
               <Route path="/pending-approval" element={<PendingApproval />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/diagnostics" element={<Diagnostics />} />
+
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/legal-consent" element={<RequireAuth requireLegal={false}><LegalConsent /></RequireAuth>} />
