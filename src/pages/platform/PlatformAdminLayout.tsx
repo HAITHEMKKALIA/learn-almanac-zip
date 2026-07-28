@@ -95,14 +95,14 @@ export default function PlatformAdminLayout() {
   );
 
   return (
-    <div className="h-[100dvh] min-h-0 flex w-full overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div className="min-h-[100dvh] flex w-full overflow-visible bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 lg:h-[100dvh] lg:min-h-0 lg:overflow-hidden">
       <aside className="hidden lg:flex w-64 shrink-0 border-r border-border flex-col h-full">
 
         {SidebarInner}
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
-        <header className="lg:hidden z-30 flex shrink-0 items-center gap-2 min-h-14 px-3 border-b border-border bg-slate-900 text-slate-100 pt-[env(safe-area-inset-top)]">
+      <div className="flex-1 flex flex-col min-w-0 min-h-[100dvh] overflow-visible lg:min-h-0 lg:overflow-hidden">
+        <header className="sticky top-0 lg:hidden z-30 flex shrink-0 items-center gap-2 min-h-14 px-3 border-b border-border bg-slate-900 text-slate-100 pt-[env(safe-area-inset-top)]">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-slate-100 hover:bg-white/10">
@@ -121,7 +121,7 @@ export default function PlatformAdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1 min-h-0 min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y pb-[env(safe-area-inset-bottom)] [-webkit-overflow-scrolling:touch]">
+        <main data-mobile-scroll className="flex-1 min-w-0 overflow-x-hidden overflow-y-visible touch-pan-y pb-[env(safe-area-inset-bottom)] [-webkit-overflow-scrolling:touch] lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain">
           <div key={loc.pathname} className="animate-in fade-in duration-200 min-w-0 min-h-full">
             <Outlet />
           </div>

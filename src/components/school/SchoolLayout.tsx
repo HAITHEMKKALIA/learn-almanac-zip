@@ -60,13 +60,13 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div data-role-theme={roleTheme} className="h-[100dvh] min-h-0 flex w-full bg-muted/30 relative overflow-hidden">
+      <div data-role-theme={roleTheme} className="min-h-[100dvh] flex w-full bg-muted/30 relative overflow-visible md:h-[100dvh] md:min-h-0 md:overflow-hidden">
         <div className="role-ambient" aria-hidden />
         <AppSidebar />
 
-        <div className="flex-1 flex flex-col min-w-0 min-h-0 relative z-[1]">
+        <div className="flex-1 flex flex-col min-w-0 min-h-[100dvh] relative z-[1] md:min-h-0">
           {/* Top bar */}
-          <header className="z-30 min-h-14 shrink-0 flex items-center gap-2 border-b bg-background/85 backdrop-blur-xl px-2 sm:px-4 pt-[env(safe-area-inset-top)]">
+          <header className="sticky top-0 z-30 min-h-14 shrink-0 flex items-center gap-2 border-b bg-background/85 backdrop-blur-xl px-2 sm:px-4 pt-[env(safe-area-inset-top)] md:relative">
             <SidebarTrigger className="text-foreground shrink-0" />
             <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground min-w-0">
               <Link to="/app" className="hover:text-foreground">{home}</Link>
@@ -107,7 +107,7 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
           )}
 
           {/* Content */}
-          <main className="flex-1 min-h-0 min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y p-3 sm:p-4 md:p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] role-page-in [-webkit-overflow-scrolling:touch]" key={pathname}>
+          <main data-mobile-scroll className="flex-1 min-w-0 overflow-x-hidden overflow-y-visible touch-pan-y p-3 sm:p-4 md:min-h-0 md:overflow-y-auto md:overscroll-contain md:p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] role-page-in [-webkit-overflow-scrolling:touch]" key={pathname}>
             <AcademyMotionPage>{children}</AcademyMotionPage>
           </main>
         </div>
