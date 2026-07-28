@@ -25,9 +25,10 @@ type Props = {
   schoolId?: string | null;
   title?: string;
   description?: string;
+  onChange?: () => void;
 };
 
-export default function PricingGridEditor({ scope, schoolId = null, title, description }: Props) {
+export default function PricingGridEditor({ scope, schoolId = null, title, description, onChange }: Props) {
   const [rows, setRows] = useState<PlanPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -63,6 +64,7 @@ export default function PricingGridEditor({ scope, schoolId = null, title, descr
     setSaving(null);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     toast({ title: "Tarif enregistré ✓" });
+    onChange?.();
   };
 
   const remove = async (id: string) => {
@@ -70,6 +72,7 @@ export default function PricingGridEditor({ scope, schoolId = null, title, descr
     const { error } = await supabase.from("plan_prices").delete().eq("id", id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((rs) => rs.filter((r) => r.id !== id));
+    onChange?.();
   };
 
   const add = async () => {
@@ -91,6 +94,7 @@ export default function PricingGridEditor({ scope, schoolId = null, title, descr
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((rs) => [...rs, data as PlanPrice]);
+    onChange?.();
   };
 
   return (
