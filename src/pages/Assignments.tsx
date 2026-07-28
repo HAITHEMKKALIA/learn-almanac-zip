@@ -168,7 +168,7 @@ export default function AssignmentsPage() {
         <AiHistoryPanel filterMode="exam" />
 
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-4xl w-[calc(100vw-1rem)] max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
             <DialogHeader><DialogTitle>{edit?.id ? "Modifier" : "Nouveau"} devoir</DialogTitle></DialogHeader>
             {edit && <div className="space-y-3">
               <div className="grid md:grid-cols-2 gap-2">
