@@ -141,8 +141,10 @@ const App = () => (
               <Route path="/teacher-studio/certificates" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><Certificates /></RequireAuth>} />
               <Route path="/teacher-studio/reports" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><Reports /></RequireAuth>} />
               <Route path="/teacher-studio/settings" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><TeacherStudioSettings /></RequireAuth>} />
+              <Route path="/teacher-studio/billing" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><SchoolBilling /></RequireAuth>} />
               <Route path="/solo-student" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentDashboard /></RequireAuth>} />
               <Route path="/solo-student/settings" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentSettings /></RequireAuth>} />
+              <Route path="/solo-student/billing" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloBilling /></RequireAuth>} />
               <Route path="/solo-student/path" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentDashboard /></RequireAuth>} />
               <Route path="/solo-student/kapitel" element={<RequireAuth spaceType="independent_student" spaceRole="student"><Kapitel /></RequireAuth>} />
               <Route path="/solo-student/wortschatz" element={<RequireAuth spaceType="independent_student" spaceRole="student"><Wortschatz /></RequireAuth>} />
