@@ -60,11 +60,11 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div data-role-theme={roleTheme} className="min-h-screen flex w-full bg-muted/30 relative">
+      <div data-role-theme={roleTheme} className="h-screen max-h-screen flex w-full bg-muted/30 relative overflow-hidden">
         <div className="role-ambient" aria-hidden />
         <AppSidebar />
 
-        <div className="flex-1 flex flex-col min-w-0 relative z-[1]">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 relative z-[1]">
           {/* Top bar */}
           <header className="sticky top-0 z-30 h-14 flex items-center gap-2 border-b bg-background/85 backdrop-blur-xl px-2 sm:px-4">
             <SidebarTrigger className="text-foreground shrink-0" />
