@@ -13,6 +13,7 @@ interface SitemapEntry {
 // Only public, indexable routes. Authenticated app routes are intentionally omitted.
 const entries: SitemapEntry[] = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
+  { path: "/learn/medical-german", changefreq: "monthly", priority: "0.8" },
   { path: "/pricing", changefreq: "monthly", priority: "0.8" },
   { path: "/community", changefreq: "weekly", priority: "0.6" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
