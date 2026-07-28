@@ -157,10 +157,10 @@ export default function ExamRunner() {
     );
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">{tt({ fr: "Chargement…", de: "Wird geladen…", ar: "جارٍ التحميل…" })}</div>;
+  if (loading) return <div className="min-h-[100dvh] flex items-center justify-center">{tt({ fr: "Chargement…", de: "Wird geladen…", ar: "جارٍ التحميل…" })}</div>;
   if (error) return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <Card className="max-w-md"><CardContent className="p-6 space-y-3">
+    <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6">
+      <Card className="max-w-md w-full"><CardContent className="p-6 space-y-3">
         <div className="flex items-center gap-2 text-destructive"><AlertTriangle className="w-5 h-5"/><b>{tt({ fr: "Impossible de démarrer", de: "Start nicht möglich", ar: "تعذّر البدء" })}</b></div>
         <p className="text-sm text-muted-foreground">{error}</p>
         <Button onClick={() => navigate("/student")}>{tt({ fr: "Retour", de: "Zurück", ar: "رجوع" })}</Button>
@@ -171,7 +171,7 @@ export default function ExamRunner() {
   if (done) {
     const pct = done.total ? Math.round((done.score / done.total) * 100) : 0;
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 bg-background">
         <Card className="max-w-md w-full">
           <CardHeader><CardTitle>{tt({ fr: "Examen terminé ✓", de: "Prüfung beendet ✓", ar: "انتهى الامتحان ✓" })}</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-center">
