@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
-// NotificationsBell deprecated; merged into MessagesBell (Phase 1)
+import { NotificationsBell } from "./NotificationsBell";
 import { MessagesBell } from "./MessagesBell";
 import { FloatingMessenger } from "./FloatingMessenger";
 import { SchoolSwitcher } from "./SchoolSwitcher";
