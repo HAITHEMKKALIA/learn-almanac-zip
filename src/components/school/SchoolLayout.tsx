@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
-// NotificationsBell deprecated; merged into MessagesBell (Phase 1)
+import { NotificationsBell } from "./NotificationsBell";
 import { MessagesBell } from "./MessagesBell";
 import { FloatingMessenger } from "./FloatingMessenger";
 import { SchoolSwitcher } from "./SchoolSwitcher";
@@ -66,22 +66,23 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
 
         <div className="flex-1 flex flex-col min-w-0 relative z-[1]">
           {/* Top bar */}
-          <header className="sticky top-0 z-30 h-14 flex items-center gap-3 border-b bg-background/85 backdrop-blur-xl px-4">
-            <SidebarTrigger className="text-foreground" />
-            <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
+          <header className="sticky top-0 z-30 h-14 flex items-center gap-2 border-b bg-background/85 backdrop-blur-xl px-2 sm:px-4">
+            <SidebarTrigger className="text-foreground shrink-0" />
+            <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground min-w-0">
               <Link to="/app" className="hover:text-foreground">{home}</Link>
               {breadcrumbs?.map((b, i) => (
-                <span key={i} className="flex items-center gap-2">
-                  <ChevronRight className="h-3 w-3 rtl:rotate-180" />
-                  {b.href ? <Link to={b.href} className="hover:text-foreground">{b.label}</Link> : <span className="text-foreground">{b.label}</span>}
+                <span key={i} className="flex items-center gap-2 truncate">
+                  <ChevronRight className="h-3 w-3 rtl:rotate-180 shrink-0" />
+                  {b.href ? <Link to={b.href} className="hover:text-foreground truncate">{b.label}</Link> : <span className="text-foreground truncate">{b.label}</span>}
                 </span>
               ))}
             </div>
-            <div className="ms-auto flex items-center gap-2">
-              <div className="relative hidden md:block">
+            <div className="ms-auto flex items-center gap-1 sm:gap-2 shrink-0">
+              <div className="relative hidden lg:block">
                 <Search className="h-4 w-4 absolute start-2.5 top-2.5 text-muted-foreground" />
-                <Input placeholder={searchPh} className="h-9 ps-8 w-64 bg-muted/50 border-transparent focus-visible:bg-background" />
+                <Input placeholder={searchPh} className="h-9 ps-8 w-56 xl:w-64 bg-muted/50 border-transparent focus-visible:bg-background" />
               </div>
+              <NotificationsBell />
               <MessagesBell />
               <SchoolSwitcher />
               <Badge variant="outline" className="hidden sm:inline-flex border-primary/40 text-primary bg-primary/5">{role}</Badge>
@@ -90,15 +91,15 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
 
           {/* Page header — bandeau teinté selon le rôle */}
           {(title || actions) && (
-            <div className="role-header-tint px-6 py-5">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
+            <div className="role-header-tint px-4 sm:px-6 py-4 sm:py-5">
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div className="min-w-0">
                   {title && (
-                    <h1 className="font-display text-2xl md:text-3xl font-bold text-balance bg-gradient-primary bg-clip-text text-transparent">
+                    <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold text-balance bg-gradient-primary bg-clip-text text-transparent break-words">
                       {title}
                     </h1>
                   )}
-                  {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+                  {subtitle && <p className="text-xs sm:text-sm text-muted-foreground mt-1">{subtitle}</p>}
                 </div>
                 {actions && <div className="flex items-center gap-2 flex-wrap">{actions}</div>}
               </div>
@@ -106,7 +107,7 @@ export function SchoolLayout({ children, title, subtitle, breadcrumbs, actions }
           )}
 
           {/* Content */}
-          <main className="flex-1 p-4 md:p-6 role-page-in" key={pathname}>
+          <main className="flex-1 p-3 sm:p-4 md:p-6 role-page-in overflow-x-hidden" key={pathname}>
             <AcademyMotionPage>{children}</AcademyMotionPage>
           </main>
         </div>
