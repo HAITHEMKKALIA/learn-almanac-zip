@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import PricingGridEditor from "@/components/billing/PricingGridEditor";
 
 type Quote = {
   id: string;
@@ -102,8 +103,9 @@ export default function BillingAdmin() {
 
         <Tabs defaultValue="quotes">
           <TabsList>
-            <TabsTrigger value="quotes">Demandes de devis ({quotes.filter((q) => q.status === "new").length})</TabsTrigger>
+            <TabsTrigger value="quotes">Devis ({quotes.filter((q) => q.status === "new").length})</TabsTrigger>
             <TabsTrigger value="subs">Abonnements ({subs.filter((s) => s.status === "active").length} actifs)</TabsTrigger>
+            <TabsTrigger value="pricing">Grille des tarifs</TabsTrigger>
           </TabsList>
 
           <TabsContent value="quotes" className="space-y-3 mt-4">
@@ -169,6 +171,14 @@ export default function BillingAdmin() {
                 </Card>
               );
             })}
+          </TabsContent>
+
+          <TabsContent value="pricing" className="mt-4">
+            <PricingGridEditor
+              scope="platform"
+              title="Grille des tarifs plateforme (TND)"
+              description="Tarifs de référence proposés aux écoles, instituts, professeurs et élèves indépendants. Les écoles peuvent ensuite définir leurs propres tarifs pour leurs élèves."
+            />
           </TabsContent>
         </Tabs>
       </div>

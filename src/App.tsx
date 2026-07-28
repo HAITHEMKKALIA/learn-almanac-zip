@@ -62,6 +62,8 @@ const PendingApproval = lazy(() => import("./pages/PendingApproval.tsx"));
 const ParentDashboard = lazy(() => import("./pages/ParentDashboard.tsx"));
 const ParentChildren = lazy(() => import("./pages/parent/ParentChildren.tsx"));
 const SchoolClassDetail = lazy(() => import("./pages/school/SchoolClassDetail.tsx"));
+const SchoolBilling = lazy(() => import("./pages/school/SchoolBilling.tsx"));
+const SoloBilling = lazy(() => import("./pages/solo-student/SoloBilling.tsx"));
 const AcademicLayout = lazy(() => import("./pages/academic/AcademicLayout.tsx"));
 const AcademicDashboard = lazy(() => import("./pages/academic/AcademicDashboard.tsx"));
 const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
@@ -140,8 +142,10 @@ const App = () => (
               <Route path="/teacher-studio/certificates" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><Certificates /></RequireAuth>} />
               <Route path="/teacher-studio/reports" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><Reports /></RequireAuth>} />
               <Route path="/teacher-studio/settings" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><TeacherStudioSettings /></RequireAuth>} />
+              <Route path="/teacher-studio/billing" element={<RequireAuth role={["teacher","super_admin"]} spaceType="independent_teacher" spaceRole="teacher"><SchoolBilling /></RequireAuth>} />
               <Route path="/solo-student" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentDashboard /></RequireAuth>} />
               <Route path="/solo-student/settings" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentSettings /></RequireAuth>} />
+              <Route path="/solo-student/billing" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloBilling /></RequireAuth>} />
               <Route path="/solo-student/path" element={<RequireAuth spaceType="independent_student" spaceRole="student"><SoloStudentDashboard /></RequireAuth>} />
               <Route path="/solo-student/kapitel" element={<RequireAuth spaceType="independent_student" spaceRole="student"><Kapitel /></RequireAuth>} />
               <Route path="/solo-student/wortschatz" element={<RequireAuth spaceType="independent_student" spaceRole="student"><Wortschatz /></RequireAuth>} />
@@ -230,6 +234,7 @@ const App = () => (
               <Route path="/school-admin/certificates" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Certificates /></RequireAuth>} />
               <Route path="/school-admin/reports" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Reports /></RequireAuth>} />
               <Route path="/school-admin/analytics" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAnalytics /></RequireAuth>} />
+              <Route path="/school-admin/billing" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolBilling /></RequireAuth>} />
               <Route path="/school-admin/settings" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Paramètres école" subtitle="Configuration générale de l'école" parentHref="/school-admin" /></RequireAuth>} />
               <Route path="/school-admin/rules" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><RolePlaceholder title="Règles école" subtitle="Règles d'absence, certificat, promotion…" parentHref="/school-admin" /></RequireAuth>} />
 

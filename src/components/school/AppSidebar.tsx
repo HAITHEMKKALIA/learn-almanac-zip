@@ -7,7 +7,7 @@ import {
   LayoutDashboard, BookOpen, GraduationCap, Users, ClipboardList, Library,
   BarChart3, MessageSquare, Settings,
   FileText, LogOut, School, Languages, NotebookPen, Sparkles, CalendarDays,
-  Award, UserCheck, Baby,
+  Award, UserCheck, Baby, CreditCard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +28,8 @@ const studentItems: Item[] = [
   { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
   { label: { fr: "Mes devoirs", de: "Meine Aufgaben", ar: "واجباتي" }, url: "/student/homework", icon: NotebookPen },
   { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
+  { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
+  { label: { fr: "Mon abonnement", de: "Mein Abo", ar: "اشتراكي" }, url: "/settings#subscription", icon: CreditCard },
   { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
@@ -45,6 +47,7 @@ const adminItems: Item[] = [
   { label: { fr: "Classes", de: "Klassen", ar: "الصفوف" }, url: "/school-admin/classes", icon: GraduationCap },
   { label: { fr: "Membres", de: "Mitglieder", ar: "الأعضاء" }, url: "/school-admin/teachers", icon: Users },
   { label: { fr: "Rapports", de: "Berichte", ar: "تقارير" }, url: "/school-admin/reports", icon: FileText },
+  { label: { fr: "Facturation", de: "Abrechnung", ar: "الفوترة" }, url: "/school-admin/billing", icon: CreditCard },
   { label: { fr: "Paramètres", de: "Einstellungen", ar: "الإعدادات" }, url: "/school-admin/settings", icon: Settings },
 ];
 
@@ -77,6 +80,7 @@ const studioItems: Item[] = [
   { label: { fr: "Mes classes privées", de: "Meine privaten Klassen", ar: "صفوفي الخاصة" }, url: "/teacher-studio/classes", icon: GraduationCap },
   { label: { fr: "Mes élèves", de: "Meine Schüler", ar: "تلاميذي" }, url: "/teacher-studio/students", icon: Users },
   { label: { fr: "Examens", de: "Prüfungen", ar: "الامتحانات" }, url: "/teacher-studio/exams", icon: ClipboardList },
+  { label: { fr: "Facturation", de: "Abrechnung", ar: "الفوترة" }, url: "/teacher-studio/billing", icon: CreditCard },
   { label: { fr: "Paramètres du studio", de: "Studio-Einstellungen", ar: "إعدادات الاستوديو" }, url: "/teacher-studio/settings", icon: Settings },
 ];
 
@@ -86,6 +90,7 @@ const soloItems: Item[] = [
   { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
   { label: { fr: "Wortschatz", de: "Wortschatz", ar: "المفردات" }, url: "/solo-student/wortschatz", icon: Sparkles },
   { label: { fr: "Mon parcours", de: "Mein Weg", ar: "مساري" }, url: "/solo-student/settings", icon: GraduationCap },
+  { label: { fr: "Mon abonnement", de: "Mein Abo", ar: "اشتراكي" }, url: "/solo-student/billing", icon: CreditCard },
 ];
 
 const groupLabels = {
