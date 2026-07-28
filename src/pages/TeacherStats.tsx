@@ -21,12 +21,19 @@ export default function TeacherStats() {
     setLoading(true);
     const { data, error } = await supabase
       .from("submissions")
-      .select("id, status, score, total, started_at, submitted_at, student_id, profiles:student_id(display_name), assignments!inner(id, title, level, teacher_id, passing_score)")
+      .select("id, status, score, total, started_at, submitted_at, student_id, assignments!inner(id, title, level, teacher_id, passing_score)")
       .eq("assignments.teacher_id", user?.id || "")
       .order("submitted_at", { ascending: false })
       .limit(500);
     if (error) toast.error(error.message);
-    setSubs(data || []);
+    const rows = data || [];
+    const ids = Array.from(new Set(rows.map((s: any) => s.student_id).filter(Boolean)));
+    let profMap: Record<string, any> = {};
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("user_id, display_name, email").in("user_id", ids);
+      (profs || []).forEach((p: any) => { profMap[p.user_id] = p; });
+    }
+    setSubs(rows.map((s: any) => ({ ...s, profiles: profMap[s.student_id] || null })));
     setLoading(false);
   })(); }, [user?.id]);
 
