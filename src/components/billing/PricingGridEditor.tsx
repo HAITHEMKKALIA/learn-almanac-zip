@@ -25,9 +25,10 @@ type Props = {
   schoolId?: string | null;
   title?: string;
   description?: string;
+  onChange?: () => void;
 };
 
-export default function PricingGridEditor({ scope, schoolId = null, title, description }: Props) {
+export default function PricingGridEditor({ scope, schoolId = null, title, description, onChange }: Props) {
   const [rows, setRows] = useState<PlanPrice[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
