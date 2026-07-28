@@ -61,6 +61,7 @@ export default function BillingAdmin() {
   const [schools, setSchools] = useState<School[]>([]);
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState<Quote | null>(null);
+  const [creatingNew, setCreatingNew] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -98,7 +99,10 @@ export default function BillingAdmin() {
             <h1 className="text-3xl font-bold mt-2">Facturation & Abonnements</h1>
             <p className="text-muted-foreground text-sm">Gestion manuelle des devis et abonnements TND.</p>
           </div>
-          <Button variant="outline" onClick={load}>Actualiser</Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setCreatingNew(true)}>+ Nouvel abonnement</Button>
+            <Button variant="outline" onClick={load}>Actualiser</Button>
+          </div>
         </div>
 
         <Tabs defaultValue="quotes">
