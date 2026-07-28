@@ -14,6 +14,7 @@ import { UserAvatar } from "@/components/school/UserAvatar";
 import { AvatarLibrary } from "@/components/school/AvatarLibrary";
 import { useI18n } from "@/lib/i18n";
 import { Switch } from "@/components/ui/switch";
+import PushToggle from "@/components/pwa/PushToggle";
 
 function MessengerToggle() {
   const { tt } = useI18n();
@@ -167,8 +168,9 @@ export default function Settings() {
             <CardTitle className="font-display flex items-center gap-2"><Bell className="h-5 w-5 text-primary"/>{tt({ fr: "Affichage", de: "Anzeige", ar: "العرض" })}</CardTitle>
             <CardDescription>{tt({ fr: "Personnaliser l'interface", de: "Oberfläche anpassen", ar: "تخصيص الواجهة" })}</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <MessengerToggle />
+            <PushToggle />
           </CardContent>
         </Card>
 
