@@ -316,6 +316,36 @@ export default function Landing() {
               {pick({ fr: "Tester un cours", de: "Kurs testen", ar: "جرّب درسًا" }, lang)}
             </Link>
           </div>
+
+          {/* QR Code — installer l'application */}
+          <div className="relative mt-10 flex flex-col items-center justify-center gap-3">
+            <div className="rounded-2xl bg-white p-4 shadow-lg shadow-black/10">
+              <QRCodeSVG
+                value="https://hkdeutschmeister.lovable.app"
+                size={160}
+                bgColor="transparent"
+                fgColor="#000000"
+                level="M"
+                includeMargin={false}
+                imageSettings={{
+                  src: "/icon-192.png",
+                  x: undefined,
+                  y: undefined,
+                  height: 32,
+                  width: 32,
+                  excavate: true,
+                }}
+              />
+            </div>
+            <p className="text-sm academy-text-muted">
+              {pick({
+                fr: "Scannez pour installer l'application sur votre mobile",
+                de: "Scannen, um die App auf Ihrem Handy zu installieren",
+                ar: "امسح لتحميل التطبيق على هاتفك",
+              }, lang)}
+            </p>
+          </div>
+
         </div>
       </section>
 
