@@ -95,21 +95,21 @@ export default function PlatformAdminLayout() {
   );
 
   return (
-    <div className="h-[100svh] flex w-full overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+    <div className="h-[100dvh] min-h-0 flex w-full overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <aside className="hidden lg:flex w-64 shrink-0 border-r border-border flex-col h-full">
 
         {SidebarInner}
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-30 flex items-center gap-2 h-14 px-3 border-b border-border bg-slate-900 text-slate-100 pt-[env(safe-area-inset-top)]">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
+        <header className="lg:hidden z-30 flex shrink-0 items-center gap-2 min-h-14 px-3 border-b border-border bg-slate-900 text-slate-100 pt-[env(safe-area-inset-top)]">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-slate-100 hover:bg-white/10">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-[min(84vw,18rem)] bg-slate-900 border-r border-white/10">
+            <SheetContent side="left" className="p-0 w-[min(84vw,18rem)] h-[100dvh] bg-slate-900 border-r border-white/10">
               {SidebarInner}
             </SheetContent>
           </Sheet>
@@ -121,8 +121,8 @@ export default function PlatformAdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto min-w-0">
-          <div key={loc.pathname} className="animate-in fade-in duration-200 min-w-0">
+        <main className="flex-1 min-h-0 min-w-0 overflow-x-hidden overflow-y-auto overscroll-contain touch-pan-y pb-[env(safe-area-inset-bottom)] [-webkit-overflow-scrolling:touch]">
+          <div key={loc.pathname} className="animate-in fade-in duration-200 min-w-0 min-h-full">
             <Outlet />
           </div>
         </main>
