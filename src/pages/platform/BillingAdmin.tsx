@@ -103,8 +103,9 @@ export default function BillingAdmin() {
 
         <Tabs defaultValue="quotes">
           <TabsList>
-            <TabsTrigger value="quotes">Demandes de devis ({quotes.filter((q) => q.status === "new").length})</TabsTrigger>
+            <TabsTrigger value="quotes">Devis ({quotes.filter((q) => q.status === "new").length})</TabsTrigger>
             <TabsTrigger value="subs">Abonnements ({subs.filter((s) => s.status === "active").length} actifs)</TabsTrigger>
+            <TabsTrigger value="pricing">Grille des tarifs</TabsTrigger>
           </TabsList>
 
           <TabsContent value="quotes" className="space-y-3 mt-4">
