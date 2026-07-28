@@ -448,7 +448,7 @@ export default function Avatar() {
   }, [report]);
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen h-screen overflow-y-auto overscroll-contain bg-background text-foreground pb-24">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-8">
         <Link
           to="/app"
