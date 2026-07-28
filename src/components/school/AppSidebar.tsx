@@ -28,7 +28,7 @@ const studentItems: Item[] = [
   { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
   { label: { fr: "Devoirs (maison)", de: "Hausaufgaben", ar: "الواجبات المنزلية" }, url: "/student/homework", icon: NotebookPen },
   { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
-  { label: { fr: "Mon abonnement", de: "Mein Abo", ar: "اشتراكي" }, url: "/settings#subscription", icon: CreditCard },
+  { label: { fr: "Mon abonnement", de: "Mein Abo", ar: "اشتراكي" }, url: "/student/billing", icon: CreditCard },
   { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
