@@ -14,6 +14,7 @@ import { UserAvatar } from "@/components/school/UserAvatar";
 import { AvatarLibrary } from "@/components/school/AvatarLibrary";
 import { useI18n } from "@/lib/i18n";
 import { Switch } from "@/components/ui/switch";
+import PushToggle from "@/components/pwa/PushToggle";
 
 function MessengerToggle() {
   const { tt } = useI18n();
