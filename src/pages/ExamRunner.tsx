@@ -135,7 +135,7 @@ export default function ExamRunner() {
   // ---- screens
   if (confirmStart) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 bg-background">
         <Card className="max-w-lg w-full">
           <CardHeader><CardTitle className="flex items-center gap-2"><Lock className="w-5 h-5 text-primary"/>{tt({ fr: "Examen surveillé", de: "Überwachte Prüfung", ar: "امتحان مراقب" })}</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
@@ -157,10 +157,10 @@ export default function ExamRunner() {
     );
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">{tt({ fr: "Chargement…", de: "Wird geladen…", ar: "جارٍ التحميل…" })}</div>;
+  if (loading) return <div className="min-h-[100dvh] flex items-center justify-center">{tt({ fr: "Chargement…", de: "Wird geladen…", ar: "جارٍ التحميل…" })}</div>;
   if (error) return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <Card className="max-w-md"><CardContent className="p-6 space-y-3">
+    <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6">
+      <Card className="max-w-md w-full"><CardContent className="p-6 space-y-3">
         <div className="flex items-center gap-2 text-destructive"><AlertTriangle className="w-5 h-5"/><b>{tt({ fr: "Impossible de démarrer", de: "Start nicht möglich", ar: "تعذّر البدء" })}</b></div>
         <p className="text-sm text-muted-foreground">{error}</p>
         <Button onClick={() => navigate("/student")}>{tt({ fr: "Retour", de: "Zurück", ar: "رجوع" })}</Button>
@@ -171,7 +171,7 @@ export default function ExamRunner() {
   if (done) {
     const pct = done.total ? Math.round((done.score / done.total) * 100) : 0;
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+      <div className="min-h-[100dvh] flex items-center justify-center p-4 sm:p-6 bg-background">
         <Card className="max-w-md w-full">
           <CardHeader><CardTitle>{tt({ fr: "Examen terminé ✓", de: "Prüfung beendet ✓", ar: "انتهى الامتحان ✓" })}</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-center">
@@ -192,23 +192,23 @@ export default function ExamRunner() {
   const answered = Object.values(answers).filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-background select-none" onCopy={e=>e.preventDefault()}>
-      <header className="sticky top-0 z-10 border-b bg-card p-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Lock className="w-4 h-4 text-primary"/>
-          <span className="font-semibold text-sm">{assignment?.title}</span>
-          <Badge variant="outline">{assignment?.level}</Badge>
+    <div className="min-h-[100dvh] bg-background select-none pb-[env(safe-area-inset-bottom)]" onCopy={e=>e.preventDefault()}>
+      <header className="sticky top-0 z-10 border-b bg-card px-2 sm:px-3 py-2 flex items-center justify-between gap-2 pt-[calc(0.5rem+env(safe-area-inset-top))]">
+        <div className="flex items-center gap-2 min-w-0">
+          <Lock className="w-4 h-4 text-primary shrink-0"/>
+          <span className="font-semibold text-xs sm:text-sm truncate">{assignment?.title}</span>
+          <Badge variant="outline" className="hidden sm:inline-flex">{assignment?.level}</Badge>
         </div>
-        <div className="flex items-center gap-3">
-          {violations > 0 && <Badge variant="destructive">⚠ {violations}</Badge>}
-          <div className={`flex items-center gap-1 font-mono text-lg ${remaining < 60 ? "text-destructive animate-pulse" : ""}`}>
+        <div className="flex items-center gap-2 shrink-0">
+          {violations > 0 && <Badge variant="destructive" className="text-xs">⚠ {violations}</Badge>}
+          <div className={`flex items-center gap-1 font-mono text-base sm:text-lg ${remaining < 60 ? "text-destructive animate-pulse" : ""}`}>
             <Clock className="w-4 h-4"/>{fmt(remaining)}
           </div>
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto p-4 space-y-4">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
+      <div className="max-w-3xl mx-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+        <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
           <span>{tt({ fr: "Question", de: "Frage", ar: "سؤال" })} {idx + 1} / {questions.length}</span>
           <span>{answered} {tt({ fr: "répondu(es)", de: "beantwortet", ar: "تمت الإجابة" })}</span>
         </div>
@@ -260,20 +260,20 @@ export default function ExamRunner() {
         </Card>
 
         <div className="flex items-center justify-between gap-2">
-          <Button variant="outline" disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>← {tt({ fr: "Précédent", de: "Zurück", ar: "السابق" })}</Button>
+          <Button size="sm" variant="outline" disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>← {tt({ fr: "Précédent", de: "Zurück", ar: "السابق" })}</Button>
           {idx < questions.length - 1 ? (
-            <Button onClick={() => setIdx(i => i + 1)}>{tt({ fr: "Suivant", de: "Weiter", ar: "التالي" })} →</Button>
+            <Button size="sm" onClick={() => setIdx(i => i + 1)}>{tt({ fr: "Suivant", de: "Weiter", ar: "التالي" })} →</Button>
           ) : (
-            <Button onClick={() => doSubmit(false)} disabled={submitting} className="bg-primary">
-              <Send className="w-4 h-4 mr-1"/>{submitting ? tt({ fr: "Envoi…", de: "Senden…", ar: "إرسال…" }) : tt({ fr: "Terminer l'examen", de: "Prüfung beenden", ar: "إنهاء الامتحان" })}
+            <Button size="sm" onClick={() => doSubmit(false)} disabled={submitting} className="bg-primary">
+              <Send className="w-4 h-4 mr-1"/>{submitting ? tt({ fr: "Envoi…", de: "Senden…", ar: "إرسال…" }) : tt({ fr: "Terminer", de: "Beenden", ar: "إنهاء" })}
             </Button>
           )}
         </div>
 
-        <div className="grid grid-cols-10 gap-1 pt-2">
+        <div className="grid grid-cols-6 sm:grid-cols-10 gap-1 pt-2">
           {questions.map((qq, i) => (
             <button key={qq.id} onClick={() => setIdx(i)}
-                    className={`h-8 rounded text-xs font-mono ${i === idx ? "bg-primary text-primary-foreground" : answers[qq.id] ? "bg-secondary" : "bg-muted"}`}>
+                    className={`h-9 sm:h-8 rounded text-xs font-mono ${i === idx ? "bg-primary text-primary-foreground" : answers[qq.id] ? "bg-secondary" : "bg-muted"}`}>
               {i + 1}
             </button>
           ))}

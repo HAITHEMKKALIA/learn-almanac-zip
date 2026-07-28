@@ -203,7 +203,7 @@ export default function StudentHomework() {
       )}
 
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl w-[calc(100vw-1rem)] max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader><DialogTitle>{active?.title}</DialogTitle></DialogHeader>
           {active && (
             <div className="space-y-3">
