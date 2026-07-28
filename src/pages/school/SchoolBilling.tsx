@@ -92,7 +92,7 @@ export default function SchoolBilling() {
           </Card>
         </div>
 
-        <Tabs defaultValue="grid">
+        <Tabs defaultValue="grid" onValueChange={(v) => { if (v === "students") load(); }}>
           <TabsList>
             <TabsTrigger value="grid">Grille de prix</TabsTrigger>
             <TabsTrigger value="students">Abonnements élèves ({subs.filter(s => s.status === "active").length}/{students.length})</TabsTrigger>
@@ -104,6 +104,7 @@ export default function SchoolBilling() {
               schoolId={schoolId}
               title="Grille des tarifs de votre école (TND)"
               description="Vous pouvez ajouter, modifier ou désactiver des plans à volonté. Ces tarifs seront utilisés pour créer les abonnements des élèves."
+              onChange={load}
             />
           </TabsContent>
 
