@@ -35,6 +35,7 @@ const studentItems: Item[] = [
 const teacherItems: Item[] = [
   { label: { fr: "Tableau de bord", de: "Übersicht", ar: "لوحة التحكم" }, url: "/teacher", icon: LayoutDashboard },
   { label: { fr: "Mes classes", de: "Meine Klassen", ar: "صفوفي" }, url: "/teacher/classes", icon: Users },
+  { label: { fr: "Mes élèves", de: "Meine Schüler", ar: "تلاميذي" }, url: "/teacher/students", icon: GraduationCap },
   { label: { fr: "Devoirs (maison)", de: "Hausaufgaben", ar: "الواجبات المنزلية" }, url: "/teacher/homework", icon: NotebookPen },
   { label: { fr: "Examens", de: "Prüfungen", ar: "الامتحانات" }, url: "/teacher/assignments", icon: ClipboardList },
   { label: { fr: "Banque de questions", de: "Fragenbank", ar: "بنك الأسئلة" }, url: "/teacher/bank", icon: Library },
