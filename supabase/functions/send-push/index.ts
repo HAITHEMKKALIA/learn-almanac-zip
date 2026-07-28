@@ -42,8 +42,8 @@ Deno.serve(async (req) => {
     const notif = {
       title: payload.title ?? 'Deutsch Meister',
       body: payload.body ?? '',
-      icon: payload.icon ?? '/icons/icon-192.png',
-      badge: payload.badge ?? '/icons/icon-192.png',
+      icon: payload.icon ?? '/icon-192.png',
+      badge: payload.badge ?? '/icon-192.png',
       image: payload.image,
       sound: payload.sound ?? '/sounds/notify.mp3',
       tag: payload.type ?? 'default',

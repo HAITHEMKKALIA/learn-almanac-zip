@@ -11,8 +11,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Deutsch Meister';
   const options = {
     body: data.body || '',
-    icon: data.icon || '/icons/icon-192.png',
-    badge: data.badge || '/icons/icon-192.png',
+    icon: data.icon || '/icon-192.png',
+    badge: data.badge || '/icon-192.png',
     image: data.image || undefined,
     tag: data.tag || 'default',
     data: data.data || {},
