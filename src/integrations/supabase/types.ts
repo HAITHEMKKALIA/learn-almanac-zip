@@ -3874,6 +3874,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      send_notification: {
+        Args: {
+          _body?: string
+          _link?: string
+          _metadata?: Json
+          _title: string
+          _type: string
+          _user_ids: string[]
+        }
+        Returns: number
+      }
       student_can_access_questions: {
         Args: { _assignment_id: string; _user_id: string }
         Returns: boolean
