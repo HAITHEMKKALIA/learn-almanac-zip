@@ -316,7 +316,28 @@
   input, textarea, [contenteditable] { user-select: text; }
 }
 
-/* Small phones extra tightening */
+/* Landscape on short screens (phones held sideways): compact chrome */
+@media (orientation: landscape) and (max-height: 500px) {
+  header.sticky, .role-header-tint { padding-top: 0.35rem !important; padding-bottom: 0.35rem !important; }
+  main { padding-top: 0.5rem !important; padding-bottom: 0.75rem !important; }
+  h1 { font-size: 1.1rem !important; }
+  .hide-on-landscape { display: none !important; }
+}
+
+/* Portrait phones: give bottom padding for install banner + safe area */
+@media (orientation: portrait) and (max-width: 640px) {
+  main { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem) !important; }
+}
+
+/* Tablet ranges */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .container { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+}
+
+/* Force GPU compositing on animated overlays (reduces jank on mid-range Androids) */
+[data-role-theme] .role-ambient,
+[role="dialog"].fixed { will-change: transform, opacity; transform: translateZ(0); }
+
 @media (max-width: 380px) {
   .container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
   h1 { font-size: 1.15rem !important; }
