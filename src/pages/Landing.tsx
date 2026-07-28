@@ -222,6 +222,30 @@ export default function Landing() {
                 <div className="rounded-lg bg-white/5 p-2"><div className="academy-text-muted">Profs</div><div className="font-semibold">18</div></div>
                 <div className="rounded-lg bg-white/5 p-2"><div className="academy-text-muted">Présence</div><div className="font-semibold">94%</div></div>
               </div>
+
+              <div className="flex items-center gap-4 rounded-xl bg-white/5 border border-white/10 p-3">
+                <div className="rounded-lg bg-white p-2 shadow-sm">
+                  <QRCodeSVG
+                    value="https://hkdeutschmeister.lovable.app"
+                    size={64}
+                    bgColor="transparent"
+                    fgColor="#000000"
+                    level="M"
+                    includeMargin={false}
+                  />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="text-xs font-medium academy-text-primary">Installer l'application</div>
+                  <div className="text-[10px] academy-text-muted">
+                    {pick({
+                      fr: "Scannez pour ouvrir Deutsch Meister sur mobile",
+                      de: "Scannen, um Deutsch Meister mobil zu öffnen",
+                      ar: "امسح لفتح دويتش مايستر على الجوال",
+                    }, lang)}
+                  </div>
+                </div>
+              </div>
+
             </AcademyGlassPanel>
           </motion.div>
         </div>
