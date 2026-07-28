@@ -357,8 +357,8 @@
 }
 
 /* Force GPU compositing on animated overlays (reduces jank on mid-range Androids) */
-[data-role-theme] .role-ambient,
-[role="dialog"].fixed { will-change: transform, opacity; transform: translateZ(0); }
+[data-role-theme] .role-ambient { will-change: transform, opacity; transform: translateZ(0); }
+/* Do NOT override [role=dialog] transform: it breaks Radix Dialog centering (translate -50%,-50%). */
 
 @media (max-width: 380px) {
   .container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
