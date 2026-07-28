@@ -3,6 +3,8 @@
 // Conserve i18n FR/DE/AR, n'altère aucune route, additif.
 import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
+import { PageSeo } from "@/components/seo/PageSeo";
+
 
 
 import { useEffect, useState } from "react";
@@ -88,6 +90,11 @@ export default function Landing() {
 
   return (
     <div dir={lang === "ar" ? "rtl" : "ltr"} className="academy-bg min-h-dvh academy-text-primary overflow-x-hidden">
+      <PageSeo
+        path="/"
+        title="Deutsch Meister — Académie d'allemand A1 à B2 en ligne"
+        description="Plateforme SaaS multi-écoles pour apprendre l'allemand de A1 à B2 : cours interactifs, professeur IA, examens, certificats et espaces école, professeur et élève."
+      />
       {/* Cinematic intro overlay */}
       {!introDone && (
         <motion.div
@@ -158,7 +165,7 @@ export default function Landing() {
             <motion.h1 variants={slideUp}
               className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] text-balance">
               <span className="bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-[hsl(var(--academy-accent))]">
-                {pick(T.heroTitle, lang)}
+                {pick(T.heroTitle, lang)} — {pick({ fr: "L'académie cinématique pour l'allemand A1 à B2", de: "Die cineastische Akademie für Deutsch A1 bis B2", ar: "الأكاديمية السينمائية للألمانية من A1 إلى B2" }, lang)}
               </span>
             </motion.h1>
             <motion.p variants={slideUp} className="text-lg md:text-xl academy-text-muted max-w-xl text-balance">
