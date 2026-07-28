@@ -28,6 +28,8 @@ const studentItems: Item[] = [
   { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
   { label: { fr: "Mes devoirs", de: "Meine Aufgaben", ar: "واجباتي" }, url: "/student/homework", icon: NotebookPen },
   { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
+  { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
+  { label: { fr: "Mon abonnement", de: "Mein Abo", ar: "اشتراكي" }, url: "/settings#subscription", icon: CreditCard },
   { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
 ];
 
