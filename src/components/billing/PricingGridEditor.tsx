@@ -94,6 +94,7 @@ export default function PricingGridEditor({ scope, schoolId = null, title, descr
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((rs) => [...rs, data as PlanPrice]);
+    onChange?.();
   };
 
   return (
