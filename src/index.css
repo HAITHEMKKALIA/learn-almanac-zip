@@ -302,6 +302,24 @@
   .hide-on-mobile { display: none !important; }
 }
 @supports (padding: env(safe-area-inset-bottom)) {
-  body { padding-bottom: env(safe-area-inset-bottom); }
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
 }
+
+/* Standalone (installed PWA) tweaks */
+@media (display-mode: standalone) {
+  html, body { overscroll-behavior-y: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  input, textarea, [contenteditable] { user-select: text; }
+}
+
+/* Small phones extra tightening */
+@media (max-width: 380px) {
+  .container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+  h1 { font-size: 1.15rem !important; }
+}
+
 
