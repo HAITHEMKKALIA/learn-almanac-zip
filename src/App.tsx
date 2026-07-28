@@ -186,6 +186,7 @@ const App = () => (
               <Route path="/teacher/messages" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><Messages /></RequireAuth>} />
               <Route path="/teacher/calendar" element={<RequireAuth role={["teacher","examiner","staff","super_admin"]} spaceType="school" spaceRole={["teacher","examiner","staff"]}><CalendarPage /></RequireAuth>} />
               <Route path="/student/homework" element={<RequireAuth spaceType="school" spaceRole="student"><StudentHomework /></RequireAuth>} />
+              <Route path="/student/billing" element={<RequireAuth spaceType="school" spaceRole="student"><StudentBilling /></RequireAuth>} />
               <Route path="/student/path" element={<RequireAuth spaceType="school" spaceRole="student"><StudentDashboard /></RequireAuth>} />
               <Route path="/student/courses" element={<RequireAuth spaceType="school" spaceRole="student"><Kapitel /></RequireAuth>} />
               <Route path="/student/revisions" element={<RequireAuth spaceType="school" spaceRole="student"><RolePlaceholder title="Mes révisions" subtitle="Révisions personnalisées" parentHref="/student" parentLabel="Mon espace" /></RequireAuth>} />
