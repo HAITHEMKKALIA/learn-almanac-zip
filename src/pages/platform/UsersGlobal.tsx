@@ -29,8 +29,29 @@ export default function UsersGlobal({ role }: { role: "teacher" | "student"; tit
   useEffect(() => {
     (async () => {
       const sb = supabase as any;
-      const { data: ur } = await sb.from("user_roles").select("user_id").eq("role", role);
-      setRoleIds(Array.from(new Set((ur || []).map((r: any) => r.user_id as string))));
+      // Fetch all roles per user so we can exclude accounts that cumulate elevated roles.
+      const { data: allRoles } = await sb.from("user_roles").select("user_id, role");
+      const byUser = new Map<string, string[]>();
+      (allRoles || []).forEach((r: any) => {
+        const arr = byUser.get(r.user_id) || [];
+        arr.push(r.role);
+        byUser.set(r.user_id, arr);
+      });
+      // "student" list = only pure students (no teacher/admin/staff role).
+      // "teacher" list = teachers/examiners/coordinators without super_admin.
+      const ELEVATED = new Set([
+        "super_admin", "admin", "school_admin", "academic_director",
+        "pedagogical_coordinator", "examiner", "teacher", "staff",
+      ]);
+      const filtered: string[] = [];
+      byUser.forEach((roles, uid) => {
+        if (role === "student") {
+          if (roles.includes("student") && !roles.some((r) => ELEVATED.has(r))) filtered.push(uid);
+        } else {
+          if (roles.includes("teacher") && !roles.includes("super_admin")) filtered.push(uid);
+        }
+      });
+      setRoleIds(filtered);
       setPage(0);
     })();
   }, [role]);
