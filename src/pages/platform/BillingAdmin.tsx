@@ -194,7 +194,133 @@ export default function BillingAdmin() {
           onClose={(reload) => { setActivating(null); if (reload) load(); }}
         />
       )}
+
+      {creatingNew && (
+        <NewSubDialog
+          schools={schools}
+          onClose={(reload) => { setCreatingNew(false); if (reload) load(); }}
+        />
+      )}
     </div>
+  );
+}
+
+function NewSubDialog({ schools, onClose }: { schools: School[]; onClose: (r?: boolean) => void }) {
+  const [schoolId, setSchoolId] = useState<string>("");
+  const [plans, setPlans] = useState<{ id: string; plan_code: string; label: string; price_tnd: number; billing_period_months: number }[]>([]);
+  const [planId, setPlanId] = useState<string>("");
+  const [price, setPrice] = useState("0");
+  const [months, setMonths] = useState("12");
+  const [method, setMethod] = useState("virement");
+  const [invoice, setInvoice] = useState("");
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("plan_prices")
+        .select("id,plan_code,label,price_tnd,billing_period_months")
+        .eq("scope", "platform")
+        .eq("active", true)
+        .order("sort_order");
+      setPlans((data ?? []) as any);
+    })();
+  }, []);
+
+  const pickPlan = (id: string) => {
+    setPlanId(id);
+    const p = plans.find((x) => x.id === id);
+    if (p) { setPrice(String(p.price_tnd)); setMonths(String(p.billing_period_months)); }
+  };
+
+  const submit = async () => {
+    if (!schoolId) return toast({ title: "Sélectionnez une école", variant: "destructive" });
+    const plan = plans.find((p) => p.id === planId);
+    if (!plan) return toast({ title: "Sélectionnez un plan", variant: "destructive" });
+    setSaving(true);
+    const starts = new Date();
+    const ends = new Date();
+    ends.setMonth(ends.getMonth() + parseInt(months || "1", 10));
+    const { error } = await supabase.from("subscriptions").insert({
+      school_id: schoolId,
+      plan: plan.plan_code,
+      price_tnd: parseFloat(price),
+      status: "active",
+      starts_at: starts.toISOString().slice(0, 10),
+      ends_at: ends.toISOString().slice(0, 10),
+      paid_at: new Date().toISOString(),
+      payment_method: method,
+      invoice_number: invoice || null,
+      notes: notes || null,
+    });
+    setSaving(false);
+    if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    toast({ title: "Abonnement créé ✓" });
+    onClose(true);
+  };
+
+  return (
+    <Dialog open onOpenChange={() => onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader><DialogTitle>Nouvel abonnement</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label>École / Studio</Label>
+            <Select value={schoolId} onValueChange={setSchoolId}>
+              <SelectTrigger><SelectValue placeholder="Choisir une école" /></SelectTrigger>
+              <SelectContent>
+                {schools.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Plan (grille plateforme)</Label>
+            <Select value={planId} onValueChange={pickPlan}>
+              <SelectTrigger><SelectValue placeholder="Choisir un plan" /></SelectTrigger>
+              <SelectContent>
+                {plans.map((p) => <SelectItem key={p.id} value={p.id}>{p.label} — {p.price_tnd} TND / {p.billing_period_months} mois</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Prix (TND)</Label>
+              <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="text-foreground" />
+            </div>
+            <div>
+              <Label>Durée (mois)</Label>
+              <Input type="number" min="1" value={months} onChange={(e) => setMonths(e.target.value)} className="text-foreground" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Mode paiement</Label>
+              <Select value={method} onValueChange={setMethod}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="virement">Virement</SelectItem>
+                  <SelectItem value="cheque">Chèque</SelectItem>
+                  <SelectItem value="especes">Espèces</SelectItem>
+                  <SelectItem value="carte">Carte</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>N° facture</Label>
+              <Input value={invoice} onChange={(e) => setInvoice(e.target.value)} className="text-foreground" />
+            </div>
+          </div>
+          <div>
+            <Label>Notes</Label>
+            <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} className="text-foreground" />
+          </div>
+          <Button onClick={submit} disabled={saving} className="w-full">
+            {saving ? "Création…" : "Créer l'abonnement"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
