@@ -93,6 +93,8 @@ const Avatar = lazy(() => import("./pages/Avatar.tsx"));
 const AIAvatar = lazy(() =>
   import("./components/AIAvatar.tsx").then((module) => ({ default: module.AIAvatar })),
 );
+const Diagnostics = lazy(() => import("./pages/Diagnostics.tsx"));
+
 
 const PageFallback = () => (
   <div className="grid min-h-screen place-items-center bg-background text-sm text-muted-foreground">
@@ -124,6 +126,8 @@ const App = () => (
               <Route path="/verify/:number" element={<VerifyCertificate />} />
               <Route path="/pending-approval" element={<PendingApproval />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/diagnostics" element={<Diagnostics />} />
+
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/legal-consent" element={<RequireAuth requireLegal={false}><LegalConsent /></RequireAuth>} />

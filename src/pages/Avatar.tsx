@@ -60,6 +60,7 @@ import {
   validateGlbHeader,
 } from "@/features/avatar/avatar-utils";
 import { AvatarChat } from "@/features/avatar/AvatarChat";
+import { useWebGLQuality } from "@/hooks/useWebGLQuality";
 
 const DEFAULT_MODEL_URL = "/models/avatar-aurelia.glb";
 const DEFAULT_MODEL_NAME = "Aurélia — professeure virtuelle originale";
@@ -185,6 +186,7 @@ function reportLabel(report: AvatarMappingReport | null): string {
 }
 
 export default function Avatar() {
+  const gpu = useWebGLQuality();
   const [modelUrl, setModelUrl] = useState(DEFAULT_MODEL_URL);
   const [modelName, setModelName] = useState(DEFAULT_MODEL_NAME);
   const [modelSize, setModelSize] = useState<number | null>(null);
@@ -497,9 +499,10 @@ export default function Avatar() {
           >
             <Canvas
               camera={{ position: [0, 0.2, 4.4], fov: 32 }}
-              dpr={[1, 1.5]}
-              shadows
-              gl={{ antialias: true, powerPreference: "high-performance" }}
+              dpr={gpu.dpr}
+              shadows={!gpu.lowPower}
+              frameloop={gpu.lowPower ? "demand" : "always"}
+              gl={{ antialias: gpu.antialias, powerPreference: gpu.lowPower ? "low-power" : "high-performance", failIfMajorPerformanceCaveat: false, preserveDrawingBuffer: false }}
               onCreated={({ gl }) => {
                 const canvas = gl.domElement;
                 const handleLost = (e: Event) => {
