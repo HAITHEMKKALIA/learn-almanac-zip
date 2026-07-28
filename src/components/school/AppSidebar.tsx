@@ -26,8 +26,7 @@ const studentItems: Item[] = [
   { label: { fr: "Tableau de bord", de: "Übersicht", ar: "لوحة التحكم" }, url: "/student", icon: LayoutDashboard },
   { label: { fr: "Apprendre", de: "Lernen", ar: "تعلّم" }, url: "/learn", icon: BookOpen },
   { label: { fr: "Professeur IA", de: "KI-Lehrer", ar: "الأستاذ الذكي" }, url: "/avatar", icon: Sparkles },
-  { label: { fr: "Mes devoirs", de: "Meine Aufgaben", ar: "واجباتي" }, url: "/student/homework", icon: NotebookPen },
-  { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
+  { label: { fr: "Devoirs (maison)", de: "Hausaufgaben", ar: "الواجبات المنزلية" }, url: "/student/homework", icon: NotebookPen },
   { label: { fr: "Mes examens", de: "Meine Prüfungen", ar: "امتحاناتي" }, url: "/student#assignments", icon: ClipboardList },
   { label: { fr: "Mon abonnement", de: "Mein Abo", ar: "اشتراكي" }, url: "/settings#subscription", icon: CreditCard },
   { label: { fr: "Mon profil", de: "Mein Profil", ar: "ملفي" }, url: "/settings", icon: Settings },
@@ -193,7 +192,9 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="overflow-hidden">
               <div className="font-display font-bold text-sidebar-foreground leading-tight">Deutsch Meister</div>
-              <div className="text-[10px] text-sidebar-foreground/60 uppercase tracking-wider">{pick(subtitleTr, lang)}</div>
+              <div className="text-[10px] text-sidebar-foreground/60 uppercase tracking-wider truncate">
+                {pick(subtitleTr, lang)}{activeSchool?.name ? ` · ${activeSchool.name}` : ""}
+              </div>
               {roleLabel && (
                 <div className="mt-1 inline-flex items-center gap-1 text-[9px] text-sidebar-primary font-semibold uppercase tracking-wider">
                   <UserCheck className="h-3 w-3" />
