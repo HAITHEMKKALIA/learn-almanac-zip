@@ -93,6 +93,8 @@ const Avatar = lazy(() => import("./pages/Avatar.tsx"));
 const AIAvatar = lazy(() =>
   import("./components/AIAvatar.tsx").then((module) => ({ default: module.AIAvatar })),
 );
+const Diagnostics = lazy(() => import("./pages/Diagnostics.tsx"));
+
 
 const PageFallback = () => (
   <div className="grid min-h-screen place-items-center bg-background text-sm text-muted-foreground">
