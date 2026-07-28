@@ -275,7 +275,7 @@ export default function TeacherHomework() {
 
       {/* Create/edit */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl w-[calc(100vw-1rem)] max-h-[90dvh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>{edit?.id ? tt({ fr: "Modifier", de: "Bearbeiten", ar: "تعديل" }) : tt({ fr: "Nouveau devoir", de: "Neue Hausaufgabe", ar: "واجب جديد" })}</DialogTitle>
           </DialogHeader>
