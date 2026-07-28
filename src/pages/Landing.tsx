@@ -1,7 +1,9 @@
 // Deutsch Meister — Cinematic Academy UI · Landing 2026
 // Premium dark hero + role sections + A1→B2 timeline + final CTA.
 // Conserve i18n FR/DE/AR, n'altère aucune route, additif.
+import { Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
+
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
