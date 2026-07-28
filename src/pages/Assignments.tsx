@@ -122,16 +122,16 @@ export default function AssignmentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-[100dvh] bg-background p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
       <AcademyMotionPage>
         <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="min-w-0">
             <Link to="/teacher" className="text-sm text-muted-foreground hover:underline flex items-center gap-1"><ArrowLeft className="w-3 h-3 rtl:rotate-180"/>{tt({ fr: "Retour", de: "Zurück", ar: "رجوع" })}</Link>
-            <h1 className="font-display text-3xl font-bold mt-1">📝 {tt({ fr: "Devoirs & examens", de: "Aufgaben & Prüfungen", ar: "الواجبات والامتحانات" })}</h1>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold mt-1 truncate">📝 {tt({ fr: "Devoirs & examens", de: "Aufgaben & Prüfungen", ar: "الواجبات والامتحانات" })}</h1>
           </div>
-          <Button onClick={startNew} className="bg-gradient-warm text-white border-0"><Plus className="w-4 h-4 me-2"/>{tt({ fr: "Nouveau devoir", de: "Neue Aufgabe", ar: "واجب جديد" })}</Button>
+          <Button onClick={startNew} className="bg-gradient-warm text-white border-0 w-full sm:w-auto"><Plus className="w-4 h-4 me-2"/>{tt({ fr: "Nouveau devoir", de: "Neue Aufgabe", ar: "واجب جديد" })}</Button>
         </div>
 
         <Card>
