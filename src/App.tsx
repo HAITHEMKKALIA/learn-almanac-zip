@@ -283,6 +283,7 @@ const App = () => (
                 <Route path="audit" element={<AuditLogs />} />
                 <Route path="settings" element={<PlatformSettings />} />
                 <Route path="billing" element={<BillingAdmin />} />
+                <Route path="transactions" element={<PlatformTransactions />} />
                 <Route path="gdpr" element={<GdprAdmin />} />
 
                 <Route path="content" element={<RolePlaceholder title="Contenu officiel" subtitle="Bibliothèque pédagogique globale" parentHref="/platform-admin" parentLabel="Super Admin" />} />
