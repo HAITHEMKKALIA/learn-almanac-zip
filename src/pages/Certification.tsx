@@ -16,11 +16,17 @@ import { useI18n } from "@/lib/i18n";
 import { buildCertificatePdf, computeMention } from "@/lib/certificatePdf";
 
 type EligibleStudent = {
+  validation_id: string;
   student_id: string;
   student_name: string;
   student_email: string | null;
   avg_score: number;
   last_session_date: string | null;
+  teacher_name: string | null;
+  val_mention: string;
+  val_sub_level_id: string | null;
+  val_sub_level_code: string | null;
+  val_sub_level_name: string | null;
 };
 
 type SubLevel = { id: string; code: string; name: string };
@@ -100,61 +106,39 @@ export default function Certification() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load eligible students for the school + score threshold
+  // Load candidates from teacher validations (status = 'pending')
   const loadCandidates = async () => {
     if (!activeSchoolId) return;
     setLoadingCandidates(true);
     try {
-      // 1) All students of the school via school_members
-      const { data: members } = await (supabase as any)
-        .from("school_members")
-        .select("user_id, profiles:user_id(display_name, email)")
+      const { data, error } = await (supabase as any)
+        .from("student_success_validations")
+        .select(`
+          id, student_id, score, mention, validated_at, sub_level_id,
+          profiles:student_id(display_name, email),
+          teacher:teacher_id(display_name, email),
+          sub_levels:sub_level_id(id, code, name)
+        `)
         .eq("school_id", activeSchoolId)
-        .eq("role", "student")
-        .eq("status", "approved");
+        .eq("status", "pending")
+        .order("validated_at", { ascending: false });
+      if (error) throw error;
 
-      const studentIds: string[] = (members || []).map((m: any) => m.user_id);
-      if (studentIds.length === 0) {
-        setCandidates([]);
-        return;
-      }
-      const nameMap: Record<string, { name: string; email: string | null }> = {};
-      (members || []).forEach((m: any) => {
-        nameMap[m.user_id] = {
-          name: m.profiles?.display_name || m.profiles?.email || m.user_id.slice(0, 8),
-          email: m.profiles?.email ?? null,
-        };
-      });
-
-      // 2) Their released/graded submissions in this school (via assignments->classes->school_id)
-      const { data: subs } = await (supabase as any)
-        .from("submissions")
-        .select("student_id, score, total, submitted_at, released_at, status, assignments!inner(class_id, classes!inner(school_id))")
-        .in("student_id", studentIds)
-        .in("status", ["graded", "submitted"])
-        .not("score", "is", null)
-        .eq("assignments.classes.school_id", activeSchoolId);
-
-      const agg: Record<string, { sum: number; n: number; last: string | null }> = {};
-      (subs || []).forEach((s: any) => {
-        const pct = s.total ? (s.score / s.total) * 100 : s.score;
-        const cur = agg[s.student_id] || { sum: 0, n: 0, last: null };
-        cur.sum += pct; cur.n += 1;
-        const when = s.submitted_at || s.released_at;
-        if (when && (!cur.last || when > cur.last)) cur.last = when;
-        agg[s.student_id] = cur;
-      });
-
-      const rows: EligibleStudent[] = Object.entries(agg)
-        .map(([id, v]) => ({
-          student_id: id,
-          student_name: nameMap[id]?.name || id.slice(0, 8),
-          student_email: nameMap[id]?.email ?? null,
-          avg_score: Math.round((v.sum / v.n) * 10) / 10,
-          last_session_date: v.last,
-        }))
-        .filter((r) => r.avg_score >= minScore)
-        .sort((a, b) => b.avg_score - a.avg_score);
+      const rows: EligibleStudent[] = (data || [])
+        .filter((r: any) => Number(r.score) >= minScore)
+        .map((r: any) => ({
+          validation_id: r.id,
+          student_id: r.student_id,
+          student_name: r.profiles?.display_name || r.profiles?.email || r.student_id.slice(0, 8),
+          student_email: r.profiles?.email ?? null,
+          avg_score: Number(r.score),
+          last_session_date: r.validated_at,
+          teacher_name: r.teacher?.display_name || r.teacher?.email || null,
+          val_mention: r.mention,
+          val_sub_level_id: r.sub_levels?.id ?? r.sub_level_id ?? null,
+          val_sub_level_code: r.sub_levels?.code ?? null,
+          val_sub_level_name: r.sub_levels?.name ?? null,
+        }));
 
       setCandidates(rows);
       setSelected({});
@@ -204,21 +188,23 @@ export default function Certification() {
   const selectedCount = Object.values(selected).filter(Boolean).length;
   const toggleAll = (v: boolean) => {
     const next: Record<string, boolean> = {};
-    candidates.forEach((c) => (next[c.student_id] = v));
+    candidates.forEach((c) => (next[c.validation_id] = v));
     setSelected(next);
   };
 
   async function generateOne(student: EligibleStudent): Promise<void> {
-    const subLvl = subLevels.find((s) => s.id === subLevelId);
+    // Use validation's sub-level when set, otherwise fall back to page default
+    const effectiveSubLevelId = student.val_sub_level_id || subLevelId;
+    const subLvl = subLevels.find((s) => s.id === effectiveSubLevelId);
     if (!subLvl) throw new Error("sub-level required");
     const score = Math.round(student.avg_score);
-    const mention = computeMention(score);
+    const mention = student.val_mention || computeMention(score);
 
     // 1) Issue via RPC (creates row + number)
     const { data: certId, error } = await (supabase as any).rpc("issue_certificate", {
       _student_id: student.student_id,
       _school_id: activeSchoolId,
-      _sub_level_id: subLevelId,
+      _sub_level_id: effectiveSubLevelId,
       _final_score: score,
       _class_id: null,
       _mention: mention,
@@ -244,11 +230,11 @@ export default function Certification() {
       issuedAt,
       sessionDate,
       directorName,
-      teacherName,
+      teacherName: teacherName || student.teacher_name || "",
       city,
     });
 
-    // 4) Upload to storage (path: <schoolId>/<certId>.pdf)
+    // 4) Upload to storage
     const path = `${activeSchoolId}/${certId}.pdf`;
     const { error: upErr } = await supabase.storage.from("certificates").upload(path, pdfBlob, {
       upsert: true,
@@ -256,16 +242,22 @@ export default function Certification() {
     });
     if (upErr) throw upErr;
 
-    // 5) Update the certificate row with pdf_url (storage path)
+    // 5) Update the certificate row with pdf_url
     await (supabase as any).from("certificates").update({ pdf_url: path }).eq("id", certId);
+
+    // 6) Mark validation as issued
+    await (supabase as any)
+      .from("student_success_validations")
+      .update({ status: "issued", certificate_id: certId })
+      .eq("id", student.validation_id);
   }
 
   async function generateSelected() {
-    if (!activeSchoolId || !subLevelId) {
-      toast.error(tt({ fr: "Sélectionnez un niveau", de: "Niveau wählen", ar: "اختر مستوى" }));
+    if (!activeSchoolId) {
+      toast.error(tt({ fr: "École introuvable", de: "Schule fehlt", ar: "المدرسة مفقودة" }));
       return;
     }
-    const targets = candidates.filter((c) => selected[c.student_id]);
+    const targets = candidates.filter((c) => selected[c.validation_id]);
     if (targets.length === 0) {
       toast.error(tt({ fr: "Aucun élève sélectionné", de: "Kein Schüler ausgewählt", ar: "لم يتم اختيار أي طالب" }));
       return;
@@ -317,9 +309,16 @@ export default function Certification() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="rounded-md border border-amber-200 bg-amber-50 text-amber-900 text-xs p-2">
+              {tt({
+                fr: "Seuls les élèves validés « réussis » par leur professeur apparaissent ici.",
+                de: "Nur vom Lehrer bestätigte Schüler erscheinen hier.",
+                ar: "يظهر هنا فقط الطلاب الذين أكد الأستاذ نجاحهم.",
+              })}
+            </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div>
-                <Label>{tt({ fr: "Niveau (session CEFR)", de: "Niveau (GER-Session)", ar: "المستوى" })}</Label>
+                <Label>{tt({ fr: "Niveau par défaut", de: "Standard-Niveau", ar: "المستوى الافتراضي" })}</Label>
                 <Select value={subLevelId} onValueChange={setSubLevelId}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -342,7 +341,7 @@ export default function Certification() {
                 <Input value={directorName} onChange={(e) => setDirectorName(e.target.value)} placeholder="Dr. …" />
               </div>
               <div>
-                <Label>{tt({ fr: "Nom du professeur", de: "Prüfer / Lehrer", ar: "الأستاذ" })}</Label>
+                <Label>{tt({ fr: "Nom du professeur (fallback)", de: "Prüfer / Lehrer", ar: "الأستاذ" })}</Label>
                 <Input value={teacherName} onChange={(e) => setTeacherName(e.target.value)} placeholder="M./Mme …" />
               </div>
               <div>
@@ -368,23 +367,27 @@ export default function Certification() {
             <div className="border rounded-lg divide-y max-h-80 overflow-y-auto">
               {candidates.length === 0 ? (
                 <p className="p-4 text-sm text-muted-foreground">
-                  {tt({ fr: "Aucun élève éligible avec ce seuil.", de: "Keine berechtigten Schüler.", ar: "لا يوجد طلاب مؤهلون." })}
+                  {tt({ fr: "Aucun élève validé en attente.", de: "Keine bestätigten Schüler.", ar: "لا يوجد طلاب مؤكدون." })}
                 </p>
               ) : candidates.map((c) => (
-                <label key={c.student_id} className="flex items-center gap-3 p-2 hover:bg-muted/40 cursor-pointer text-sm">
+                <label key={c.validation_id} className="flex items-center gap-3 p-2 hover:bg-muted/40 cursor-pointer text-sm">
                   <input
                     type="checkbox"
-                    checked={!!selected[c.student_id]}
-                    onChange={(e) => setSelected((s) => ({ ...s, [c.student_id]: e.target.checked }))}
+                    checked={!!selected[c.validation_id]}
+                    onChange={(e) => setSelected((s) => ({ ...s, [c.validation_id]: e.target.checked }))}
                     className="h-4 w-4"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{c.student_name}</div>
-                    <div className="text-xs text-muted-foreground truncate">{c.student_email}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {c.student_email}
+                      {c.teacher_name && <> · {tt({ fr: "Prof", de: "Lehrer", ar: "أستاذ" })}: {c.teacher_name}</>}
+                      {c.val_sub_level_code && <> · {c.val_sub_level_code}</>}
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="font-mono font-semibold">{c.avg_score}/100</div>
-                    <div className="text-[10px] text-muted-foreground">{computeMention(Math.round(c.avg_score))}</div>
+                    <div className="text-[10px] text-muted-foreground">{c.val_mention}</div>
                   </div>
                 </label>
               ))}
