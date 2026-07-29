@@ -799,3 +799,321 @@ function TeacherDetailDialog({ row, labels }: { row: TeacherRow; labels: Record<
     </Dialog>
   );
 }
+
+/* ============================================================
+ * CLASSES DIRECTORY
+ * ==========================================================*/
+type ClassDirRow = {
+  id: string;
+  name: string;
+  level: string | null;
+  status: string;
+  invite_code: string;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+  teacher_id: string | null;
+  teacher_name: string | null;
+  students_count: number;
+  submissions_total: number;
+  submissions_passed: number;
+  sessions_total: number;
+  sessions_done: number;
+};
+
+type SessionRow = {
+  id: string;
+  session_date: string;
+  title: string | null;
+  status: string;
+  start_time: string | null;
+  end_time: string | null;
+  present: number;
+  absent: number;
+  late: number;
+  total: number;
+};
+
+export function ClassesDirectory({ schoolId }: { schoolId: string }) {
+  const { tt } = useI18n();
+  const [rows, setRows] = useState<ClassDirRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState("");
+  const [levelFilter, setLevelFilter] = useState<string>("all");
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const { data: classes, error } = await supabase
+        .from("classes")
+        .select("id, name, level, status, invite_code, start_date, end_date, created_at, teacher_id")
+        .eq("school_id", schoolId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const list = (classes || []) as any[];
+      const teacherIds = Array.from(new Set(list.map(c => c.teacher_id).filter(Boolean)));
+      const classIds = list.map(c => c.id);
+
+      const [{ data: teachers }, { data: members }, { data: subs }, { data: sess }] = await Promise.all([
+        teacherIds.length
+          ? supabase.from("profiles").select("user_id, display_name, email").in("user_id", teacherIds)
+          : Promise.resolve({ data: [] as any[] }),
+        classIds.length
+          ? supabase.from("class_members").select("class_id, student_id").in("class_id", classIds)
+          : Promise.resolve({ data: [] as any[] }),
+        classIds.length
+          ? supabase.from("submissions").select("assignment_id, score, total, status, assignments!inner(class_id)").in("assignments.class_id", classIds)
+          : Promise.resolve({ data: [] as any[] }),
+        classIds.length
+          ? supabase.from("attendance_sessions").select("class_id, status").in("class_id", classIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      const tMap = new Map((teachers || []).map((t: any) => [t.user_id, t.display_name || t.email || "—"]));
+      const countBy = (arr: any[], key: string) => {
+        const m = new Map<string, number>();
+        (arr || []).forEach((x: any) => m.set(x[key], (m.get(x[key]) || 0) + 1));
+        return m;
+      };
+      const memberCount = countBy(members || [], "class_id");
+      const sessCount = countBy(sess || [], "class_id");
+      const sessDone = countBy((sess || []).filter((s: any) => s.status === "done" || s.status === "closed"), "class_id");
+
+      const subMap = new Map<string, { total: number; passed: number }>();
+      (subs || []).forEach((s: any) => {
+        const cid = s.assignments?.class_id;
+        if (!cid) return;
+        const cur = subMap.get(cid) || { total: 0, passed: 0 };
+        cur.total += 1;
+        const pctScore = s.total ? (Number(s.score || 0) / Number(s.total)) * 100 : Number(s.score || 0);
+        if (pctScore >= 50) cur.passed += 1;
+        subMap.set(cid, cur);
+      });
+
+      const out: ClassDirRow[] = list.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        level: c.level,
+        status: c.status,
+        invite_code: c.invite_code,
+        start_date: c.start_date,
+        end_date: c.end_date,
+        created_at: c.created_at,
+        teacher_id: c.teacher_id,
+        teacher_name: c.teacher_id ? (tMap.get(c.teacher_id) as string) || "—" : "—",
+        students_count: memberCount.get(c.id) || 0,
+        submissions_total: subMap.get(c.id)?.total || 0,
+        submissions_passed: subMap.get(c.id)?.passed || 0,
+        sessions_total: sessCount.get(c.id) || 0,
+        sessions_done: sessDone.get(c.id) || 0,
+      }));
+      setRows(out);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { if (schoolId) load(); }, [schoolId]);
+
+  const levels = useMemo(() => Array.from(new Set(rows.map(r => r.level).filter(Boolean))) as string[], [rows]);
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    return rows.filter(r => {
+      if (levelFilter !== "all" && r.level !== levelFilter) return false;
+      if (!term) return true;
+      return (r.name || "").toLowerCase().includes(term)
+        || (r.teacher_name || "").toLowerCase().includes(term)
+        || (r.invite_code || "").toLowerCase().includes(term);
+    });
+  }, [rows, q, levelFilter]);
+
+  const regenCode = async (id: string) => {
+    const code = Math.random().toString(36).slice(2, 8).toUpperCase();
+    const { error } = await supabase.from("classes").update({ invite_code: code }).eq("id", id);
+    if (error) { (await import("sonner")).toast.error(error.message); return; }
+    (await import("sonner")).toast.success(tt({ fr: "Nouveau code généré", de: "Neuer Code erzeugt", ar: "تم إنشاء رمز جديد" }));
+    load();
+  };
+
+  const startNewSession = async (c: ClassDirRow) => {
+    if (!c.teacher_id) { (await import("sonner")).toast.error("Aucun professeur"); return; }
+    const { error } = await supabase.from("attendance_sessions").insert({
+      school_id: schoolId, class_id: c.id, teacher_id: c.teacher_id,
+      session_date: new Date().toISOString().slice(0, 10),
+      title: tt({ fr: "Nouvelle séance", de: "Neue Sitzung", ar: "حصة جديدة" }),
+      status: "planned",
+    } as any);
+    if (error) { (await import("sonner")).toast.error(error.message); return; }
+    (await import("sonner")).toast.success(tt({ fr: "Séance créée", de: "Sitzung erstellt", ar: "تم إنشاء الحصة" }));
+    load();
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <BookOpen className="w-4 h-4" />
+          {tt({ fr: "Annuaire de classes", de: "Klassenverzeichnis", ar: "دليل الصفوف" })} ({rows.length})
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground" />
+            <Input className="pl-8" placeholder={tt({ fr: "Rechercher…", de: "Suchen…", ar: "بحث…" })} value={q} onChange={e => setQ(e.target.value)} />
+          </div>
+          <select className="border rounded px-2 text-sm bg-background" value={levelFilter} onChange={e => setLevelFilter(e.target.value)}>
+            <option value="all">{tt({ fr: "Tous niveaux", de: "Alle Niveaus", ar: "كل المستويات" })}</option>
+            {levels.map(l => <option key={l} value={l}>{l}</option>)}
+          </select>
+          <Button size="sm" variant="outline" onClick={load} disabled={loading}>
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : tt({ fr: "Rafraîchir", de: "Aktualisieren", ar: "تحديث" })}
+          </Button>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
+        ) : filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6">{tt({ fr: "Aucune classe.", de: "Keine Klasse.", ar: "لا يوجد صف." })}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted-foreground border-b">
+                <tr>
+                  <th className="text-left p-2">{tt({ fr: "Classe", de: "Klasse", ar: "الصف" })}</th>
+                  <th className="text-left p-2">{tt({ fr: "Professeur", de: "Lehrer", ar: "الأستاذ" })}</th>
+                  <th className="text-center p-2"><Users className="w-4 h-4 inline" /></th>
+                  <th className="text-left p-2">{tt({ fr: "Début", de: "Start", ar: "بداية" })}</th>
+                  <th className="text-left p-2">{tt({ fr: "Fin", de: "Ende", ar: "نهاية" })}</th>
+                  <th className="text-center p-2">{tt({ fr: "Séances", de: "Sitzungen", ar: "الحصص" })}</th>
+                  <th className="text-center p-2">{tt({ fr: "Réussite", de: "Erfolg", ar: "النجاح" })}</th>
+                  <th className="text-left p-2">{tt({ fr: "Code", de: "Code", ar: "الرمز" })}</th>
+                  <th className="p-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(r => {
+                  const successRate = pct(r.submissions_passed, r.submissions_total);
+                  return (
+                    <tr key={r.id} className="border-b hover:bg-muted/40">
+                      <td className="p-2">
+                        <div className="font-medium">{r.name}</div>
+                        <div className="text-xs text-muted-foreground flex gap-1 items-center">
+                          {r.level && <Badge variant="outline" className="text-[10px]">{r.level}</Badge>}
+                          <Badge variant={r.status === "active" ? "default" : "secondary"} className="text-[10px]">{r.status}</Badge>
+                        </div>
+                      </td>
+                      <td className="p-2">{r.teacher_name}</td>
+                      <td className="p-2 text-center font-medium">{r.students_count}</td>
+                      <td className="p-2 text-xs">{fmtDate(r.start_date || r.created_at)}</td>
+                      <td className="p-2 text-xs">{fmtDate(r.end_date)}</td>
+                      <td className="p-2 text-center text-xs">{r.sessions_done}/{r.sessions_total}</td>
+                      <td className="p-2 text-center">
+                        <Badge variant={successRate >= 70 ? "default" : successRate >= 50 ? "secondary" : "destructive"} className="text-[10px]">
+                          {successRate}%
+                        </Badge>
+                      </td>
+                      <td className="p-2 font-mono text-xs">{r.invite_code}</td>
+                      <td className="p-2">
+                        <div className="flex gap-1 justify-end">
+                          <Button size="sm" variant="outline" onClick={() => startNewSession(r)}>
+                            {tt({ fr: "Nouvelle séance", de: "Neue Sitzung", ar: "حصة جديدة" })}
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => regenCode(r.id)}>
+                            {tt({ fr: "Nouveau code", de: "Neuer Code", ar: "رمز جديد" })}
+                          </Button>
+                          <ClassHistoryButton classId={r.id} name={r.name} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ClassHistoryButton({ classId, name }: { classId: string; name: string }) {
+  const { tt } = useI18n();
+  const [open, setOpen] = useState(false);
+  const [sessions, setSessions] = useState<SessionRow[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      setLoading(true);
+      try {
+        const { data: sess } = await supabase
+          .from("attendance_sessions")
+          .select("id, session_date, title, status, start_time, end_time")
+          .eq("class_id", classId)
+          .order("session_date", { ascending: false });
+        const ids = (sess || []).map((s: any) => s.id);
+        const { data: recs } = ids.length
+          ? await supabase.from("attendance_records").select("session_id, status").in("session_id", ids)
+          : { data: [] as any[] };
+        const byS = new Map<string, { p: number; a: number; l: number; t: number }>();
+        (recs || []).forEach((r: any) => {
+          const cur = byS.get(r.session_id) || { p: 0, a: 0, l: 0, t: 0 };
+          cur.t += 1;
+          if (r.status === "present") cur.p += 1;
+          else if (r.status === "absent") cur.a += 1;
+          else if (r.status === "late") cur.l += 1;
+          byS.set(r.session_id, cur);
+        });
+        setSessions((sess || []).map((s: any) => {
+          const c = byS.get(s.id) || { p: 0, a: 0, l: 0, t: 0 };
+          return {
+            id: s.id, session_date: s.session_date, title: s.title, status: s.status,
+            start_time: s.start_time, end_time: s.end_time,
+            present: c.p, absent: c.a, late: c.l, total: c.t,
+          };
+        }));
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [open, classId]);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="ghost"><Info className="w-4 h-4" /></Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl w-[calc(100vw-1rem)] max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {name} — {tt({ fr: "Historique des séances", de: "Sitzungsverlauf", ar: "سجل الحصص" })}</DialogTitle>
+        </DialogHeader>
+        {loading ? (
+          <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>
+        ) : sessions.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6">{tt({ fr: "Aucune séance.", de: "Keine Sitzung.", ar: "لا حصص." })}</p>
+        ) : (
+          <div className="space-y-2">
+            {sessions.map(s => (
+              <div key={s.id} className="border rounded p-2 text-sm flex flex-wrap items-center gap-2 justify-between">
+                <div>
+                  <div className="font-medium">{fmtDate(s.session_date)} {s.title && `· ${s.title}`}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {s.start_time || "—"} → {s.end_time || "—"} · <Badge variant="outline" className="text-[10px]">{s.status}</Badge>
+                  </div>
+                </div>
+                <div className="flex gap-2 text-xs">
+                  <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30">P: {s.present}</Badge>
+                  <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30">R: {s.late}</Badge>
+                  <Badge variant="destructive">A: {s.absent}</Badge>
+                  <Badge variant="outline">Total: {s.total}</Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
