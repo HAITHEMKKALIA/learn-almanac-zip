@@ -309,9 +309,16 @@ export default function Certification() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="rounded-md border border-amber-200 bg-amber-50 text-amber-900 text-xs p-2">
+              {tt({
+                fr: "Seuls les élèves validés « réussis » par leur professeur apparaissent ici.",
+                de: "Nur vom Lehrer bestätigte Schüler erscheinen hier.",
+                ar: "يظهر هنا فقط الطلاب الذين أكد الأستاذ نجاحهم.",
+              })}
+            </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div>
-                <Label>{tt({ fr: "Niveau (session CEFR)", de: "Niveau (GER-Session)", ar: "المستوى" })}</Label>
+                <Label>{tt({ fr: "Niveau par défaut", de: "Standard-Niveau", ar: "المستوى الافتراضي" })}</Label>
                 <Select value={subLevelId} onValueChange={setSubLevelId}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -334,7 +341,7 @@ export default function Certification() {
                 <Input value={directorName} onChange={(e) => setDirectorName(e.target.value)} placeholder="Dr. …" />
               </div>
               <div>
-                <Label>{tt({ fr: "Nom du professeur", de: "Prüfer / Lehrer", ar: "الأستاذ" })}</Label>
+                <Label>{tt({ fr: "Nom du professeur (fallback)", de: "Prüfer / Lehrer", ar: "الأستاذ" })}</Label>
                 <Input value={teacherName} onChange={(e) => setTeacherName(e.target.value)} placeholder="M./Mme …" />
               </div>
               <div>
