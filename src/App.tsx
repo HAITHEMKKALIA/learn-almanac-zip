@@ -67,6 +67,9 @@ const SchoolClassDetail = lazy(() => import("./pages/school/SchoolClassDetail.ts
 const SchoolBilling = lazy(() => import("./pages/school/SchoolBilling.tsx"));
 const SoloBilling = lazy(() => import("./pages/solo-student/SoloBilling.tsx"));
 const StudentBilling = lazy(() => import("./pages/student/StudentBilling.tsx"));
+const SchoolTransactions = lazy(() => import("./pages/school/SchoolTransactions.tsx"));
+const TeacherStudioTransactions = lazy(() => import("./pages/teacher-studio/TeacherStudioTransactions.tsx"));
+const PlatformTransactions = lazy(() => import("./pages/platform/PlatformTransactions.tsx"));
 const AcademicLayout = lazy(() => import("./pages/academic/AcademicLayout.tsx"));
 const AcademicDashboard = lazy(() => import("./pages/academic/AcademicDashboard.tsx"));
 const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
