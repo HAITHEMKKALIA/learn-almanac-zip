@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { AcademyMotionPage, AcademyStatGrid, AcademyStatItem, AcademyMetricCard } from "@/components/academy/AcademyUI";
 import { AIQuotaWidget } from "@/components/school/AIQuotaWidget";
 import { useI18n } from "@/lib/i18n";
-import { StudentsDirectory, TeachersDirectory } from "@/components/school/DirectoryPanels";
+import { StudentsDirectory, TeachersDirectory, ClassesDirectory } from "@/components/school/DirectoryPanels";
 
 type Member = {
   user_id: string;
