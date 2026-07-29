@@ -270,13 +270,19 @@ export default function SchoolAdminPage() {
         <AIQuotaWidget scope="user" title={tt({ fr: "Mon quota IA personnel", de: "Mein persönliches KI-Kontingent", ar: "حصتي الشخصية للذكاء الاصطناعي" })} />
       </div>
       <Tabs defaultValue="create" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="create">{tt({ fr: "Créer un compte", de: "Konto erstellen", ar: "إنشاء حساب" })}</TabsTrigger>
           <TabsTrigger value="pending">{tt({ fr: "Approbations", de: "Genehmigungen", ar: "الموافقات" })} {pending.length > 0 && `(${pending.length})`}</TabsTrigger>
           <TabsTrigger value="teachers">{tt({ fr: "Professeurs", de: "Lehrkräfte", ar: "المعلمون" })} ({teachers.length})</TabsTrigger>
           <TabsTrigger value="students">{tt({ fr: "Élèves", de: "Schüler", ar: "الطلاب" })} ({students.length})</TabsTrigger>
+          <TabsTrigger value="students_dir">{tt({ fr: "Annuaire élèves", de: "Schülerverzeichnis", ar: "دليل الطلاب" })}</TabsTrigger>
+          <TabsTrigger value="teachers_dir">{tt({ fr: "Annuaire profs", de: "Lehrerverzeichnis", ar: "دليل المعلمين" })}</TabsTrigger>
           <TabsTrigger value="classes">{tt({ fr: "Classes", de: "Klassen", ar: "الصفوف" })} ({classes.length})</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="students_dir"><StudentsDirectory schoolId={schoolId} /></TabsContent>
+        <TabsContent value="teachers_dir"><TeachersDirectory schoolId={schoolId} /></TabsContent>
+
 
         <TabsContent value="create">
           <Card>
