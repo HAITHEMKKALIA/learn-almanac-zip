@@ -83,6 +83,7 @@ const studioItems: Item[] = [
   { label: { fr: "Mes élèves", de: "Meine Schüler", ar: "تلاميذي" }, url: "/teacher-studio/students", icon: Users },
   { label: { fr: "Examens", de: "Prüfungen", ar: "الامتحانات" }, url: "/teacher-studio/exams", icon: ClipboardList },
   { label: { fr: "Facturation", de: "Abrechnung", ar: "الفوترة" }, url: "/teacher-studio/billing", icon: CreditCard },
+  { label: { fr: "Mes transactions", de: "Meine Transaktionen", ar: "معاملاتي" }, url: "/teacher-studio/transactions", icon: Wallet },
   { label: { fr: "Paramètres du studio", de: "Studio-Einstellungen", ar: "إعدادات الاستوديو" }, url: "/teacher-studio/settings", icon: Settings },
 ];
 
