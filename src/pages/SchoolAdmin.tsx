@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SchoolLayout } from "@/components/school/SchoolLayout";
 import { getActiveSchoolId } from "@/components/school/SchoolSwitcher";
@@ -39,6 +40,7 @@ type Pending = {
 
 export default function SchoolAdminPage() {
   const { tt } = useI18n();
+  const location = useLocation();
   const [schoolId, setSchoolId] = useState<string | null>(getActiveSchoolId());
   const [schoolName, setSchoolName] = useState<string>("");
   const [members, setMembers] = useState<Member[]>([]);
@@ -58,6 +60,20 @@ export default function SchoolAdminPage() {
   const [createPassword, setCreatePassword] = useState("");
   const [createClassId, setCreateClassId] = useState<string>("");
   const [creating, setCreating] = useState(false);
+
+  const pathToTab = (pathname: string) => {
+    if (pathname.endsWith("/settings")) return "settings";
+    if (pathname.endsWith("/classes")) return "classes";
+    if (pathname.endsWith("/teachers")) return "teachers";
+    if (pathname.endsWith("/students")) return "students";
+    if (pathname.endsWith("/approvals")) return "pending";
+    return "create";
+  };
+  const [tab, setTab] = useState(pathToTab(location.pathname));
+
+  useEffect(() => {
+    setTab(pathToTab(location.pathname));
+  }, [location.pathname]);
 
   const generatePassword = () => {
     const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -270,7 +286,7 @@ export default function SchoolAdminPage() {
         <AIQuotaWidget scope="school" schoolId={schoolId} title={tt({ fr: "Quota IA école aujourd'hui", de: "KI-Kontingent Schule heute", ar: "حصة الذكاء الاصطناعي للمدرسة اليوم" })} />
         <AIQuotaWidget scope="user" title={tt({ fr: "Mon quota IA personnel", de: "Mein persönliches KI-Kontingent", ar: "حصتي الشخصية للذكاء الاصطناعي" })} />
       </div>
-      <Tabs defaultValue="create" className="space-y-4">
+      <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="create">{tt({ fr: "Créer un compte", de: "Konto erstellen", ar: "إنشاء حساب" })}</TabsTrigger>
           <TabsTrigger value="pending">{tt({ fr: "Approbations", de: "Genehmigungen", ar: "الموافقات" })} {pending.length > 0 && `(${pending.length})`}</TabsTrigger>
