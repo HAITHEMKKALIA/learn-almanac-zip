@@ -16,6 +16,7 @@ import { AcademyMotionPage, AcademyStatGrid, AcademyStatItem, AcademyMetricCard 
 import { AIQuotaWidget } from "@/components/school/AIQuotaWidget";
 import { useI18n } from "@/lib/i18n";
 import { StudentsDirectory, TeachersDirectory, ClassesDirectory } from "@/components/school/DirectoryPanels";
+import { SchoolSettings } from "@/components/school/SchoolSettings";
 
 type Member = {
   user_id: string;
