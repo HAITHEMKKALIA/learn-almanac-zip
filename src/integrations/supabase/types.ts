@@ -2812,6 +2812,80 @@ export type Database = {
           },
         ]
       }
+      student_success_validations: {
+        Row: {
+          certificate_id: string | null
+          class_id: string | null
+          id: string
+          mention: string
+          notes: string | null
+          school_id: string
+          score: number
+          status: string
+          student_id: string
+          sub_level_id: string | null
+          teacher_id: string
+          validated_at: string
+        }
+        Insert: {
+          certificate_id?: string | null
+          class_id?: string | null
+          id?: string
+          mention: string
+          notes?: string | null
+          school_id: string
+          score: number
+          status?: string
+          student_id: string
+          sub_level_id?: string | null
+          teacher_id: string
+          validated_at?: string
+        }
+        Update: {
+          certificate_id?: string | null
+          class_id?: string | null
+          id?: string
+          mention?: string
+          notes?: string | null
+          school_id?: string
+          score?: number
+          status?: string
+          student_id?: string
+          sub_level_id?: string | null
+          teacher_id?: string
+          validated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_success_validations_certificate_id_fkey"
+            columns: ["certificate_id"]
+            isOneToOne: false
+            referencedRelation: "certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_success_validations_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_success_validations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_success_validations_sub_level_id_fkey"
+            columns: ["sub_level_id"]
+            isOneToOne: false
+            referencedRelation: "sub_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sub_levels: {
         Row: {
           code: string
