@@ -16,11 +16,17 @@ import { useI18n } from "@/lib/i18n";
 import { buildCertificatePdf, computeMention } from "@/lib/certificatePdf";
 
 type EligibleStudent = {
+  validation_id: string;
   student_id: string;
   student_name: string;
   student_email: string | null;
   avg_score: number;
   last_session_date: string | null;
+  teacher_name: string | null;
+  val_mention: string;
+  val_sub_level_id: string | null;
+  val_sub_level_code: string | null;
+  val_sub_level_name: string | null;
 };
 
 type SubLevel = { id: string; code: string; name: string };
