@@ -168,16 +168,23 @@ export default function Certification() {
     const { start, end } = rangeFor(preset, customFrom, customTo);
     let query = (supabase as any)
       .from("certificates")
-      .select("id, certificate_number, student_id, final_score, mention, issued_at, status, pdf_url, sub_levels:sub_level_id(code), profiles:student_id(display_name, email)")
+      .select("id, certificate_number, student_id, final_score, mention, issued_at, status, pdf_url, sub_levels:sub_level_id(code)")
       .eq("school_id", activeSchoolId)
       .order("issued_at", { ascending: false })
       .limit(500);
     if (start) query = query.gte("issued_at", start.toISOString());
     if (end) query = query.lt("issued_at", end.toISOString());
     const { data } = await query;
+    const sids = Array.from(new Set((data || []).map((r: any) => r.student_id).filter(Boolean)));
+    const profMap: Record<string, { display_name: string | null; email: string | null }> = {};
+    if (sids.length) {
+      const { data: profs } = await (supabase as any)
+        .from("profiles").select("user_id, display_name, email").in("user_id", sids);
+      (profs || []).forEach((p: any) => { profMap[p.user_id] = { display_name: p.display_name, email: p.email }; });
+    }
     const rows: CertRow[] = (data || []).map((r: any) => ({
       ...r,
-      student_name: r.profiles?.display_name || r.profiles?.email || r.student_id.slice(0, 8),
+      student_name: profMap[r.student_id]?.display_name || profMap[r.student_id]?.email || r.student_id.slice(0, 8),
       sub_level_code: r.sub_levels?.code,
     }));
     setHistory(rows);
