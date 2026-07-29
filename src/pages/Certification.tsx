@@ -188,21 +188,23 @@ export default function Certification() {
   const selectedCount = Object.values(selected).filter(Boolean).length;
   const toggleAll = (v: boolean) => {
     const next: Record<string, boolean> = {};
-    candidates.forEach((c) => (next[c.student_id] = v));
+    candidates.forEach((c) => (next[c.validation_id] = v));
     setSelected(next);
   };
 
   async function generateOne(student: EligibleStudent): Promise<void> {
-    const subLvl = subLevels.find((s) => s.id === subLevelId);
+    // Use validation's sub-level when set, otherwise fall back to page default
+    const effectiveSubLevelId = student.val_sub_level_id || subLevelId;
+    const subLvl = subLevels.find((s) => s.id === effectiveSubLevelId);
     if (!subLvl) throw new Error("sub-level required");
     const score = Math.round(student.avg_score);
-    const mention = computeMention(score);
+    const mention = student.val_mention || computeMention(score);
 
     // 1) Issue via RPC (creates row + number)
     const { data: certId, error } = await (supabase as any).rpc("issue_certificate", {
       _student_id: student.student_id,
       _school_id: activeSchoolId,
-      _sub_level_id: subLevelId,
+      _sub_level_id: effectiveSubLevelId,
       _final_score: score,
       _class_id: null,
       _mention: mention,
@@ -228,11 +230,11 @@ export default function Certification() {
       issuedAt,
       sessionDate,
       directorName,
-      teacherName,
+      teacherName: teacherName || student.teacher_name || "",
       city,
     });
 
-    // 4) Upload to storage (path: <schoolId>/<certId>.pdf)
+    // 4) Upload to storage
     const path = `${activeSchoolId}/${certId}.pdf`;
     const { error: upErr } = await supabase.storage.from("certificates").upload(path, pdfBlob, {
       upsert: true,
@@ -240,16 +242,22 @@ export default function Certification() {
     });
     if (upErr) throw upErr;
 
-    // 5) Update the certificate row with pdf_url (storage path)
+    // 5) Update the certificate row with pdf_url
     await (supabase as any).from("certificates").update({ pdf_url: path }).eq("id", certId);
+
+    // 6) Mark validation as issued
+    await (supabase as any)
+      .from("student_success_validations")
+      .update({ status: "issued", certificate_id: certId })
+      .eq("id", student.validation_id);
   }
 
   async function generateSelected() {
-    if (!activeSchoolId || !subLevelId) {
-      toast.error(tt({ fr: "Sélectionnez un niveau", de: "Niveau wählen", ar: "اختر مستوى" }));
+    if (!activeSchoolId) {
+      toast.error(tt({ fr: "École introuvable", de: "Schule fehlt", ar: "المدرسة مفقودة" }));
       return;
     }
-    const targets = candidates.filter((c) => selected[c.student_id]);
+    const targets = candidates.filter((c) => selected[c.validation_id]);
     if (targets.length === 0) {
       toast.error(tt({ fr: "Aucun élève sélectionné", de: "Kein Schüler ausgewählt", ar: "لم يتم اختيار أي طالب" }));
       return;
