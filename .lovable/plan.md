@@ -1,75 +1,70 @@
-# Refonte du module « Devoirs à la maison »
+# Mes Transactions — Revenus & Dépenses
 
-Objectif : le professeur peut créer un devoir de 4 façons, l'élève répond selon le type, puis reçoit une correction (manuelle ou IA) avec bon/mauvais par question. Le tout avec notifications push (bip + interne + externe).
+## Objectif
+Ajouter un module de gestion financière dans la sidebar de :
+- **Admin école** (`/school-admin/transactions`) — revenus des abonnements élèves + dépenses de l'école
+- **Professeur indépendant** (`/teacher-studio/transactions`) — revenus de ses élèves + ses dépenses
+- **Platform Admin** (`/platform/transactions`) — revenus globaux : abonnements payés par les écoles + profs indépendants + élèves indépendants (pas de dépenses ici)
 
-## 1. Types de devoirs supportés
+## 1. Base de données
 
-| Type | Prof crée | Élève rend |
-|---|---|---|
-| `pdf` | Upload d'un PDF (+ catégorie/niveau) | Télécharge, remplit, ré-upload PDF/image | 
-| `manual` | Jusqu'à 50 questions {titre, réponse attendue} | Répond à chaque question dans un champ texte |
-| `ai` | Génère N questions via IA (choix du type : Schreiben, Grammatik, Lesen…) | Idem `manual` |
-| `audio` | Upload MP3/WAV + questions manuelles | Écoute + répond par question |
+Nouvelle table `public.transactions` :
+- `id`, `created_at`, `updated_at`
+- `scope` : `school` | `teacher_studio` | `student_solo` | `platform`
+- `school_id` (nullable, pour scopes école/teacher/solo)
+- `owner_user_id` (nullable, pour teacher_studio/student_solo)
+- `direction` : `income` | `expense`
+- `category` : enum (voir ci-dessous)
+- `description` (text)
+- `amount_tnd` (numeric)
+- `transaction_date` (date)
+- `payment_method` (virement/chèque/espèces/carte)
+- `reference` (n° facture/reçu)
+- `related_subscription_id` (FK optionnel vers `subscriptions`)
+- `created_by` (auth.uid)
 
-## 2. Changements base de données
+**Catégories dépenses** : `rent`, `electricity_steg`, `water_sonede`, `internet`, `office_supplies`, `cnss`, `salary`, `salary_advance`, `equipment_purchase`, `maintenance`, `software_subscription`, `tax`, `other`.
+**Catégorie revenu** : `subscription`, `other_income`.
 
-Nouvelles colonnes sur `homework` :
-- `kind` text ('pdf' | 'manual' | 'ai' | 'audio'), défaut 'manual'
-- `audio_url` text
-- `pdf_url` text (le PDF de consigne)
+**RLS** :
+- Admin école (owner) : full CRUD sur `scope='school'` de son `school_id`.
+- Prof indép : full CRUD sur `scope='teacher_studio'` de son espace.
+- Élève solo : lecture ses transactions (facultatif).
+- Super admin : accès `scope='platform'` + lecture globale.
 
-Nouvelle table `homework_questions` :
-- `homework_id`, `position` (1..50), `prompt` text, `expected_answer` text, `points` int
-- RLS : lecture pour élèves de la classe + prof du devoir ; écriture prof/admin
+**Génération auto** des revenus : trigger sur `subscriptions` (paid_at) qui insère une transaction revenu correspondante dans le bon scope. Sur Platform Admin, chaque paiement d'abonnement école/prof/élève solo génère une transaction `scope='platform'`, `direction='income'`.
 
-Nouvelle table `homework_question_answers` :
-- `submission_id`, `question_id`, `answer` text, `is_correct` boolean, `teacher_comment` text, `awarded_points` numeric
-- RLS : élève lit/écrit ses réponses (sans toucher `is_correct`/`awarded_points`), prof corrige
+## 2. UI partagée
 
-Trigger anti-triche : l'élève ne peut pas modifier `is_correct` / `awarded_points` / `teacher_comment`.
+Composant `src/components/finance/TransactionsPanel.tsx` avec props `{ scope, schoolId?, ownerId?, allowExpenses }` :
+- Cartes KPI : Total revenus, Total dépenses, Solde (période)
+- Filtres période : Jour / Semaine / Mois / Année / Personnalisé (date range picker)
+- Filtre catégorie et direction
+- Table historique (date, catégorie, description, méthode, référence, montant, action)
+- Bouton "Ajouter dépense" (dialog avec formulaire) — masqué sur Platform Admin
+- Bouton "Ajouter revenu manuel" (autre revenu hors abonnement)
+- Bouton "Exporter" — génère un CSV et un PDF avec le même filtre appliqué
 
-## 3. Interface Professeur (`TeacherHomework.tsx`)
+Formulaire dépense : catégorie (select), description (textarea), montant TND, date, mode paiement, référence.
 
-Dialogue de création enrichi :
-- Sélecteur **Type de devoir** (PDF / Manuel / IA / Audio)
-- Sélecteur **Catégorie pédagogique** (Schreiben, Grammatik, Lesen, Hören, Sprechen, Wortschatz)
-- Selon type : uploader PDF, uploader audio, ou builder de questions (Ajouter question ↑↓ supprimer, max 50)
-- Bouton **Générer avec IA** (déjà présent) → remplit automatiquement les questions selon la catégorie choisie
-- Vue **corrections** : pour chaque soumission, liste question par question avec cases ✅/❌, note et commentaire ; bouton **Corriger avec IA** → propose réponses annotées ; bouton **Appliquer correction & terminer** → notifie l'élève
+## 3. Pages & sidebar
 
-## 4. Interface Élève (`StudentHomework.tsx`)
+- `src/pages/school/SchoolTransactions.tsx` → utilise `TransactionsPanel scope="school"`
+- `src/pages/teacher-studio/TeacherStudioTransactions.tsx` → `scope="teacher_studio"`
+- `src/pages/platform/PlatformTransactions.tsx` → `scope="platform"` (revenus uniquement)
+- Ajouter routes dans `src/App.tsx`
+- Ajouter entrée "Mes transactions" (icône Wallet) dans :
+  - `AppSidebar.tsx` (visible pour school_admin/owner et teacher_studio)
+  - `PlatformAdminLayout.tsx` sidebar
 
-Section **« Mes devoirs à la maison »** avec badges de statut :
-- 🔴 À faire · 🟠 En attente de correction · 🟢 Corrigé
-- Selon `kind` : télécharger PDF + ré-upload / répondre par question / lecteur audio + questions
-- Bouton **Terminer** → statut `submitted`, notifie le prof
-- Après correction : affiche pour chaque question ✅/❌, réponse attendue, commentaire prof, note globale
+## 4. Export
+- CSV : util local (Blob download).
+- PDF : réutiliser `jspdf` (déjà utilisé) — tableau simple + totaux.
 
-## 5. Notifications push
+## Détails techniques
+- Migration crée table + GRANT + RLS + trigger `subscriptions_to_transaction`.
+- Génération PDF via helper `src/lib/transactionsPdf.ts`.
+- i18n : libellés FR uniquement dans un premier temps (comme le reste du billing).
+- Trigger idempotent : ON CONFLICT sur `related_subscription_id` pour éviter doublons.
 
-- Bip sonore court (WebAudio oscillator) + toast persistant
-- Nouvelle table `notifications` (`user_id`, `type`, `title`, `body`, `link`, `read_at`)
-- Cloche dans la sidebar (badge non-lus, popover liste, temps réel Supabase)
-- Web Push externe via `Notification` API (avec `requestPermission()` au premier login)
-- Événements déclencheurs :
-  - Prof crée un devoir → tous les élèves de la classe
-  - Élève soumet → le prof
-  - Prof termine correction → l'élève
-
-## 6. Détails techniques
-
-- Stockage : bucket `homework-files` (privé) créé via tool, signed URLs
-- Génération IA : réutilise `ai-pedagogy` avec `mode: "homework_questions"` → retourne `questions[]`
-- Correction IA : nouvelle branche dans `ai-grade` (`kind: "homework_questions"`) qui prend `submission_id` et note question par question
-- Realtime : subscribe sur `notifications` filtré `user_id=eq.<uid>`
-- i18n : FR / DE / AR sur toutes les nouvelles chaînes
-- RLS et GRANTs stricts pour toutes les nouvelles tables
-
-## 7. Ordre d'exécution
-
-1. Migration SQL (colonnes + 3 tables + policies + triggers) + bucket storage
-2. Edge functions : extension `ai-pedagogy` (questions) + `ai-grade` (par question)
-3. `TeacherHomework.tsx` : builder de questions, uploads, dialogue de correction
-4. `StudentHomework.tsx` : rendu par type, réponses par question, vue corrigée
-5. Système de notifications (table + cloche + bip + Web Push)
-6. Câblage des triggers de notifications côté client aux 3 événements clés
+Livrable en une seule passe : migration + composant partagé + 3 pages + entrées sidebar + export CSV/PDF.
