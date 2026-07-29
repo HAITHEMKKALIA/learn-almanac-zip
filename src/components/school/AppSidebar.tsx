@@ -192,21 +192,31 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="border-b border-sidebar-border/50">
         <div className="flex items-center gap-2 px-2 py-2">
-          <div className="h-9 w-9 rounded-lg bg-gradient-warm grid place-items-center shrink-0 shadow-elev">
+          <div className="h-9 w-9 rounded-lg bg-gradient-warm grid place-items-center shrink-0 shadow-elev overflow-hidden">
             <School className="h-5 w-5 text-white" />
           </div>
           {!collapsed && (
-            <div className="overflow-hidden">
-              <div className="font-display font-bold text-sidebar-foreground leading-tight">Deutsch Meister</div>
-              <div className="text-[10px] text-sidebar-foreground/60 uppercase tracking-wider truncate">
-                {pick(subtitleTr, lang)}{activeSchool?.name ? ` · ${activeSchool.name}` : ""}
-              </div>
-              {roleLabel && (
-                <div className="mt-1 inline-flex items-center gap-1 text-[9px] text-sidebar-primary font-semibold uppercase tracking-wider">
-                  <UserCheck className="h-3 w-3" />
-                  {pick(roleLabel, lang)}
-                </div>
+            <div className="flex items-center gap-2 overflow-hidden">
+              {activeSchool?.logo_url && (
+                <img
+                  src={activeSchool.logo_url}
+                  alt={activeSchool.name}
+                  className="h-9 w-9 rounded-lg object-contain bg-white/90 shrink-0 shadow-elev"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
               )}
+              <div className="overflow-hidden">
+                <div className="font-display font-bold text-sidebar-foreground leading-tight">Deutsch Meister</div>
+                <div className="text-[10px] text-sidebar-foreground/60 uppercase tracking-wider truncate">
+                  {pick(subtitleTr, lang)}{activeSchool?.name ? ` · ${activeSchool.name}` : ""}
+                </div>
+                {roleLabel && (
+                  <div className="mt-1 inline-flex items-center gap-1 text-[9px] text-sidebar-primary font-semibold uppercase tracking-wider">
+                    <UserCheck className="h-3 w-3" />
+                    {pick(roleLabel, lang)}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

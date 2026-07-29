@@ -16,6 +16,7 @@ import { AcademyMotionPage, AcademyStatGrid, AcademyStatItem, AcademyMetricCard 
 import { AIQuotaWidget } from "@/components/school/AIQuotaWidget";
 import { useI18n } from "@/lib/i18n";
 import { StudentsDirectory, TeachersDirectory, ClassesDirectory } from "@/components/school/DirectoryPanels";
+import { SchoolSettings } from "@/components/school/SchoolSettings";
 
 type Member = {
   user_id: string;
@@ -279,11 +280,13 @@ export default function SchoolAdminPage() {
           <TabsTrigger value="teachers_dir">{tt({ fr: "Annuaire profs", de: "Lehrerverzeichnis", ar: "دليل المعلمين" })}</TabsTrigger>
           <TabsTrigger value="classes_dir">{tt({ fr: "Annuaire classes", de: "Klassenverzeichnis", ar: "دليل الصفوف" })}</TabsTrigger>
           <TabsTrigger value="classes">{tt({ fr: "Classes", de: "Klassen", ar: "الصفوف" })} ({classes.length})</TabsTrigger>
+          <TabsTrigger value="settings">{tt({ fr: "Paramètres", de: "Einstellungen", ar: "الإعدادات" })}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="students_dir"><StudentsDirectory schoolId={schoolId} /></TabsContent>
         <TabsContent value="teachers_dir"><TeachersDirectory schoolId={schoolId} /></TabsContent>
         <TabsContent value="classes_dir"><ClassesDirectory schoolId={schoolId} /></TabsContent>
+        <TabsContent value="settings"><SchoolSettings schoolId={schoolId} /></TabsContent>
 
 
         <TabsContent value="create">
