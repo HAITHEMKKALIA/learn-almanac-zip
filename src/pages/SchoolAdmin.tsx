@@ -286,6 +286,7 @@ export default function SchoolAdminPage() {
         <TabsContent value="students_dir"><StudentsDirectory schoolId={schoolId} /></TabsContent>
         <TabsContent value="teachers_dir"><TeachersDirectory schoolId={schoolId} /></TabsContent>
         <TabsContent value="classes_dir"><ClassesDirectory schoolId={schoolId} /></TabsContent>
+        <TabsContent value="settings"><SchoolSettings schoolId={schoolId} /></TabsContent>
 
 
         <TabsContent value="create">
