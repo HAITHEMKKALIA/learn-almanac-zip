@@ -367,23 +367,27 @@ export default function Certification() {
             <div className="border rounded-lg divide-y max-h-80 overflow-y-auto">
               {candidates.length === 0 ? (
                 <p className="p-4 text-sm text-muted-foreground">
-                  {tt({ fr: "Aucun élève éligible avec ce seuil.", de: "Keine berechtigten Schüler.", ar: "لا يوجد طلاب مؤهلون." })}
+                  {tt({ fr: "Aucun élève validé en attente.", de: "Keine bestätigten Schüler.", ar: "لا يوجد طلاب مؤكدون." })}
                 </p>
               ) : candidates.map((c) => (
-                <label key={c.student_id} className="flex items-center gap-3 p-2 hover:bg-muted/40 cursor-pointer text-sm">
+                <label key={c.validation_id} className="flex items-center gap-3 p-2 hover:bg-muted/40 cursor-pointer text-sm">
                   <input
                     type="checkbox"
-                    checked={!!selected[c.student_id]}
-                    onChange={(e) => setSelected((s) => ({ ...s, [c.student_id]: e.target.checked }))}
+                    checked={!!selected[c.validation_id]}
+                    onChange={(e) => setSelected((s) => ({ ...s, [c.validation_id]: e.target.checked }))}
                     className="h-4 w-4"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{c.student_name}</div>
-                    <div className="text-xs text-muted-foreground truncate">{c.student_email}</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      {c.student_email}
+                      {c.teacher_name && <> · {tt({ fr: "Prof", de: "Lehrer", ar: "أستاذ" })}: {c.teacher_name}</>}
+                      {c.val_sub_level_code && <> · {c.val_sub_level_code}</>}
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="font-mono font-semibold">{c.avg_score}/100</div>
-                    <div className="text-[10px] text-muted-foreground">{computeMention(Math.round(c.avg_score))}</div>
+                    <div className="text-[10px] text-muted-foreground">{c.val_mention}</div>
                   </div>
                 </label>
               ))}
