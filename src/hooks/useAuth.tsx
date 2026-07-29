@@ -34,13 +34,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
 
   const loadHeartbeatPresence = useCallback(async () => {
-    const cutoff = new Date(Date.now() - 90_000).toISOString();
-    const { data, error } = await supabase
-      .from("user_presence")
-      .select("user_id, last_seen_at")
-      .gte("last_seen_at", cutoff);
-    if (!error) {
-      setOnlineUserIds(new Set((data || []).map((row) => row.user_id)));
+    try {
+      const cutoff = new Date(Date.now() - 90_000).toISOString();
+      const { data, error } = await supabase
+        .from("user_presence")
+        .select("user_id, last_seen_at")
+        .gte("last_seen_at", cutoff);
+      if (!error) {
+        setOnlineUserIds(new Set((data || []).map((row) => row.user_id)));
+      }
+    } catch {
+      // transient network error — ignore, next heartbeat will retry
     }
   }, []);
 
