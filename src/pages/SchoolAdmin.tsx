@@ -61,7 +61,19 @@ export default function SchoolAdminPage() {
   const [createClassId, setCreateClassId] = useState<string>("");
   const [creating, setCreating] = useState(false);
 
-  const generatePassword = () => {
+  const pathToTab = (pathname: string) => {
+    if (pathname.endsWith("/settings")) return "settings";
+    if (pathname.endsWith("/classes")) return "classes";
+    if (pathname.endsWith("/teachers")) return "teachers";
+    if (pathname.endsWith("/students")) return "students";
+    if (pathname.endsWith("/approvals")) return "pending";
+    return "create";
+  };
+  const [tab, setTab] = useState(pathToTab(location.pathname));
+
+  useEffect(() => {
+    setTab(pathToTab(location.pathname));
+  }, [location.pathname]);
     const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let p = "";
     for (let i = 0; i < 12; i++) p += chars[Math.floor(Math.random() * chars.length)];
