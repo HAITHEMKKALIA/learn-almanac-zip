@@ -3129,6 +3129,75 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount_tnd: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          direction: string
+          id: string
+          owner_user_id: string | null
+          payment_method: string | null
+          reference: string | null
+          related_subscription_id: string | null
+          school_id: string | null
+          scope: string
+          transaction_date: string
+          updated_at: string
+        }
+        Insert: {
+          amount_tnd: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          direction: string
+          id?: string
+          owner_user_id?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          related_subscription_id?: string | null
+          school_id?: string | null
+          scope: string
+          transaction_date?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_tnd?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          direction?: string
+          id?: string
+          owner_user_id?: string | null
+          payment_method?: string | null
+          reference?: string | null
+          related_subscription_id?: string | null
+          school_id?: string | null
+          scope?: string
+          transaction_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_related_subscription_id_fkey"
+            columns: ["related_subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_badges: {
         Row: {
           awarded_at: string

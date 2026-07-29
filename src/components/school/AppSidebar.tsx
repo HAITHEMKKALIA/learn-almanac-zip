@@ -7,7 +7,7 @@ import {
   LayoutDashboard, BookOpen, GraduationCap, Users, ClipboardList, Library,
   BarChart3, MessageSquare, Settings,
   FileText, LogOut, School, Languages, NotebookPen, Sparkles, CalendarDays,
-  Award, UserCheck, Baby, CreditCard,
+  Award, UserCheck, Baby, CreditCard, Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,6 +49,7 @@ const adminItems: Item[] = [
   { label: { fr: "Membres", de: "Mitglieder", ar: "الأعضاء" }, url: "/school-admin/teachers", icon: Users },
   { label: { fr: "Rapports", de: "Berichte", ar: "تقارير" }, url: "/school-admin/reports", icon: FileText },
   { label: { fr: "Facturation", de: "Abrechnung", ar: "الفوترة" }, url: "/school-admin/billing", icon: CreditCard },
+  { label: { fr: "Mes transactions", de: "Meine Transaktionen", ar: "معاملاتي" }, url: "/school-admin/transactions", icon: Wallet },
   { label: { fr: "Paramètres", de: "Einstellungen", ar: "الإعدادات" }, url: "/school-admin/settings", icon: Settings },
 ];
 
@@ -82,6 +83,7 @@ const studioItems: Item[] = [
   { label: { fr: "Mes élèves", de: "Meine Schüler", ar: "تلاميذي" }, url: "/teacher-studio/students", icon: Users },
   { label: { fr: "Examens", de: "Prüfungen", ar: "الامتحانات" }, url: "/teacher-studio/exams", icon: ClipboardList },
   { label: { fr: "Facturation", de: "Abrechnung", ar: "الفوترة" }, url: "/teacher-studio/billing", icon: CreditCard },
+  { label: { fr: "Mes transactions", de: "Meine Transaktionen", ar: "معاملاتي" }, url: "/teacher-studio/transactions", icon: Wallet },
   { label: { fr: "Paramètres du studio", de: "Studio-Einstellungen", ar: "إعدادات الاستوديو" }, url: "/teacher-studio/settings", icon: Settings },
 ];
 

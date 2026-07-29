@@ -33,6 +33,7 @@ export default function PlatformAdminLayout() {
     { to: "/platform-admin/structure", label: tt({ fr: "Structure", de: "Struktur", ar: "الهيكل" }), icon: TreePine },
     { to: "/platform-admin/audit", label: tt({ fr: "Audit", de: "Audit", ar: "السجلات" }), icon: ScrollText },
     { to: "/platform-admin/billing", label: tt({ fr: "Facturation", de: "Abrechnung", ar: "الفوترة" }), icon: Wallet },
+    { to: "/platform-admin/transactions", label: tt({ fr: "Mes transactions", de: "Transaktionen", ar: "المعاملات" }), icon: Wallet },
     { to: "/platform-admin/gdpr", label: tt({ fr: "RGPD", de: "DSGVO", ar: "GDPR" }), icon: ShieldCheck },
     { to: "/platform-admin/settings", label: tt({ fr: "Paramètres", de: "Einstellungen", ar: "الإعدادات" }), icon: Settings },
   ];
