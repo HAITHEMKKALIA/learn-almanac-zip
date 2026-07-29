@@ -49,6 +49,7 @@ const adminItems: Item[] = [
   { label: { fr: "Membres", de: "Mitglieder", ar: "الأعضاء" }, url: "/school-admin/teachers", icon: Users },
   { label: { fr: "Rapports", de: "Berichte", ar: "تقارير" }, url: "/school-admin/reports", icon: FileText },
   { label: { fr: "Facturation", de: "Abrechnung", ar: "الفوترة" }, url: "/school-admin/billing", icon: CreditCard },
+  { label: { fr: "Mes transactions", de: "Meine Transaktionen", ar: "معاملاتي" }, url: "/school-admin/transactions", icon: Wallet },
   { label: { fr: "Paramètres", de: "Einstellungen", ar: "الإعدادات" }, url: "/school-admin/settings", icon: Settings },
 ];
 
