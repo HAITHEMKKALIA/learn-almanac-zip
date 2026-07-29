@@ -144,7 +144,7 @@ export function SchoolSettings({ schoolId }: { schoolId: string }) {
           <p className="text-sm text-muted-foreground">
             {tt({
               fr: "Le logo apparaîtra à côté de « Deutsch Meister » dans la barre latérale de tous les membres.",
-              de: "Das Logo erscheint neben „Deutsch Meister" in der Seitenleiste aller Mitglieder.",
+              de: 'Das Logo erscheint neben „Deutsch Meister" in der Seitenleiste aller Mitglieder.',
               ar: "سيظهر الشعار بجانب « Deutsch Meister » في الشريط الجانبي لجميع الأعضاء.",
             })}
           </p>
