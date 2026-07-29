@@ -114,9 +114,7 @@ export default function Certification() {
       const { data, error } = await (supabase as any)
         .from("student_success_validations")
         .select(`
-          id, student_id, score, mention, validated_at, sub_level_id,
-          profiles:student_id(display_name, email),
-          teacher:teacher_id(display_name, email),
+          id, student_id, teacher_id, score, mention, validated_at, sub_level_id,
           sub_levels:sub_level_id(id, code, name)
         `)
         .eq("school_id", activeSchoolId)
@@ -124,21 +122,34 @@ export default function Certification() {
         .order("validated_at", { ascending: false });
       if (error) throw error;
 
-      const rows: EligibleStudent[] = (data || [])
-        .filter((r: any) => Number(r.score) >= minScore)
-        .map((r: any) => ({
+      const filtered = (data || []).filter((r: any) => Number(r.score) >= minScore);
+      const ids = Array.from(new Set(filtered.flatMap((r: any) => [r.student_id, r.teacher_id]).filter(Boolean)));
+      const profMap: Record<string, { display_name: string | null; email: string | null }> = {};
+      if (ids.length) {
+        const { data: profs } = await (supabase as any)
+          .from("profiles")
+          .select("user_id, display_name, email")
+          .in("user_id", ids);
+        (profs || []).forEach((p: any) => { profMap[p.user_id] = { display_name: p.display_name, email: p.email }; });
+      }
+
+      const rows: EligibleStudent[] = filtered.map((r: any) => {
+        const stu = profMap[r.student_id];
+        const tea = profMap[r.teacher_id];
+        return {
           validation_id: r.id,
           student_id: r.student_id,
-          student_name: r.profiles?.display_name || r.profiles?.email || r.student_id.slice(0, 8),
-          student_email: r.profiles?.email ?? null,
+          student_name: stu?.display_name || stu?.email || r.student_id.slice(0, 8),
+          student_email: stu?.email ?? null,
           avg_score: Number(r.score),
           last_session_date: r.validated_at,
-          teacher_name: r.teacher?.display_name || r.teacher?.email || null,
+          teacher_name: tea?.display_name || tea?.email || null,
           val_mention: r.mention,
           val_sub_level_id: r.sub_levels?.id ?? r.sub_level_id ?? null,
           val_sub_level_code: r.sub_levels?.code ?? null,
           val_sub_level_name: r.sub_levels?.name ?? null,
-        }));
+        };
+      });
 
       setCandidates(rows);
       setSelected({});
