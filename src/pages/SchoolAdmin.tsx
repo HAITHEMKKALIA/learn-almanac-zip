@@ -277,11 +277,13 @@ export default function SchoolAdminPage() {
           <TabsTrigger value="students">{tt({ fr: "Élèves", de: "Schüler", ar: "الطلاب" })} ({students.length})</TabsTrigger>
           <TabsTrigger value="students_dir">{tt({ fr: "Annuaire élèves", de: "Schülerverzeichnis", ar: "دليل الطلاب" })}</TabsTrigger>
           <TabsTrigger value="teachers_dir">{tt({ fr: "Annuaire profs", de: "Lehrerverzeichnis", ar: "دليل المعلمين" })}</TabsTrigger>
+          <TabsTrigger value="classes_dir">{tt({ fr: "Annuaire classes", de: "Klassenverzeichnis", ar: "دليل الصفوف" })}</TabsTrigger>
           <TabsTrigger value="classes">{tt({ fr: "Classes", de: "Klassen", ar: "الصفوف" })} ({classes.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="students_dir"><StudentsDirectory schoolId={schoolId} /></TabsContent>
         <TabsContent value="teachers_dir"><TeachersDirectory schoolId={schoolId} /></TabsContent>
+        <TabsContent value="classes_dir"><ClassesDirectory schoolId={schoolId} /></TabsContent>
 
 
         <TabsContent value="create">
