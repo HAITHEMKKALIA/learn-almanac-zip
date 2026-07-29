@@ -106,61 +106,39 @@ export default function Certification() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load eligible students for the school + score threshold
+  // Load candidates from teacher validations (status = 'pending')
   const loadCandidates = async () => {
     if (!activeSchoolId) return;
     setLoadingCandidates(true);
     try {
-      // 1) All students of the school via school_members
-      const { data: members } = await (supabase as any)
-        .from("school_members")
-        .select("user_id, profiles:user_id(display_name, email)")
+      const { data, error } = await (supabase as any)
+        .from("student_success_validations")
+        .select(`
+          id, student_id, score, mention, validated_at, sub_level_id,
+          profiles:student_id(display_name, email),
+          teacher:teacher_id(display_name, email),
+          sub_levels:sub_level_id(id, code, name)
+        `)
         .eq("school_id", activeSchoolId)
-        .eq("role", "student")
-        .eq("status", "approved");
+        .eq("status", "pending")
+        .order("validated_at", { ascending: false });
+      if (error) throw error;
 
-      const studentIds: string[] = (members || []).map((m: any) => m.user_id);
-      if (studentIds.length === 0) {
-        setCandidates([]);
-        return;
-      }
-      const nameMap: Record<string, { name: string; email: string | null }> = {};
-      (members || []).forEach((m: any) => {
-        nameMap[m.user_id] = {
-          name: m.profiles?.display_name || m.profiles?.email || m.user_id.slice(0, 8),
-          email: m.profiles?.email ?? null,
-        };
-      });
-
-      // 2) Their released/graded submissions in this school (via assignments->classes->school_id)
-      const { data: subs } = await (supabase as any)
-        .from("submissions")
-        .select("student_id, score, total, submitted_at, released_at, status, assignments!inner(class_id, classes!inner(school_id))")
-        .in("student_id", studentIds)
-        .in("status", ["graded", "submitted"])
-        .not("score", "is", null)
-        .eq("assignments.classes.school_id", activeSchoolId);
-
-      const agg: Record<string, { sum: number; n: number; last: string | null }> = {};
-      (subs || []).forEach((s: any) => {
-        const pct = s.total ? (s.score / s.total) * 100 : s.score;
-        const cur = agg[s.student_id] || { sum: 0, n: 0, last: null };
-        cur.sum += pct; cur.n += 1;
-        const when = s.submitted_at || s.released_at;
-        if (when && (!cur.last || when > cur.last)) cur.last = when;
-        agg[s.student_id] = cur;
-      });
-
-      const rows: EligibleStudent[] = Object.entries(agg)
-        .map(([id, v]) => ({
-          student_id: id,
-          student_name: nameMap[id]?.name || id.slice(0, 8),
-          student_email: nameMap[id]?.email ?? null,
-          avg_score: Math.round((v.sum / v.n) * 10) / 10,
-          last_session_date: v.last,
-        }))
-        .filter((r) => r.avg_score >= minScore)
-        .sort((a, b) => b.avg_score - a.avg_score);
+      const rows: EligibleStudent[] = (data || [])
+        .filter((r: any) => Number(r.score) >= minScore)
+        .map((r: any) => ({
+          validation_id: r.id,
+          student_id: r.student_id,
+          student_name: r.profiles?.display_name || r.profiles?.email || r.student_id.slice(0, 8),
+          student_email: r.profiles?.email ?? null,
+          avg_score: Number(r.score),
+          last_session_date: r.validated_at,
+          teacher_name: r.teacher?.display_name || r.teacher?.email || null,
+          val_mention: r.mention,
+          val_sub_level_id: r.sub_levels?.id ?? r.sub_level_id ?? null,
+          val_sub_level_code: r.sub_levels?.code ?? null,
+          val_sub_level_name: r.sub_levels?.name ?? null,
+        }));
 
       setCandidates(rows);
       setSelected({});
