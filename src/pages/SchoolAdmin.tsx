@@ -74,6 +74,8 @@ export default function SchoolAdminPage() {
   useEffect(() => {
     setTab(pathToTab(location.pathname));
   }, [location.pathname]);
+
+  const generatePassword = () => {
     const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let p = "";
     for (let i = 0; i < 12; i++) p += chars[Math.floor(Math.random() * chars.length)];
