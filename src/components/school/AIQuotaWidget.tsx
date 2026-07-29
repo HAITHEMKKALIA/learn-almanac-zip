@@ -22,9 +22,9 @@ export function AIQuotaWidget({ schoolId, scope = "school", title }: Props) {
       const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0);
       const iso = startOfDay.toISOString();
 
-      const { data: quota } = await sb.from("ai_quotas")
-        .select("per_user_daily_cap, daily_generation_cap")
-        .eq("school_id", schoolId || null).maybeSingle();
+      let quotaQ = sb.from("ai_quotas").select("per_user_daily_cap, daily_generation_cap");
+      quotaQ = schoolId ? quotaQ.eq("school_id", schoolId) : quotaQ.is("school_id", null);
+      const { data: quota } = await quotaQ.maybeSingle();
       if (quota) { setPerUserCap(quota.per_user_daily_cap ?? 30); setDailyCap(quota.daily_generation_cap ?? 200); }
 
       let q = sb.from("ai_generation_logs").select("id", { count: "exact", head: true }).gte("created_at", iso);
