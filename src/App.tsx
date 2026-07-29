@@ -45,6 +45,7 @@ const WortschatzFlashcards = lazy(() => import("./pages/WortschatzFlashcards.tsx
 const Kapitel = lazy(() => import("./pages/Kapitel.tsx"));
 const KapitelDetail = lazy(() => import("./pages/KapitelDetail.tsx"));
 const Certificates = lazy(() => import("./pages/Certificates.tsx"));
+const Certification = lazy(() => import("./pages/Certification.tsx"));
 const AuditLogs = lazy(() => import("./pages/AuditLogs.tsx"));
 const VerifyCertificate = lazy(() => import("./pages/VerifyCertificate.tsx"));
 const PlatformAdminLayout = lazy(() => import("./pages/platform/PlatformAdminLayout.tsx"));
@@ -248,6 +249,7 @@ const App = () => (
               <Route path="/school-admin/homework" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><TeacherHomework /></RequireAuth>} />
               <Route path="/school-admin/exams" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Assignments /></RequireAuth>} />
               <Route path="/school-admin/certificates" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Certificates /></RequireAuth>} />
+              <Route path="/school-admin/certification" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Certification /></RequireAuth>} />
               <Route path="/school-admin/reports" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><Reports /></RequireAuth>} />
               <Route path="/school-admin/analytics" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolAnalytics /></RequireAuth>} />
               <Route path="/school-admin/billing" element={<RequireAuth role={["school_admin","super_admin"]} spaceType="school" spaceRole={["owner","school_admin"]}><SchoolBilling /></RequireAuth>} />
