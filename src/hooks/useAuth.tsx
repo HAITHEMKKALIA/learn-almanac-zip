@@ -104,10 +104,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     const markSeen = async () => {
-      await supabase
-        .from("user_presence")
-        .upsert({ user_id: user.id, last_seen_at: new Date().toISOString() }, { onConflict: "user_id" });
-      await loadHeartbeatPresence();
+      try {
+        await supabase
+          .from("user_presence")
+          .upsert({ user_id: user.id, last_seen_at: new Date().toISOString() }, { onConflict: "user_id" });
+        await loadHeartbeatPresence();
+      } catch {
+        // transient network error — ignore
+      }
     };
     const dbChannel = supabase.channel("presence:last-seen")
       .on("postgres_changes", { event: "*", schema: "public", table: "user_presence" }, loadHeartbeatPresence)
