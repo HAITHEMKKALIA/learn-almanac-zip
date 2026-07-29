@@ -40,6 +40,7 @@ type Pending = {
 
 export default function SchoolAdminPage() {
   const { tt } = useI18n();
+  const location = useLocation();
   const [schoolId, setSchoolId] = useState<string | null>(getActiveSchoolId());
   const [schoolName, setSchoolName] = useState<string>("");
   const [members, setMembers] = useState<Member[]>([]);
