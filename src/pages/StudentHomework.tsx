@@ -119,15 +119,16 @@ export default function StudentHomework() {
         attachment_url, attachment_name, audio_url,
         status: "submitted", submitted_at: new Date().toISOString(),
       };
-      let submissionId = active.mySubmission?.id;
-      if (submissionId) {
-        const { error } = await supabase.from("homework_submissions").update(payload).eq("id", submissionId);
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase.from("homework_submissions").insert(payload).select().single();
-        if (error) throw error;
-        submissionId = data.id;
-      }
+      // Upsert on (homework_id, student_id) so a re-submit or a row created on
+      // another device never fails with a duplicate-key error.
+      const { data: upserted, error: upErr } = await supabase
+        .from("homework_submissions")
+        .upsert(payload, { onConflict: "homework_id,student_id" })
+        .select()
+        .single();
+      if (upErr) throw upErr;
+      const submissionId = upserted.id;
+
 
       // Persist per-question answers
       if (questions.length > 0) {
