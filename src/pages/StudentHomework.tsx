@@ -77,6 +77,41 @@ export default function StudentHomework() {
     } else setAnswersById({});
   };
 
+  // Auto-save a draft so nothing is lost if the student closes the app
+  // before pressing "Terminer & envoyer".
+  useEffect(() => {
+    if (!user || !active) return;
+    if (active.mySubmission?.status === "graded") return;
+    const answers = questions
+      .filter((q) => (answersById[q.id]?.answer || "").trim())
+      .map((q) => ({ question_id: q.id, answer: answersById[q.id].answer as string }));
+    if (!answers.length && !content.trim()) return;
+    const t = setTimeout(async () => {
+      const { data: sub, error } = await supabase
+        .from("homework_submissions")
+        .upsert(
+          {
+            homework_id: active.id,
+            student_id: user.id,
+            content: content || null,
+            status: active.mySubmission?.status === "submitted" ? "submitted" : "draft",
+          },
+          { onConflict: "homework_id,student_id" },
+        )
+        .select()
+        .single();
+      if (error || !sub) return;
+      await supabase.from("homework_question_answers").delete().eq("submission_id", sub.id);
+      if (answers.length) {
+        await supabase
+          .from("homework_question_answers")
+          .insert(answers.map((a) => ({ ...a, submission_id: sub.id })));
+      }
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [answersById, content, active?.id, questions, user?.id]);
+
+
   const startRec = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -119,15 +154,16 @@ export default function StudentHomework() {
         attachment_url, attachment_name, audio_url,
         status: "submitted", submitted_at: new Date().toISOString(),
       };
-      let submissionId = active.mySubmission?.id;
-      if (submissionId) {
-        const { error } = await supabase.from("homework_submissions").update(payload).eq("id", submissionId);
-        if (error) throw error;
-      } else {
-        const { data, error } = await supabase.from("homework_submissions").insert(payload).select().single();
-        if (error) throw error;
-        submissionId = data.id;
-      }
+      // Upsert on (homework_id, student_id) so a re-submit or a row created on
+      // another device never fails with a duplicate-key error.
+      const { data: upserted, error: upErr } = await supabase
+        .from("homework_submissions")
+        .upsert(payload, { onConflict: "homework_id,student_id" })
+        .select()
+        .single();
+      if (upErr) throw upErr;
+      const submissionId = upserted.id;
+
 
       // Persist per-question answers
       if (questions.length > 0) {
