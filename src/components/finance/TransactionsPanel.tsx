@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { ArrowDownCircle, ArrowUpCircle, Download, Plus, Trash2, Wallet } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Download, FileText, Plus, Trash2, Wallet } from "lucide-react";
+import { generateTransactionsPdf } from "@/lib/transactionsPdf";
+
 
 export type TxScope = "school" | "teacher_studio" | "student_solo" | "platform";
 
