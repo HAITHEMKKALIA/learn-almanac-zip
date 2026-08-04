@@ -209,8 +209,10 @@ export default function TransactionsPanel({
           <h2 className="text-2xl font-display font-bold flex items-center gap-2"><Wallet className="h-6 w-6" />{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={exportCsv}><Download className="h-4 w-4 mr-2" />Exporter CSV</Button>
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={exportCsv}><Download className="h-4 w-4 mr-2" />Rapport CSV</Button>
+          <Button variant="outline" onClick={exportPdf}><FileText className="h-4 w-4 mr-2" />Rapport PDF</Button>
+
           {!incomeOnly && (
             <>
               <Button variant="outline" onClick={() => setShowIncome(true)}><Plus className="h-4 w-4 mr-2" />Revenu manuel</Button>
