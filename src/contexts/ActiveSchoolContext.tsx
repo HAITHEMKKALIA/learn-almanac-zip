@@ -60,9 +60,35 @@ export function ActiveSchoolProvider({ children }: { children: ReactNode }) {
       supabase.rpc("my_pending_space_requests"),
     ]);
     const data = lsErr ? (await supabase.rpc("my_schools")).data : lsData;
-    const list = (data || []) as School[];
+    let list = (data || []) as School[];
+
+    // Super admins are not members of every school: expose all active spaces
+    // so the school/teacher/student views stay usable and in sync from the platform side.
+    const { data: roleRows } = await supabase
+      .from("user_roles").select("role").eq("user_id", user.id);
+    const isSuper = (roleRows || []).some((r: any) => r.role === "super_admin");
+    if (isSuper) {
+      const { data: allSchools } = await supabase
+        .from("schools")
+        .select("id,name,slug,logo_url,tenant_type,is_independent,status")
+        .eq("status", "active")
+        .order("name");
+      const known = new Set(list.map((s) => s.id));
+      const extra = (allSchools || [])
+        .filter((s: any) => !known.has(s.id))
+        .map((s: any) => ({
+          id: s.id, name: s.name, slug: s.slug, logo_url: s.logo_url,
+          role: s.tenant_type === "independent_teacher" ? "teacher"
+            : s.tenant_type === "independent_student" ? "student" : "school_admin",
+          tenant_type: s.tenant_type as SpaceType,
+          is_independent: s.is_independent,
+        })) as School[];
+      list = [...list, ...extra];
+    }
+
     setSchools(list);
     setPendingRequests((pendingRes.data || []) as PendingSpaceRequest[]);
+
     setActiveIdState((current) => {
       if (current && list.find((s) => s.id === current)) return current;
       const next = list[0]?.id ?? null;
