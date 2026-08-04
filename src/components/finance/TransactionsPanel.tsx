@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { ArrowDownCircle, ArrowUpCircle, Download, Plus, Trash2, Wallet } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Download, FileText, Plus, Trash2, Wallet } from "lucide-react";
+import { generateTransactionsPdf } from "@/lib/transactionsPdf";
+
 
 export type TxScope = "school" | "teacher_studio" | "student_solo" | "platform";
 
@@ -36,6 +38,7 @@ const EXPENSE_CATEGORIES: { value: string; label: string }[] = [
   { value: "water", label: "SONEDE (eau)" },
   { value: "internet", label: "Internet" },
   { value: "office_supplies", label: "Produits bureautiques" },
+  { value: "tax", label: "Recette des finances (impôts)" },
   { value: "cnss", label: "CNSS" },
   { value: "salary", label: "Salaire" },
   { value: "salary_advance", label: "Avance sur salaire" },
@@ -45,13 +48,14 @@ const EXPENSE_CATEGORIES: { value: string; label: string }[] = [
   { value: "other", label: "Autre" },
 ];
 const INCOME_CATEGORIES: { value: string; label: string }[] = [
-  { value: "subscription", label: "Abonnement" },
+  { value: "subscription", label: "Abonnement élève" },
   { value: "manual", label: "Encaissement manuel" },
   { value: "other", label: "Autre" },
 ];
 
 const catLabel = (c: string) =>
   [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES].find((x) => x.value === c)?.label || c;
+
 
 type Range = { from: string; to: string };
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
@@ -87,6 +91,10 @@ export default function TransactionsPanel({
   const [loading, setLoading] = useState(false);
   const [showExpense, setShowExpense] = useState(false);
   const [showIncome, setShowIncome] = useState(false);
+  const [dirFilter, setDirFilter] = useState<"all" | "income" | "expense">("all");
+  const [catFilter, setCatFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+
 
   const applyPreset = (p: string) => {
     setPreset(p);
@@ -113,16 +121,37 @@ export default function TransactionsPanel({
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [scope, schoolId, ownerUserId, range.from, range.to]);
 
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    return rows.filter((r) =>
+      (dirFilter === "all" || r.direction === dirFilter) &&
+      (catFilter === "all" || r.category === catFilter) &&
+      (!s ||
+        (r.description || "").toLowerCase().includes(s) ||
+        (r.reference || "").toLowerCase().includes(s) ||
+        catLabel(r.category).toLowerCase().includes(s)),
+    );
+  }, [rows, dirFilter, catFilter, search]);
+
   const totals = useMemo(() => {
-    const income = rows.filter(r => r.direction === "income").reduce((s, r) => s + Number(r.amount_tnd), 0);
-    const expense = rows.filter(r => r.direction === "expense").reduce((s, r) => s + Number(r.amount_tnd), 0);
+    const income = filtered.filter(r => r.direction === "income").reduce((s, r) => s + Number(r.amount_tnd), 0);
+    const expense = filtered.filter(r => r.direction === "expense").reduce((s, r) => s + Number(r.amount_tnd), 0);
     return { income, expense, net: income - expense };
-  }, [rows]);
+  }, [filtered]);
+
+  const byCategory = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of filtered.filter((x) => x.direction === "expense")) {
+      map.set(r.category, (map.get(r.category) || 0) + Number(r.amount_tnd));
+    }
+    return [...map.entries()].sort((a, b) => b[1] - a[1]);
+  }, [filtered]);
+
 
   const exportCsv = () => {
     const head = ["Date","Sens","Catégorie","Description","Montant (TND)","Mode paiement","Référence"];
     const lines = [head.join(";")];
-    for (const r of rows) {
+    for (const r of filtered) {
       const cells = [
         r.transaction_date,
         r.direction === "income" ? "Revenu" : "Dépense",
@@ -134,6 +163,10 @@ export default function TransactionsPanel({
       ];
       lines.push(cells.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";"));
     }
+    lines.push("");
+    lines.push(`"Total revenus";"${totals.income.toFixed(3)}"`);
+    lines.push(`"Total dépenses";"${totals.expense.toFixed(3)}"`);
+    lines.push(`"Solde net";"${totals.net.toFixed(3)}"`);
     const blob = new Blob([`\uFEFF${lines.join("\n")}`], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -142,6 +175,25 @@ export default function TransactionsPanel({
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const exportPdf = () => {
+    generateTransactionsPdf({
+      title,
+      subtitle: description,
+      from: range.from,
+      to: range.to,
+      rows: filtered.map((r) => ({
+        transaction_date: r.transaction_date,
+        direction: r.direction,
+        categoryLabel: catLabel(r.category),
+        description: r.description,
+        amount_tnd: Number(r.amount_tnd),
+        payment_method: r.payment_method,
+        reference: r.reference,
+      })),
+    });
+  };
+
 
   const remove = async (id: string) => {
     if (!confirm("Supprimer cette transaction ?")) return;
@@ -157,8 +209,10 @@ export default function TransactionsPanel({
           <h2 className="text-2xl font-display font-bold flex items-center gap-2"><Wallet className="h-6 w-6" />{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={exportCsv}><Download className="h-4 w-4 mr-2" />Exporter CSV</Button>
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" onClick={exportCsv}><Download className="h-4 w-4 mr-2" />Rapport CSV</Button>
+          <Button variant="outline" onClick={exportPdf}><FileText className="h-4 w-4 mr-2" />Rapport PDF</Button>
+
           {!incomeOnly && (
             <>
               <Button variant="outline" onClick={() => setShowIncome(true)}><Plus className="h-4 w-4 mr-2" />Revenu manuel</Button>
@@ -200,9 +254,53 @@ export default function TransactionsPanel({
             <div><Label>Au</Label><Input type="date" value={range.to} onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))} /></div>
           </div>
         )}
+
+        <div className="grid gap-3 mt-3 md:grid-cols-3">
+          <div>
+            <Label>Sens</Label>
+            <Select value={dirFilter} onValueChange={(v) => setDirFilter(v as typeof dirFilter)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="income">Revenus</SelectItem>
+                <SelectItem value="expense">Dépenses</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Catégorie</Label>
+            <Select value={catFilter} onValueChange={setCatFilter}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value="all">Toutes</SelectItem>
+                {[...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES]
+                  .filter((c, i, arr) => arr.findIndex((x) => x.value === c.value) === i)
+                  .map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Recherche (description / référence)</Label>
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Ex: cartouches, facture 2026-12…" />
+          </div>
+        </div>
       </Card>
 
+      {byCategory.length > 0 && (
+        <Card className="p-4">
+          <div className="text-xs uppercase text-muted-foreground mb-2">Dépenses par catégorie (période filtrée)</div>
+          <div className="flex flex-wrap gap-2">
+            {byCategory.map(([cat, amt]) => (
+              <Badge key={cat} variant="secondary" className="text-xs">
+                {catLabel(cat)} : {amt.toFixed(3)} TND
+              </Badge>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <Card className="p-0 overflow-hidden">
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
@@ -219,8 +317,9 @@ export default function TransactionsPanel({
             </thead>
             <tbody>
               {loading && <tr><td className="p-6 text-center text-muted-foreground" colSpan={8}>Chargement…</td></tr>}
-              {!loading && rows.length === 0 && <tr><td className="p-6 text-center text-muted-foreground" colSpan={8}>Aucune transaction sur la période.</td></tr>}
-              {rows.map((r) => (
+              {!loading && filtered.length === 0 && <tr><td className="p-6 text-center text-muted-foreground" colSpan={8}>Aucune transaction sur la période.</td></tr>}
+              {filtered.map((r) => (
+
                 <tr key={r.id} className="border-t">
                   <td className="p-3 whitespace-nowrap">{new Date(r.transaction_date).toLocaleDateString("fr-FR")}</td>
                   <td className="p-3">

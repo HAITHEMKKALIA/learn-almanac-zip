@@ -5,9 +5,8 @@ export default function PlatformTransactions() {
     <div className="p-4 md:p-6">
       <TransactionsPanel
         scope="platform"
-        incomeOnly
-        title="Revenus de la plateforme"
-        description="Revenus provenant des abonnements des écoles, professeurs indépendants et élèves indépendants."
+        title="Mes transactions"
+        description="Revenus (abonnements élèves, écoles, professeurs) et dépenses de la plateforme : loyer, STEG, SONEDE, internet, bureautique, recette des finances, CNSS, salaires, matériel, maintenance, logiciels…"
       />
     </div>
   );
