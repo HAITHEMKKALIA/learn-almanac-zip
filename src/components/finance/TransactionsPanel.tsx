@@ -89,6 +89,10 @@ export default function TransactionsPanel({
   const [loading, setLoading] = useState(false);
   const [showExpense, setShowExpense] = useState(false);
   const [showIncome, setShowIncome] = useState(false);
+  const [dirFilter, setDirFilter] = useState<"all" | "income" | "expense">("all");
+  const [catFilter, setCatFilter] = useState<string>("all");
+  const [search, setSearch] = useState("");
+
 
   const applyPreset = (p: string) => {
     setPreset(p);
