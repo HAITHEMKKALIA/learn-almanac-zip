@@ -317,8 +317,9 @@ export default function TransactionsPanel({
             </thead>
             <tbody>
               {loading && <tr><td className="p-6 text-center text-muted-foreground" colSpan={8}>Chargement…</td></tr>}
-              {!loading && rows.length === 0 && <tr><td className="p-6 text-center text-muted-foreground" colSpan={8}>Aucune transaction sur la période.</td></tr>}
-              {rows.map((r) => (
+              {!loading && filtered.length === 0 && <tr><td className="p-6 text-center text-muted-foreground" colSpan={8}>Aucune transaction sur la période.</td></tr>}
+              {filtered.map((r) => (
+
                 <tr key={r.id} className="border-t">
                   <td className="p-3 whitespace-nowrap">{new Date(r.transaction_date).toLocaleDateString("fr-FR")}</td>
                   <td className="p-3">
