@@ -254,9 +254,53 @@ export default function TransactionsPanel({
             <div><Label>Au</Label><Input type="date" value={range.to} onChange={(e) => setRange((r) => ({ ...r, to: e.target.value }))} /></div>
           </div>
         )}
+
+        <div className="grid gap-3 mt-3 md:grid-cols-3">
+          <div>
+            <Label>Sens</Label>
+            <Select value={dirFilter} onValueChange={(v) => setDirFilter(v as typeof dirFilter)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="income">Revenus</SelectItem>
+                <SelectItem value="expense">Dépenses</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Catégorie</Label>
+            <Select value={catFilter} onValueChange={setCatFilter}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent className="max-h-72">
+                <SelectItem value="all">Toutes</SelectItem>
+                {[...INCOME_CATEGORIES, ...EXPENSE_CATEGORIES]
+                  .filter((c, i, arr) => arr.findIndex((x) => x.value === c.value) === i)
+                  .map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Recherche (description / référence)</Label>
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Ex: cartouches, facture 2026-12…" />
+          </div>
+        </div>
       </Card>
 
+      {byCategory.length > 0 && (
+        <Card className="p-4">
+          <div className="text-xs uppercase text-muted-foreground mb-2">Dépenses par catégorie (période filtrée)</div>
+          <div className="flex flex-wrap gap-2">
+            {byCategory.map(([cat, amt]) => (
+              <Badge key={cat} variant="secondary" className="text-xs">
+                {catLabel(cat)} : {amt.toFixed(3)} TND
+              </Badge>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <Card className="p-0 overflow-hidden">
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
