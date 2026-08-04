@@ -119,11 +119,32 @@ export default function TransactionsPanel({
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [scope, schoolId, ownerUserId, range.from, range.to]);
 
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    return rows.filter((r) =>
+      (dirFilter === "all" || r.direction === dirFilter) &&
+      (catFilter === "all" || r.category === catFilter) &&
+      (!s ||
+        (r.description || "").toLowerCase().includes(s) ||
+        (r.reference || "").toLowerCase().includes(s) ||
+        catLabel(r.category).toLowerCase().includes(s)),
+    );
+  }, [rows, dirFilter, catFilter, search]);
+
   const totals = useMemo(() => {
-    const income = rows.filter(r => r.direction === "income").reduce((s, r) => s + Number(r.amount_tnd), 0);
-    const expense = rows.filter(r => r.direction === "expense").reduce((s, r) => s + Number(r.amount_tnd), 0);
+    const income = filtered.filter(r => r.direction === "income").reduce((s, r) => s + Number(r.amount_tnd), 0);
+    const expense = filtered.filter(r => r.direction === "expense").reduce((s, r) => s + Number(r.amount_tnd), 0);
     return { income, expense, net: income - expense };
-  }, [rows]);
+  }, [filtered]);
+
+  const byCategory = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const r of filtered.filter((x) => x.direction === "expense")) {
+      map.set(r.category, (map.get(r.category) || 0) + Number(r.amount_tnd));
+    }
+    return [...map.entries()].sort((a, b) => b[1] - a[1]);
+  }, [filtered]);
+
 
   const exportCsv = () => {
     const head = ["Date","Sens","Catégorie","Description","Montant (TND)","Mode paiement","Référence"];
