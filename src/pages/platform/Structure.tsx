@@ -22,24 +22,47 @@ export default function Structure() {
   useEffect(() => {
     (async () => {
       const sb = supabase as any;
-      const [{ data: schools }, { data: classes }, { data: members }] = await Promise.all([
+      const [{ data: schools }, { data: classes }, { data: members }, { data: classMembers }] = await Promise.all([
         sb.from("schools").select("id,name,city,status").order("name"),
-        sb.from("classes").select("id,name,level,school_id,profiles:profiles!classes_teacher_id_fkey(display_name),class_members(count)"),
-        sb.from("school_members").select("school_id, role"),
+        sb.from("classes").select("id,name,level,school_id,teacher_id").order("name"),
+        sb.from("school_members").select("school_id, role, space_role, status"),
+        sb.from("class_members").select("class_id"),
       ]);
+
+      // Teacher names (no FK to profiles → resolve manually)
+      const teacherIds = Array.from(new Set((classes || []).map((c: any) => c.teacher_id).filter(Boolean)));
+      let names = new Map<string, string>();
+      if (teacherIds.length) {
+        const { data: profs } = await sb.from("profiles").select("user_id,display_name").in("user_id", teacherIds);
+        (profs || []).forEach((p: any) => names.set(p.user_id, p.display_name));
+      }
+
+      const studentsByClass = new Map<string, number>();
+      (classMembers || []).forEach((cm: any) =>
+        studentsByClass.set(cm.class_id, (studentsByClass.get(cm.class_id) || 0) + 1)
+      );
+
       const classesBySchool = new Map<string, any[]>();
       (classes || []).forEach((c: any) => {
         const arr = classesBySchool.get(c.school_id) || [];
-        arr.push({ id: c.id, name: c.name, level: c.level, teacher: c.profiles?.display_name || null, students: c.class_members?.[0]?.count ?? 0 });
+        arr.push({
+          id: c.id, name: c.name, level: c.level,
+          teacher: c.teacher_id ? names.get(c.teacher_id) || "—" : null,
+          students: studentsByClass.get(c.id) || 0,
+        });
         classesBySchool.set(c.school_id, arr);
       });
+
       const counts = new Map<string, { teachers: number; students: number }>();
       (members || []).forEach((m: any) => {
+        if (m.status && m.status !== "approved") return;
         const v = counts.get(m.school_id) || { teachers: 0, students: 0 };
-        if (m.role === "teacher" || m.role === "owner") v.teachers++;
-        else if (m.role === "student") v.students++;
+        const role = m.space_role || m.role;
+        if (role === "student") v.students++;
+        else v.teachers++;
         counts.set(m.school_id, v);
       });
+
       setNodes((schools || []).map((s: any) => ({
         id: s.id, name: s.name, city: s.city, status: s.status,
         classes: classesBySchool.get(s.id) || [],
@@ -48,6 +71,7 @@ export default function Structure() {
       setLoading(false);
     })();
   }, []);
+
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
