@@ -149,7 +149,7 @@ export default function TransactionsPanel({
   const exportCsv = () => {
     const head = ["Date","Sens","Catégorie","Description","Montant (TND)","Mode paiement","Référence"];
     const lines = [head.join(";")];
-    for (const r of rows) {
+    for (const r of filtered) {
       const cells = [
         r.transaction_date,
         r.direction === "income" ? "Revenu" : "Dépense",
@@ -161,6 +161,10 @@ export default function TransactionsPanel({
       ];
       lines.push(cells.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";"));
     }
+    lines.push("");
+    lines.push(`"Total revenus";"${totals.income.toFixed(3)}"`);
+    lines.push(`"Total dépenses";"${totals.expense.toFixed(3)}"`);
+    lines.push(`"Solde net";"${totals.net.toFixed(3)}"`);
     const blob = new Blob([`\uFEFF${lines.join("\n")}`], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -169,6 +173,25 @@ export default function TransactionsPanel({
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const exportPdf = () => {
+    generateTransactionsPdf({
+      title,
+      subtitle: description,
+      from: range.from,
+      to: range.to,
+      rows: filtered.map((r) => ({
+        transaction_date: r.transaction_date,
+        direction: r.direction,
+        categoryLabel: catLabel(r.category),
+        description: r.description,
+        amount_tnd: Number(r.amount_tnd),
+        payment_method: r.payment_method,
+        reference: r.reference,
+      })),
+    });
+  };
+
 
   const remove = async (id: string) => {
     if (!confirm("Supprimer cette transaction ?")) return;
