@@ -36,6 +36,7 @@ const EXPENSE_CATEGORIES: { value: string; label: string }[] = [
   { value: "water", label: "SONEDE (eau)" },
   { value: "internet", label: "Internet" },
   { value: "office_supplies", label: "Produits bureautiques" },
+  { value: "tax", label: "Recette des finances (impôts)" },
   { value: "cnss", label: "CNSS" },
   { value: "salary", label: "Salaire" },
   { value: "salary_advance", label: "Avance sur salaire" },
@@ -45,13 +46,14 @@ const EXPENSE_CATEGORIES: { value: string; label: string }[] = [
   { value: "other", label: "Autre" },
 ];
 const INCOME_CATEGORIES: { value: string; label: string }[] = [
-  { value: "subscription", label: "Abonnement" },
+  { value: "subscription", label: "Abonnement élève" },
   { value: "manual", label: "Encaissement manuel" },
   { value: "other", label: "Autre" },
 ];
 
 const catLabel = (c: string) =>
   [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES].find((x) => x.value === c)?.label || c;
+
 
 type Range = { from: string; to: string };
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
